@@ -30,7 +30,7 @@
 							<namePart></namePart>
 						</name>
 						<abstract></abstract>
-						<genre></genre>
+						<genre valueUri="http://vocab.getty.edu/aat/300028029">dissertations</genre>
 						<originInfo>
 							<dateCreated></dateCreated>
 						</originInfo>
@@ -82,11 +82,11 @@
 					<id></id>
 				</delete>
 			</xforms:instance>
-			
+
 			<!-- ************************* BINDINGS ************************** -->
 			<xforms:bind nodeset="instance('doc')/mods:mods">
-				<xforms:bind nodeset="mods:titleInfo/mods:title" required="true()"/>
-				<xforms:bind nodeset="mods:name/mods:namePart" required="true()"/>
+				<xforms:bind nodeset="mods:titleInfo/mods:title" required="true()"></xforms:bind>
+				<xforms:bind nodeset="mods:name/mods:namePart" required="true()"></xforms:bind>
 			</xforms:bind>
 
 			<!-- **************** MODEL-CONSTRUCT-DONE ********************** -->
@@ -160,7 +160,6 @@
 							></xforms:output>
 						</div>
 					</xforms:group>
-					
 					<h1>Edit Metadata</h1>
 					<xforms:group ref="instance('doc')/mods:mods">
 						<div>
@@ -172,6 +171,12 @@
 						<div>
 							<xforms:input ref="mods:name/mods:namePart">
 								<xforms:label>Author</xforms:label>
+								<xforms:alert>Required</xforms:alert>
+							</xforms:input>
+						</div>
+						<div>
+							<xforms:input ref="mods:originInfo/mods:dateCreated">
+								<xforms:label>Date</xforms:label>
 								<xforms:alert>Required</xforms:alert>
 							</xforms:input>
 						</div>
