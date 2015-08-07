@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Copyright (C) 2007 Orbeon, Inc.
+
+    This program is free software; you can redistribute it and/or modify it under the terms of the
+    GNU Lesser General Public License as published by the Free Software Foundation; either version
+    2.1 of the License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY;
+    without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+    See the GNU Lesser General Public License for more details.
+
+    The full text of the license is available at http://www.gnu.org/copyleft/lesser.html
+-->
+<config xmlns="http://www.orbeon.com/oxf/controller" xmlns:oxf="http://www.orbeon.com/oxf/processors" matcher="oxf:perl5-matcher">
+
+	<!-- ****************
+	* ADMIN INTERFACE *
+	***************** -->
+	<page path="/etdpub/admin/edit/" view="xforms/edit.xhtml"/>
+	<page path="/etdpub/admin/" view="xforms/admin.xhtml"/>
+	
+	<!-- ****************
+	* PUBLIC INTERFACE *
+	***************** -->
+	<page path="/etdpub/" view="xpl/views/pages/index.xpl"/>
+	
+	<!-- **** SERIALIZATIONS **** -->
+	<!-- Solr -->
+	<page path="/etdpub/browse" model="xpl/models/solr/query.xpl" view="xpl/views/serializations/solr/html.xpl"/>
+	<!--<page path="/nomisma/feed/" model="xpl/models/solr/query.xpl" view="xpl/views/serializations/solr/atom.xpl"/>-->
+	
+	<!-- ID -->
+	<page path="/etdpub/doc/(.*)" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/mods/html.xpl"/>
+
+	<epilogue url="oxf:/config/epilogue.xpl"/>
+</config>

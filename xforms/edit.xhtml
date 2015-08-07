@@ -1,0 +1,184 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ev="http://www.w3.org/2001/xml-events"
+	xmlns:xxforms="http://orbeon.org/oxf/xml/xforms" xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:mods="http://www.loc.gov/mods/v3"
+	xmlns:xi="http://www.w3.org/2001/XInclude">
+	<head>
+		<title>Edit ETD</title>
+		<link rel="stylesheet" href="/fr/style/bootstrap/css/bootstrap.css" type="text/css" />
+		<link rel="stylesheet" href="/fr/style/form-runner-bootstrap-override.css" type="text/css" />
+
+		<link rel="stylesheet"
+			href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
+		<script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<link rel="shortcut icon" href="/ops/images/orbeon-icon-16.ico" />
+		<link rel="icon" href="/ops/images/orbeon-icon-16.png" type="image/png" />
+		<link rel="stylesheet" href="/apps/nomisma/xforms/css/style.css" />
+
+		<!-- model -->
+		<xforms:model>
+			<xforms:instance id="doc" xxforms:exclude-result-prefixes="#all">
+				<modsCollection xmlns="http://www.loc.gov/mods/v3"
+					xmlns:xlink="http://www.w3.org/1999/xlink"
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+					xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/mods.xsd">
+					<mods version="3.5">
+						<titleInfo>
+							<title></title>
+						</titleInfo>
+						<name>
+							<namePart></namePart>
+						</name>
+						<abstract></abstract>
+						<genre></genre>
+						<originInfo>
+							<dateCreated></dateCreated>
+						</originInfo>
+						<language>
+							<languageTerm>en</languageTerm>
+						</language>
+						<physicalDescription>
+							<internetMediaType></internetMediaType>
+						</physicalDescription>
+						<location>
+							<url></url>
+						</location>
+						<accessCondition xlink:type="simple"
+							xlink:href="http://creativecommons.org/licenses/by-nc/4.0"
+							>Attribution-NonCommercial CC BY-NC</accessCondition>
+						<recordInfo>
+							<recordContentSource>American Numismatic Society</recordContentSource>
+							<recordCreationDate encoding="iso8601"></recordCreationDate>
+							<recordIdentifier></recordIdentifier>
+						</recordInfo>
+					</mods>
+				</modsCollection>
+			</xforms:instance>
+
+			<xforms:instance id="exist-config">
+				<xi:include href="../exist-config.xml"></xi:include>
+			</xforms:instance>
+			<!-- load URLs from config.xml in eXist into form for Solr and CSS file -->
+			<xforms:instance id="config">
+				<config xmlns=""></config>
+			</xforms:instance>
+
+			<xforms:instance id="control-instance" xxforms:exclude-result-prefixes="#all">
+				<controls xmlns="">
+					<status></status>
+					<id></id>
+				</controls>
+			</xforms:instance>
+
+			<!-- Solr instances -->
+			<xforms:instance id="addIndex">
+				<add xmlns=""></add>
+			</xforms:instance>
+			<xforms:instance id="sendCommit">
+				<commit></commit>
+			</xforms:instance>
+			<xforms:instance id="deleteId">
+				<delete xmlns="">
+					<id></id>
+				</delete>
+			</xforms:instance>
+			
+			<!-- ************************* BINDINGS ************************** -->
+			<xforms:bind nodeset="instance('doc')/mods:mods">
+				<xforms:bind nodeset="mods:titleInfo/mods:title" required="true()"/>
+				<xforms:bind nodeset="mods:name/mods:namePart" required="true()"/>
+			</xforms:bind>
+
+			<!-- **************** MODEL-CONSTRUCT-DONE ********************** -->
+			<xforms:action ev:event="xforms-model-construct-done">
+				<!-- load id if parameter is passed -->
+				<xforms:action if="string(xxforms:get-request-parameter('id'))">
+					<xforms:setvalue ref="instance('control-instance')/id"
+						value="xxforms:get-request-parameter('id')"></xforms:setvalue>
+
+				</xforms:action>
+			</xforms:action>
+
+			<!-- ************************* SUBMISSIONS ************************** -->
+			<!-- post instance to Solr -->
+			<xforms:submission id="post-solr-doc" action="{instance('config')/solr_published}update"
+				ref="instance('addIndex')" instance="addIndex" replace="instance" method="post">
+				<xforms:message ev:event="xforms-submit-error" level="modal">Data Failed to POST to
+					Solr. Index may be offline or URL is incorrect.</xforms:message>
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:setvalue ref="instance('control-instance')/status">Document successfully
+						saved to Solr.</xforms:setvalue>
+					<xforms:send submission="submit-commit"></xforms:send>
+				</xforms:action>
+			</xforms:submission>
+
+			<xforms:submission id="delete-id-from-solr"
+				action="{instance('config')/solr_published}update" ref="instance('deleteId')"
+				instance="deleteId" replace="instance" method="post">
+				<xforms:action ev:event="xforms-submit-error">
+					<xforms:message level="modal">Data Failed to POST to Solr. Index may be offline
+						or URL is incorrect.</xforms:message>
+					<xforms:setvalue ref="instance('control-instance')/delete-success"
+						value="false()"></xforms:setvalue>
+				</xforms:action>
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:send submission="submit-commit"></xforms:send>
+					<xforms:setvalue ref="instance('control-instance')/status">Document successfully
+						deleted from Solr.</xforms:setvalue>
+					<xforms:setvalue ref="instance('control-instance')/delete-success"
+						value="true()"></xforms:setvalue>
+				</xforms:action>
+			</xforms:submission>
+
+			<!-- send commit -->
+			<xforms:submission id="submit-commit" action="{instance('config')/solr_published}update"
+				ref="instance('sendCommit')" instance="sendCommit" replace="none" method="post">
+				<xforms:action ev:event="xforms-submit-error">
+					<xforms:message level="modal">Failed to commit to Solr index.</xforms:message>
+					<xforms:setvalue ref="instance('control-instance')/delete-success"
+						value="false()"></xforms:setvalue>
+				</xforms:action>
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:setvalue ref="instance('control-instance')/delete-success"
+						value="true()"></xforms:setvalue>
+				</xforms:action>
+			</xforms:submission>
+		</xforms:model>
+	</head>
+
+	<body>
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-12">
+					<p><a href="../"><span class="glyphicon glyphicon-arrow-left"></span>Return to
+							Admin</a></p>
+					<xforms:group ref=".[string-length(instance('control-instance')/status) &gt; 0]">
+						<div class="bg-info alert-box">
+							<span class="glyphicon glyphicon-info-sign"></span>
+							<strong>Status:</strong>
+							<xforms:output ref="instance('control-instance')/status"
+							></xforms:output>
+						</div>
+					</xforms:group>
+					
+					<h1>Edit Metadata</h1>
+					<xforms:group ref="instance('doc')/mods:mods">
+						<div>
+							<xforms:input ref="mods:titleInfo/mods:title">
+								<xforms:label>Title</xforms:label>
+								<xforms:alert>Required</xforms:alert>
+							</xforms:input>
+						</div>
+						<div>
+							<xforms:input ref="mods:name/mods:namePart">
+								<xforms:label>Author</xforms:label>
+								<xforms:alert>Required</xforms:alert>
+							</xforms:input>
+						</div>
+					</xforms:group>
+				</div>
+			</div>
+		</div>
+		<fr:xforms-inspector></fr:xforms-inspector>
+	</body>
+</html>
