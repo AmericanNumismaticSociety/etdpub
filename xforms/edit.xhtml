@@ -10,7 +10,7 @@
 		<script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 		<link rel="shortcut icon" href="/ops/images/orbeon-icon-16.ico" />
 		<link rel="icon" href="/ops/images/orbeon-icon-16.png" type="image/png" />
-		<link rel="stylesheet" href="/apps/nomisma/xforms/css/style.css" />
+		<link rel="stylesheet" href="/apps/etdpub/xforms/css/style.css" />
 
 		<!-- model -->
 		<xforms:model>
@@ -113,17 +113,13 @@
 			</xforms:instance>
 			<xforms:instance id="sendCommit">
 				<commit></commit>
-			</xforms:instance>
-			<xforms:instance id="deleteId">
-				<delete xmlns="">
-					<id></id>
-				</delete>
-			</xforms:instance>
+			</xforms:instance>			
 
 			<!-- ************************* BINDINGS ************************** -->
 			<xforms:bind nodeset="instance('doc')/mods:mods">
 				<xforms:bind nodeset="mods:titleInfo/mods:title" required="true()"></xforms:bind>
 				<xforms:bind nodeset="mods:name/mods:namePart" required="true()"></xforms:bind>
+				<xforms:bind nodset="mods:abstract" required="true()"/>
 				<xforms:bind nodeset="mods:originInfo">
 					<xforms:bind nodeset="mods:dateCreated" required="true()" type="xs:gYear"></xforms:bind>
 					<xforms:bind nodeset="mods:publisher" required="true()"></xforms:bind>
@@ -143,6 +139,7 @@
 				<xforms:action if="string(xxforms:get-request-parameter('id'))">
 					<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier" value="xxforms:get-request-parameter('id')"></xforms:setvalue>
 					<xforms:setvalue ref="instance('control-instance')/id" value="xxforms:get-request-parameter('id')"></xforms:setvalue>
+					<xforms:send submission="load-doc"/>
 				</xforms:action>
 				<!-- if the record is new -->
 				<xforms:action if="not(string(xxforms:get-request-parameter('id')))">
@@ -163,10 +160,19 @@
 			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/mods/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml" method="put"
 				replace="none" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error Saving Documents. Be sure all required inputs are filled in.</xforms:message>
-
+				
+				<!-- publish to Solr -->
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:setvalue ref="instance('control-instance')/status">Successfully saved MODS record to eXist.</xforms:setvalue>
+				</xforms:action>
 			</xforms:submission>
 
-			<!-- *** SOLR *** -->
+			<!-- *** SOLR *** -->			
+			<xforms:submission id="mods-to-solr" method="get" replace="instance" instance="addIndex" serialization="none" resource="/etdpub/id/{instance('control-instance')/id}.solr">
+				<xforms:message ev:event="xforms-submit-error" level="modal">Error transforming MODS record to Solr document.</xforms:message>
+				<xforms:send ev:event="xforms-submit-done" submission="post-solr-doc"/>
+			</xforms:submission>
+			
 			<xforms:submission id="post-solr-doc" action="{instance('config')/solr}update" ref="instance('addIndex')" instance="addIndex" replace="instance" method="post">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Data Failed to POST to Solr. Index may be offline or URL is incorrect.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
@@ -175,26 +181,10 @@
 				</xforms:action>
 			</xforms:submission>
 
-			<xforms:submission id="delete-id-from-solr" action="{instance('config')/solr}update" ref="instance('deleteId')" instance="deleteId" replace="instance" method="post">
-				<xforms:action ev:event="xforms-submit-error">
-					<xforms:message level="modal">Data Failed to POST to Solr. Index may be offline or URL is incorrect.</xforms:message>
-					<xforms:setvalue ref="instance('control-instance')/delete-success" value="false()"></xforms:setvalue>
-				</xforms:action>
-				<xforms:action ev:event="xforms-submit-done">
-					<xforms:send submission="submit-commit"></xforms:send>
-					<xforms:setvalue ref="instance('control-instance')/status">Document successfully deleted from Solr.</xforms:setvalue>
-					<xforms:setvalue ref="instance('control-instance')/delete-success" value="true()"></xforms:setvalue>
-				</xforms:action>
-			</xforms:submission>
-
 			<!-- send commit -->
 			<xforms:submission id="submit-commit" action="{instance('config')/solr}update" ref="instance('sendCommit')" instance="sendCommit" replace="none" method="post">
 				<xforms:action ev:event="xforms-submit-error">
-					<xforms:message level="modal">Failed to commit to Solr index.</xforms:message>
-					<xforms:setvalue ref="instance('control-instance')/delete-success" value="false()"></xforms:setvalue>
-				</xforms:action>
-				<xforms:action ev:event="xforms-submit-done">
-					<xforms:setvalue ref="instance('control-instance')/delete-success" value="true()"></xforms:setvalue>
+					<xforms:message level="modal">Failed to commit to Solr index.</xforms:message>					
 				</xforms:action>
 			</xforms:submission>
 		</xforms:model>
@@ -212,6 +202,14 @@
 							<xforms:output ref="instance('control-instance')/status"></xforms:output>
 						</div>
 					</xforms:group>
+					<div class="submission">
+						<xforms:submit submission="save-doc">
+							<xforms:label><span class="glyphicon glyphicon-floppy-disk"></span>Save</xforms:label>
+						</xforms:submit>
+						<xforms:submit submission="load-doc">
+							<xforms:label><span class="glyphicon glyphicon-refresh"></span>Load</xforms:label>
+						</xforms:submit>
+					</div>
 					<h1>Edit Metadata</h1>
 				</div>
 				<xforms:group ref="instance('doc')/mods:mods">
@@ -222,7 +220,9 @@
 								<xforms:alert>Required</xforms:alert>
 								<xforms:action ev:event="xforms-value-changed">
 									<xforms:var name="title" select="."></xforms:var>
-									<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier" value="replace(lower-case($title), '\s', '_')"></xforms:setvalue>
+									<!-- set the id, only if it was previously blank (new file) -->
+									<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier" value="replace(lower-case($title), '\s', '_')"
+										if="not(string(instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier))"></xforms:setvalue>
 								</xforms:action>
 							</xforms:input>
 						</div>
@@ -270,6 +270,12 @@
 									<xforms:setvalue ref="instance('doc')/mods:accessCondition" value="$label"></xforms:setvalue>
 								</xforms:action>
 							</xforms:select1>
+						</div>
+						<div>
+							<xforms:textarea ref="mods:abstract">
+								<xforms:label>Abstract</xforms:label>
+								<xforms:alert>Required</xforms:alert>
+							</xforms:textarea>
 						</div>
 					</div>
 					<div class="col-md-6">
@@ -350,7 +356,7 @@
 				</xforms:group>
 			</div>
 		</div>
-		
+
 		<fr:alert-dialog id="delete-dialog">
 			<fr:label>Delete Document</fr:label>
 			<fr:message>Are you sure you want to delete the document file?</fr:message>
@@ -359,8 +365,7 @@
 				<xforms:action ev:event="DOMActivate">
 					<!-- delete the file -->
 					<xforms:setvalue ref="instance('delete-config')/delete/url" value="concat('oxf:/apps/etdpub/', instance('doc')/mods:mods/mods:location/mods:url)"></xforms:setvalue>
-					<xforms:insert nodeset="instance('dump')"
-						origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-id.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
+					<xforms:insert nodeset="instance('dump')" origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-id.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
 					<!-- blank the URL and mime type -->
 					<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url"></xforms:setvalue>
 					<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType"></xforms:setvalue>
@@ -370,7 +375,7 @@
 				<fr:label>No</fr:label>
 			</fr:negative-choice>
 		</fr:alert-dialog>
-		
+
 		<fr:xforms-inspector></fr:xforms-inspector>
 	</body>
 </html>
