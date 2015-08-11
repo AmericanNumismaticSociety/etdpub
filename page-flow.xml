@@ -23,12 +23,10 @@
 	<!-- ****************
 	* PUBLIC INTERFACE *
 	***************** -->
-	<page path="/etdpub/" view="xpl/views/pages/index.xpl"/>
-	<page path="/etdpub/config" view="xpl/models/config.xpl"/>
 	
 	<!-- **** SERIALIZATIONS **** -->
-	<!-- Solr -->
-	<page path="/etdpub/browse" model="xpl/models/solr/query.xpl" view="xpl/views/serializations/solr/html.xpl"/>
+	<!-- Solr (index is browse home) -->
+	<page path="/etdpub/" view="xpl/models/solr/query.xpl" />
 	
 	<!-- ID -->
 	<page path="/etdpub/id/(.*)\.solr" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/mods/solr.xpl"/>

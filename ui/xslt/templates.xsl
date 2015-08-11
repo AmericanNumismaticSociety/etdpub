@@ -12,18 +12,18 @@
 						<span class="icon-bar"/>
 						<span class="icon-bar"/>
 					</button>
-					<a class="navbar-brand logo-nav" href="{$display_path}./">
+					<a class="navbar-brand" href="{//config/url}">
 						<xsl:value-of select="//config/title"/>
 					</a>
 				</div>
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<li>
+						<!--<li>
 							<a href="{$display_path}browse">Browse</a>
-						</li>
+						</li>-->
 					</ul>
 					<div class="col-sm-3 col-md-3 pull-right">
-						<form class="navbar-form" role="search" action="{$display_path}browse" method="get">
+						<form class="navbar-form" role="search" action="{//config/url}" method="get">
 							<div class="input-group">
 								<input type="text" class="form-control" placeholder="Search" name="q" id="srch-term"/>
 								<div class="input-group-btn">

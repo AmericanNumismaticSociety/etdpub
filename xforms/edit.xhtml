@@ -71,7 +71,12 @@
 
 			<xforms:instance id="licenses">
 				<licenses xmlns="">
+					<license value="http://creativecommons.org/licenses/by/4.0">Attribution CC BY</license>
+					<license value="http://creativecommons.org/licenses/by-nd/4.0">Attribution-NoDerivs CC BY-ND </license>
+					<license value="http://creativecommons.org/licenses/by-nc-sa/4.0">Attribution-NonCommercial-ShareAlike CC BY-NC-SA </license>
+					<license value="http://creativecommons.org/licenses/by-sa/4.0">Attribution-ShareAlike CC BY-SA </license>
 					<license value="http://creativecommons.org/licenses/by-nc/4.0">Attribution-NonCommercial CC BY-NC</license>
+					<license value="http://creativecommons.org/licenses/by-nc-nd/4.0">Attribution-NonCommercial-NoDerivs CC BY-NC-ND </license>
 				</licenses>
 			</xforms:instance>
 
@@ -164,11 +169,12 @@
 				<!-- publish to Solr -->
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Successfully saved MODS record to eXist.</xforms:setvalue>
+					<xforms:send submission="mods-to-solr"/>
 				</xforms:action>
 			</xforms:submission>
 
 			<!-- *** SOLR *** -->			
-			<xforms:submission id="mods-to-solr" method="get" replace="instance" instance="addIndex" serialization="none" resource="/etdpub/id/{instance('control-instance')/id}.solr">
+			<xforms:submission id="mods-to-solr" method="get" replace="instance" instance="addIndex" serialization="none" resource="/etdpub/id/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.solr">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error transforming MODS record to Solr document.</xforms:message>
 				<xforms:send ev:event="xforms-submit-done" submission="post-solr-doc"/>
 			</xforms:submission>
@@ -376,6 +382,6 @@
 			</fr:negative-choice>
 		</fr:alert-dialog>
 
-		<fr:xforms-inspector></fr:xforms-inspector>
+		<!--<fr:xforms-inspector></fr:xforms-inspector>-->
 	</body>
 </html>
