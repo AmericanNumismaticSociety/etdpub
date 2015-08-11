@@ -227,7 +227,7 @@
 							<xforms:action ev:event="DOMActivate">
 								<!-- first delete the uploaded media -->
 								<xforms:setvalue ref="instance('delete-config')/delete/url" value="concat('oxf:/apps/etdpub/', instance('control-instance')/media_url)"></xforms:setvalue>
-								<xforms:insert nodeset="instance('dump')" origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-id.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
+								<xforms:insert nodeset="instance('dump')" origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-document.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
 
 								<!-- delete the doc from eXist and Solr -->
 								<xforms:send submission="delete-doc"></xforms:send>

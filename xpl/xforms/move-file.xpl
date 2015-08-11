@@ -16,6 +16,7 @@
 		<p:input name="config" href="#serializer-config"/>		
 	</p:processor>
 	
+	<!-- used only to return dummy content -->
 	<p:processor name="oxf:xml-serializer">
 		<p:input name="data" href="#generator-config"/>
 		<p:input name="config">

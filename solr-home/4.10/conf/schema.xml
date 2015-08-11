@@ -48,7 +48,7 @@
 <schema name="example" version="1.5">
 	<field name="_version_" type="long" indexed="true" stored="true"/>
 	<field name="id" type="string" indexed="true" required="true" stored="true" multiValued="false"/>
-	<field name="title" type="string" indexed="true" required="true" stored="true"/>
+	<field name="title" type="string" indexed="true" stored="true"/>
 	<field name="author" type="string" indexed="true" stored="true" />
 	<field name="date" type="string" indexed="true" stored="true" />
 	<field name="university" type="string" indexed="true" stored="true" />
@@ -57,11 +57,15 @@
 	<field name="abstract" type="text_general" indexed="true" stored="true" />
 	<field name="timestamp" type="date" indexed="true" stored="true"/>
 
+	<!-- dynamic fields -->
 	<dynamicField name="*_uri"  type="string"  indexed="true"  stored="true" multiValued="true"/>
 	<dynamicField name="*_facet"  type="string"  indexed="true"  stored="true" multiValued="true"/>
 
+	<!-- ignored meta from Tika (document indexing) -->
+	<dynamicField name="ignored_*" type="ignored"/>
+
 	<!-- fulltext -->
-	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>
+	<field name="text" type="text_general" indexed="true" stored="true" multiValued="true"/>
 
 	<uniqueKey>id</uniqueKey>
 	<!-- field for the QueryParser to use when an explicit fieldname is absent -->

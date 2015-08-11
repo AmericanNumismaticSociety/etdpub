@@ -114,6 +114,12 @@
 							<xsl:choose>
 								<xsl:when test="mods:physicalDescription/mods:internetMediaType='application/pdf'">
 									<img src="{$display_path}ui/images/adobe.png" alt="PDF" class="doc-icon"/>
+								</xsl:when>								
+								<xsl:when test="contains(mods:physicalDescription/mods:internetMediaType, 'word')">
+									<img src="{$display_path}ui/images/word.png" alt="Microsoft Word" class="doc-icon"/>
+								</xsl:when>
+								<xsl:when test="contains(mods:physicalDescription/mods:internetMediaType, 'oasis')">
+									<img src="{$display_path}ui/images/writer.png" alt="LibreOffice Writer" class="doc-icon"/>
 								</xsl:when>
 							</xsl:choose>
 							</a>
