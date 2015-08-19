@@ -35,6 +35,18 @@
 				<config></config>
 			</xforms:instance>
 
+			<xforms:instance id="config-template" xxforms:exclude-result-prefixes="#all">
+				<config>
+					<title>etdpub</title>
+					<url>http://localhost:8080/orbeon/etdpub/</url>
+					<solr>
+						<url>http://localhost:8080/solr4.10/etdpub/</url>
+						<rows>20</rows>
+					</solr>
+					<absolute_path>/usr/local/projects/etdpub/</absolute_path>
+				</config>
+			</xforms:instance>
+
 			<xforms:instance id="doc" xxforms:exclude-result-prefixes="#all">
 				<eac-cpf xmlns=""></eac-cpf>
 			</xforms:instance>
@@ -124,13 +136,13 @@
 
 			<!-- ************************* SOLR ************************** -->
 			<!-- delete from Solr -->
-			<xforms:submission id="delete-solr-doc" action="{instance('config')/solr}update" ref="instance('deleteId')" instance="deleteId" replace="none" method="post">
+			<xforms:submission id="delete-solr-doc" action="{instance('config')/solr/url}update" ref="instance('deleteId')" instance="deleteId" replace="none" method="post">
 				<xforms:send ev:event="xforms-submit-done" submission="commit"></xforms:send>
 				<xforms:message ev:event="xforms-submit-error" level="modal">Data Failed to POST to Solr.</xforms:message>
 			</xforms:submission>
 
 			<!-- send commit -->
-			<xforms:submission id="commit" action="{instance('config')/solr}update" ref="instance('sendCommit')" instance="sendCommit" replace="none" method="post">
+			<xforms:submission id="commit" action="{instance('config')/solr/url}update" ref="instance('sendCommit')" instance="sendCommit" replace="none" method="post">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Solr commit failed.</xforms:message>
 			</xforms:submission>
 

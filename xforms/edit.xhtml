@@ -203,7 +203,7 @@
 				<xforms:send ev:event="xforms-submit-done" submission="post-solr-doc"></xforms:send>
 			</xforms:submission>
 
-			<xforms:submission id="post-solr-doc" action="{instance('config')/solr}update" ref="instance('addIndex')" instance="addIndex" replace="instance" method="post">
+			<xforms:submission id="post-solr-doc" action="{instance('config')/solr/url}update" ref="instance('addIndex')" instance="addIndex" replace="instance" method="post">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Data Failed to POST to Solr. Index may be offline or URL is incorrect.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('form-data')/myfile" value="concat('file:', instance('config')/absolute_path, instance('doc')/mods:mods/mods:location/mods:url)"/>
@@ -213,7 +213,7 @@
 				
 			</xforms:submission>
 
-			<!--<xforms:submission id="extract-document" action="{instance('config')/solr}update/extract?literal.id={instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}&amp;fmap.content=text"
+			<!--<xforms:submission id="extract-document" action="{instance('config')/solr/url}update/extract?literal.id={instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}&amp;fmap.content=text"
 				ref="instance('form-data')" replace="none" method="post" serialization="multipart/form-data">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to index the document file.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
@@ -222,7 +222,7 @@
 				</xforms:action>
 			</xforms:submission>-->
 			
-			<xforms:submission id="extract-document" action="{instance('config')/solr}update/extract?literal.id={instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}&amp;fmap.content=text"
+			<xforms:submission id="extract-document" action="{instance('config')/solr/url}update/extract?literal.id={instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}&amp;fmap.content=text"
 				ref="instance('attachment')" replace="none" method="put" serialization="application/octet-stream">
 				<!--<xforms:header>
 					<xforms:name>Content-type</xforms:name>
@@ -236,7 +236,7 @@
 			</xforms:submission>
 
 			<!-- send commit -->
-			<xforms:submission id="submit-commit" action="{instance('config')/solr}update" ref="instance('sendCommit')" instance="sendCommit" replace="none" method="post">
+			<xforms:submission id="submit-commit" action="{instance('config')/solr/url}update" ref="instance('sendCommit')" instance="sendCommit" replace="none" method="post">
 				<xforms:action ev:event="xforms-submit-error">
 					<xforms:message level="modal">Failed to commit to Solr index.</xforms:message>
 				</xforms:action>

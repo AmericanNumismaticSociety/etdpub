@@ -23,15 +23,21 @@
 	<!-- ****************
 	* PUBLIC INTERFACE *
 	***************** -->
+	<!-- **** PAGES **** -->	
+	<page path="/etdpub/" model="xpl/models/config.xpl" view="xpl/views/pages/index.xpl"/>
 	
 	<!-- **** SERIALIZATIONS **** -->
 	<!-- Solr (index is browse home) -->
-	<page path="/etdpub/" model="xpl/models/solr/query.xpl" view="xpl/views/serializations/solr/html.xpl"/>
+	<page path="/etdpub/results" model="xpl/models/solr/query.xpl" view="xpl/views/serializations/solr/html.xpl"/>
 	
 	<!-- ID -->
 	<page path="/etdpub/id/(.*)\.solr" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/mods/solr.xpl"/>
 	<page path="/etdpub/id/(.*)\.xml" view="xpl/models/mods/get-id.xpl"/>
 	<page path="/etdpub/id/(.*)" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/mods/html.xpl"/>
+
+	<!-- **** AJAX **** -->
+	<!-- facet results -->
+	<page path-info="/etdpub/get_facets/" model="xpl/models/solr/get_facets.xpl" view="xpl/views/ajax/get_facets.xpl"/>
 
 	<epilogue url="oxf:/config/epilogue.xpl"/>
 </config>

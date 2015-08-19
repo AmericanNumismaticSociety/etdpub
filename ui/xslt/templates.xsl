@@ -4,7 +4,7 @@
 	<xsl:template name="header">
 		<!-- Static navbar -->
 		<div class="navbar navbar-default navbar-static-top" role="navigation">
-			<div class="container-fluid">
+			<div class="container">
 				<div class="navbar-header">
 					<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
 						<span class="sr-only">Toggle navigation</span>
@@ -18,11 +18,11 @@
 				</div>
 				<div class="navbar-collapse collapse">
 					<ul class="nav navbar-nav">
-						<!--<li>
-							<a href="{$display_path}browse">Browse</a>
-						</li>-->
+						<li>
+							<a href="{$display_path}results">Browse</a>
+						</li>
 					</ul>
-					<div class="col-sm-3 col-md-3 pull-right">
+					<!--<div class="col-sm-3 col-md-3 pull-right">
 						<form class="navbar-form" role="search" action="{//config/url}" method="get">
 							<div class="input-group">
 								<input type="text" class="form-control" placeholder="Search" name="q" id="srch-term"/>
@@ -33,7 +33,7 @@
 								</div>
 							</div>
 						</form>
-					</div>
+					</div>-->
 				</div>
 				<!--/.nav-collapse -->
 			</div>
@@ -41,10 +41,8 @@
 	</xsl:template>
 
 	<xsl:template name="footer">
-		<div id="footer">
-			<div class="container-fluid">
-				Footer
-			</div>
+		<div class="container"  id="footer">
+			Footer
 		</div>
 	</xsl:template>
 

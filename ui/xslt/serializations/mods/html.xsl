@@ -63,7 +63,7 @@
 	</xsl:template>
 
 	<xsl:template name="display">
-		<div class="container-fluid" typeof="" about="{$id}">
+		<div class="container" typeof="" about="{$id}">
 			<div class="row">
 				<div class="col-md-12">
 					<h2>

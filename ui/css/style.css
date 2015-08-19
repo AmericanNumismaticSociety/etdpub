@@ -47,7 +47,7 @@ body{
 }
 .paging_div{
 	padding:10px 0;
-	vertical-align:top
+	vertical-align:bottom
 }
 .page-nos{
 	text-align:right;
@@ -59,6 +59,16 @@ body{
 	width:200px;
 	display:inline;
 	margin-right:10px;
+}
+.filter-container {
+	margin-bottom:20px;
+}
+.stacked_term{
+	padding:2px;
+	margin-bottom:5px;
+	border:1px solid #E7E7E7;
+	border-radius:5px;
+	vertical-align:middle;
 }
 /*
   ***************************************
