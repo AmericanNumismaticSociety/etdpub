@@ -85,23 +85,6 @@
 				<!-- Start with placeholders for three files -->
 				<file xmlns="" xsi:type="xs:anyURI" filename="" mediatype="" size="" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"></file>
 			</xforms:instance>
-			
-			<xforms:instance id="binary-file">
-				<file xmlns=""/>
-			</xforms:instance>			
-			
-			<xforms:instance id="attachment">
-				<attachment xsi:type="xs:anyURI"></attachment>
-			</xforms:instance>
-			
-
-			<xforms:instance id="generator-config">
-				<config xmlns="">
-					<url></url>
-					<mode>binary</mode>
-					<content-type></content-type>
-				</config>
-			</xforms:instance>
 
 			<xforms:instance id="serializer-config">
 				<config xmlns="">
@@ -122,16 +105,11 @@
 			</xforms:instance>
 
 			<!-- Solr instances -->
-			<xforms:instance id="addIndex">
+			<xforms:instance id="addIndex" xxforms:exclude-result-prefixes="#all">
 				<add xmlns=""></add>
 			</xforms:instance>
-			<xforms:instance id="sendCommit">
+			<xforms:instance id="sendCommit" xxforms:exclude-result-prefixes="#all">
 				<commit></commit>
-			</xforms:instance>
-			<xforms:instance id="form-data">
-				<formData xmlns="">
-					<myfile></myfile>
-				</formData>				
 			</xforms:instance>
 
 			<!-- ************************* BINDINGS ************************** -->
@@ -170,19 +148,12 @@
 			<!-- *** eXist *** -->
 			<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance" instance="config"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
-				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load config file in eXist.</xforms:message>				
+				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load config file in eXist.</xforms:message>
 			</xforms:submission>
 
 			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/mods/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml"
 				replace="instance" instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load MODS record from eXist.</xforms:message>
-				<xforms:action ev:event="xforms-submit-done">
-					<xforms:setvalue ref="instance('attachment')" value="concat('oxf:/apps/etdpub/', instance('doc')/mods:mods/mods:location/mods:url)"/>
-					<!--<xforms:setvalue ref="instance('generator-config')/url" value="concat('oxf:/apps/etdpub/', instance('doc')/mods:mods/mods:location/mods:url)"></xforms:setvalue>
-					<xforms:setvalue ref="instance('generator-config')/content-type" value="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType"></xforms:setvalue>					
-					<xforms:insert nodeset="instance('binary-file')"
-						origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/base64encode-file.xpl', 'generator-config', instance('generator-config'), 'data')"></xforms:insert>-->
-				</xforms:action>
 			</xforms:submission>
 
 			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/mods/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml" method="put"
@@ -192,7 +163,7 @@
 				<!-- publish to Solr -->
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Successfully saved MODS record to eXist.</xforms:setvalue>
-					<xforms:send submission="mods-to-solr"></xforms:send>
+					<xforms:send submission="put-document"></xforms:send>
 				</xforms:action>
 			</xforms:submission>
 
@@ -206,32 +177,20 @@
 			<xforms:submission id="post-solr-doc" action="{instance('config')/solr/url}update" ref="instance('addIndex')" instance="addIndex" replace="instance" method="post">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Data Failed to POST to Solr. Index may be offline or URL is incorrect.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
-					<xforms:setvalue ref="instance('form-data')/myfile" value="concat('file:', instance('config')/absolute_path, instance('doc')/mods:mods/mods:location/mods:url)"/>
-					<!--<xforms:send submission="extract-document"></xforms:send>-->
 					<xforms:send submission="submit-commit"></xforms:send>
 				</xforms:action>
-				
 			</xforms:submission>
 
-			<!--<xforms:submission id="extract-document" action="{instance('config')/solr/url}update/extract?literal.id={instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}&amp;fmap.content=text"
-				ref="instance('form-data')" replace="none" method="post" serialization="multipart/form-data">
-				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to index the document file.</xforms:message>
-				<xforms:action ev:event="xforms-submit-done">
-					<xforms:setvalue ref="instance('control-instance')/status">Document successfully saved to Solr.</xforms:setvalue>
-					<xforms:send submission="submit-commit"></xforms:send>
-				</xforms:action>
-			</xforms:submission>-->
-			
-			<xforms:submission id="extract-document" action="{instance('config')/solr/url}update/extract?literal.id={instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}&amp;fmap.content=text"
-				ref="instance('attachment')" replace="none" method="put" serialization="application/octet-stream">
-				<!--<xforms:header>
+			<xforms:submission id="put-document" ref="instance('dump')" method="post" replace="none"
+				resource="{instance('config')/solr/url}update/extract?literal.id={instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}&amp;stream.url={concat(instance('config')/url, instance('doc')/mods:mods/mods:location/mods:url)}&amp;fmap.content=text&amp;fmap.date=timestamp&amp;commit=true">
+				<xforms:header>
 					<xforms:name>Content-type</xforms:name>
-					<xforms:value value="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType"/>
-				</xforms:header>-->
+					<xforms:value ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType"></xforms:value>
+				</xforms:header>
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to index the document file.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Document successfully saved to Solr.</xforms:setvalue>
-					<xforms:send submission="submit-commit"></xforms:send>
+					<xforms:send submission="mods-to-solr"></xforms:send>
 				</xforms:action>
 			</xforms:submission>
 
@@ -255,6 +214,11 @@
 							<strong>Status:</strong>
 							<xforms:output ref="instance('control-instance')/status"></xforms:output>
 						</div>
+					</xforms:group>
+					<xforms:group ref=".[not(string(instance('doc')/mods:mods/mods:location/mods:url))]">
+						<div class="bg-danger alert-box">
+							<span class="glyphicon glyphicon-exclamation-sign"></span>
+							<strong>Alert:</strong> There must be an uploaded document.</div>
 					</xforms:group>
 					<div class="submission">
 						<xforms:submit submission="save-doc">
