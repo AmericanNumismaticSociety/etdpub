@@ -105,12 +105,12 @@
 							</subjects>
 						</xsl:variable>
 
-						<h3>Subjects</h3>
+						<h4>Subjects</h4>
 						<xsl:for-each select="distinct-values(mods:subject/*/local-name())">
 							<xsl:variable name="name" select="."/>
-							<h4>
+							<h5>
 								<xsl:value-of select="etdpub:normalize_fields(.)"/>
-							</h4>
+							</h5>
 							<ul>
 								<xsl:apply-templates select="$subjects/mods:subject/*[local-name()=$name]">
 									<xsl:sort select="local-name()"/>
@@ -175,7 +175,7 @@
 			</a>
 			
 			<xsl:if test="string(@valueUri)">
-				<a href="{@valueUri}" title="{@valueUri}">
+				<a href="{@valueUri}" title="{@valueUri}" class="external-link">
 					<img src="{$display_path}ui/images/external.png" alt="External Link"/>
 				</a>
 			</xsl:if>

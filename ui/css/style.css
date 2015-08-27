@@ -94,3 +94,6 @@ div#mapcontainer{
 .ol-scale-line-inner{
 	font-family:'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
 }
+.external-link{
+	margin:0px 5px;
+}

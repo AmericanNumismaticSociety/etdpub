@@ -63,10 +63,12 @@
 	<xsl:template name="body">
 		<div class="container">
 			<div class="row">
+				<div class="col-md-12">
+					<h1>Browse</h1>
+				</div>
 				<div class="col-md-9">
 					<xsl:choose>
-						<xsl:when test="$numFound &gt; 0">
-							<h1>Browse</h1>
+						<xsl:when test="$numFound &gt; 0">							
 							<xsl:call-template name="search"/>
 							<xsl:if test="string($q) and $q != '*:*'">
 								<xsl:call-template name="remove_facets"/>
