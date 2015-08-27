@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	exclude-result-prefixes="#all" version="2.0">
+	xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" exclude-result-prefixes="#all" version="2.0">
 	<xsl:include href="../../templates.xsl"/>
+	<xsl:include href="../../functions.xsl"/>
 
 	<!-- variables -->
 	<xsl:variable name="display_path">../</xsl:variable>
@@ -91,43 +92,57 @@
 							<dd>
 								<xsl:value-of select="$languages/language[@value=$lang]"/>
 							</dd>
-						</xsl:for-each>						
+						</xsl:for-each>
 						<dt>Abstract</dt>
 						<dd>
 							<xsl:value-of select="mods:abstract"/>
 						</dd>
 					</dl>
 					<xsl:if test="count(mods:subject) &gt; 0">
+						<xsl:variable name="subjects" as="node()">
+							<subjects>
+								<xsl:copy-of select="mods:subject"/>
+							</subjects>
+						</xsl:variable>
+
 						<h3>Subjects</h3>
-						<ul>
-							<xsl:apply-templates select="mods:subject/*">
-								<xsl:sort select="local-name()"/>
-								<xsl:sort select="text()"/>
-							</xsl:apply-templates>
-						</ul>						
+						<xsl:for-each select="distinct-values(mods:subject/*/local-name())">
+							<xsl:variable name="name" select="."/>
+							<h4>
+								<xsl:value-of select="etdpub:normalize_fields(.)"/>
+							</h4>
+							<ul>
+								<xsl:apply-templates select="$subjects/mods:subject/*[local-name()=$name]">
+									<xsl:sort select="local-name()"/>
+									<xsl:sort select="text()"/>
+								</xsl:apply-templates>
+							</ul>
+						</xsl:for-each>
 					</xsl:if>
 				</div>
 				<div class="col-md-3">
 					<div class="highlight">
 						<h4>
-							<a href="{$display_path}{mods:location/mods:url}"><span class="glyphicon glyphicon-download-alt"/><xsl:text>Download</xsl:text>
-							<xsl:choose>
-								<xsl:when test="mods:physicalDescription/mods:internetMediaType='application/pdf'">
-									<img src="{$display_path}ui/images/adobe.png" alt="PDF" class="doc-icon"/>
-								</xsl:when>								
-								<xsl:when test="contains(mods:physicalDescription/mods:internetMediaType, 'word')">
-									<img src="{$display_path}ui/images/word.png" alt="Microsoft Word" class="doc-icon"/>
-								</xsl:when>
-								<xsl:when test="contains(mods:physicalDescription/mods:internetMediaType, 'oasis')">
-									<img src="{$display_path}ui/images/writer.png" alt="LibreOffice Writer" class="doc-icon"/>
-								</xsl:when>
-							</xsl:choose>
+							<a href="{$display_path}{mods:location/mods:url}">
+								<span class="glyphicon glyphicon-download-alt"/>
+								<xsl:text>Download</xsl:text>
+								<xsl:choose>
+									<xsl:when test="mods:physicalDescription/mods:internetMediaType='application/pdf'">
+										<img src="{$display_path}ui/images/adobe.png" alt="PDF" class="doc-icon"/>
+									</xsl:when>
+									<xsl:when test="contains(mods:physicalDescription/mods:internetMediaType, 'word')">
+										<img src="{$display_path}ui/images/word.png" alt="Microsoft Word" class="doc-icon"/>
+									</xsl:when>
+									<xsl:when test="contains(mods:physicalDescription/mods:internetMediaType, 'oasis')">
+										<img src="{$display_path}ui/images/writer.png" alt="LibreOffice Writer" class="doc-icon"/>
+									</xsl:when>
+								</xsl:choose>
 							</a>
 						</h4>
 						<xsl:variable name="license" select="mods:accessCondition/@xlink:href"/>
 						<a href="{$license}">
 							<xsl:choose>
-								<xsl:when test="contains($license, 'http://creativecommons.org/licenses/by/')">							
+								<xsl:when test="contains($license, 'http://creativecommons.org/licenses/by/')">
 									<img src="http://i.creativecommons.org/l/by/3.0/88x31.png" alt="CC BY" title="CC BY"/>
 								</xsl:when>
 								<xsl:when test="contains($license, 'http://creativecommons.org/licenses/by-nd/')">
@@ -146,16 +161,19 @@
 									<img src="http://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png" alt="CC BY-NC-ND" title="CC BY-NC-ND"/>
 								</xsl:when>
 							</xsl:choose>
-						</a>						
+						</a>
 					</div>
 				</div>
 			</div>
 		</div>
 	</xsl:template>
-	
-	<xsl:template match="mods:topic|mods:geographic">
-		<li>			
-			<xsl:value-of select="."/>
+
+	<xsl:template match="mods:subject/*">
+		<li>
+			<a href="{$display_path}results?q={local-name()}_facet:&#x022;{.}&#x022;">
+				<xsl:value-of select="."/>
+			</a>
+			
 			<xsl:if test="string(@valueUri)">
 				<a href="{@valueUri}" title="{@valueUri}">
 					<img src="{$display_path}ui/images/external.png" alt="External Link"/>

@@ -1,6 +1,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ev="http://www.w3.org/2001/xml-events"
 	xmlns:xxforms="http://orbeon.org/oxf/xml/xforms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:mods="http://www.loc.gov/mods/v3"
-	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub">
 	<head>
 		<title>Edit ETD</title>
 		<link rel="stylesheet" href="/fr/style/bootstrap/css/bootstrap.css" type="text/css" />
@@ -25,7 +25,6 @@
 							<namePart></namePart>
 						</name>
 						<abstract></abstract>
-						<genre valueUri="http://vocab.getty.edu/aat/300028029">dissertations</genre>
 						<originInfo>
 							<publisher></publisher>
 							<dateCreated></dateCreated>
@@ -45,8 +44,32 @@
 							<recordCreationDate encoding="iso8601"></recordCreationDate>
 							<recordIdentifier></recordIdentifier>
 						</recordInfo>
+						<subject>
+							<genre valueUri="http://vocab.getty.edu/aat/300028029">dissertations</genre>
+						</subject>
 					</mods>
 				</modsCollection>
+			</xforms:instance>
+
+			<!-- MODS templates -->
+			<xforms:instance id="subject-template" xxforms:exclude-result-prefixes="#all">
+				<subject xmlns="http://www.loc.gov/mods/v3"></subject>
+			</xforms:instance>
+
+			<xforms:instance id="geographic-template" xxforms:exclude-result-prefixes="#all">
+				<geographic authority="" valueUri="" xmlns="http://www.loc.gov/mods/v3"></geographic>
+			</xforms:instance>
+			
+			<xforms:instance id="name-template" xxforms:exclude-result-prefixes="#all">
+				<name authority="" valueUri="" xmlns="http://www.loc.gov/mods/v3"></name>
+			</xforms:instance>
+
+			<xforms:instance id="temporal-template" xxforms:exclude-result-prefixes="#all">
+				<temporal authority="aat" valueUri="" xmlns="http://www.loc.gov/mods/v3"></temporal>
+			</xforms:instance>
+
+			<xforms:instance id="topic-template" xxforms:exclude-result-prefixes="#all">
+				<topic authority="lcsh" valueUri="" xmlns="http://www.loc.gov/mods/v3"></topic>
 			</xforms:instance>
 
 			<xforms:instance id="exist-config">
@@ -126,6 +149,11 @@
 				<xforms:bind nodeset="mods:recordInfo">
 					<xforms:bind nodeset="mods:recordIdentifier" required="true()" type="xs:anyURI"></xforms:bind>
 				</xforms:bind>
+				<xforms:bind nodeset="mods:subject">
+					<xforms:bind nodeset="*" required="true()">
+						<xforms:bind nodeset="@valueUri" constraint="string-length(.) &gt; 0"/>
+					</xforms:bind>
+				</xforms:bind>
 			</xforms:bind>
 
 			<!-- **************** MODEL-CONSTRUCT-DONE ********************** -->
@@ -201,11 +229,17 @@
 				</xforms:action>
 			</xforms:submission>
 		</xforms:model>
+
+		<!-- XBL includes -->
+		<xi:include href="xbl/geographic/geographic.xbl" xi:omit-xml-base="true"></xi:include>
+		<xi:include href="xbl/name/name.xbl" xi:omit-xml-base="true"></xi:include>
+		<xi:include href="xbl/temporal/temporal.xbl" xi:omit-xml-base="true"></xi:include>
+		<xi:include href="xbl/topic/topic.xbl" xi:omit-xml-base="true"></xi:include>
 	</head>
 
 	<body>
 		<div class="container-fluid">
-			<div class="row">
+			<div class="row" id="form">
 				<div class="col-md-12">
 					<p><a href="../"><span class="glyphicon glyphicon-arrow-left"></span>Return to Admin</a></p>
 					<xforms:group ref=".[string-length(instance('control-instance')/status) &gt; 0]">
@@ -232,68 +266,119 @@
 				</div>
 				<xforms:group ref="instance('doc')/mods:mods">
 					<div class="col-md-6">
-						<div>
-							<xforms:input ref="mods:titleInfo/mods:title">
-								<xforms:label>Title</xforms:label>
-								<xforms:alert>Required</xforms:alert>
-								<xforms:action ev:event="xforms-value-changed">
-									<xforms:var name="title" select="."></xforms:var>
-									<!-- set the id, only if it was previously blank (new file) -->
-									<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier" value="replace(lower-case($title), '\s', '_')"
-										if="not(string(instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier))"></xforms:setvalue>
-								</xforms:action>
-							</xforms:input>
+						<div class="subsection">
+							<div>
+								<xforms:input ref="mods:titleInfo/mods:title">
+									<xforms:label>Title</xforms:label>
+									<xforms:alert>Required</xforms:alert>
+									<xforms:action ev:event="xforms-value-changed">
+										<xforms:var name="title" select="."></xforms:var>
+										<!-- set the id, only if it was previously blank (new file) -->
+										<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier" value="replace(lower-case($title), '\s', '_')"
+											if="not(string(instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier))"></xforms:setvalue>
+									</xforms:action>
+								</xforms:input>
+							</div>
+							<div>
+								<xforms:input ref="mods:name/mods:namePart">
+									<xforms:label>Author</xforms:label>
+									<xforms:alert>Required</xforms:alert>
+								</xforms:input>
+							</div>
+							<div>
+								<xforms:input ref="mods:originInfo/mods:publisher">
+									<xforms:label>University</xforms:label>
+									<xforms:alert>Required</xforms:alert>
+								</xforms:input>
+							</div>
+							<div>
+								<xforms:input ref="mods:originInfo/mods:dateCreated">
+									<xforms:label>Date</xforms:label>
+									<xforms:alert>Required. Must be a year.</xforms:alert>
+								</xforms:input>
+							</div>
+							<div>
+								<xforms:select1 ref="mods:language/mods:languageTerm">
+									<xforms:label>Language</xforms:label>
+									<xforms:item>
+										<xforms:label>Select...</xforms:label>
+										<xforms:value></xforms:value>
+									</xforms:item>
+									<xforms:itemset nodeset="instance('languages')/language">
+										<xforms:label ref="."></xforms:label>
+										<xforms:value ref="@value"></xforms:value>
+									</xforms:itemset>
+									<xforms:alert>Required</xforms:alert>
+								</xforms:select1>
+							</div>
+							<div>
+								<xforms:select1 ref="mods:accessCondition/@xlink:href">
+									<xforms:label>Rights</xforms:label>
+									<xforms:itemset nodeset="instance('licenses')/license">
+										<xforms:label ref="."></xforms:label>
+										<xforms:value ref="@value"></xforms:value>
+									</xforms:itemset>
+									<xforms:action ev:event="xforms-value-changed">
+										<xforms:var name="label" select="."></xforms:var>
+										<xforms:setvalue ref="instance('doc')/mods:accessCondition" value="$label"></xforms:setvalue>
+									</xforms:action>
+								</xforms:select1>
+							</div>
+							<div>
+								<xforms:textarea ref="mods:abstract">
+									<xforms:label>Abstract</xforms:label>
+									<xforms:alert>Required</xforms:alert>
+								</xforms:textarea>
+							</div>
 						</div>
-						<div>
-							<xforms:input ref="mods:name/mods:namePart">
-								<xforms:label>Author</xforms:label>
-								<xforms:alert>Required</xforms:alert>
-							</xforms:input>
-						</div>
-						<div>
-							<xforms:input ref="mods:originInfo/mods:publisher">
-								<xforms:label>University</xforms:label>
-								<xforms:alert>Required</xforms:alert>
-							</xforms:input>
-						</div>
-						<div>
-							<xforms:input ref="mods:originInfo/mods:dateCreated">
-								<xforms:label>Date</xforms:label>
-								<xforms:alert>Required. Must be a year.</xforms:alert>
-							</xforms:input>
-						</div>
-						<div>
-							<xforms:select1 ref="mods:language/mods:languageTerm">
-								<xforms:label>Language</xforms:label>
-								<xforms:item>
-									<xforms:label>Select...</xforms:label>
-									<xforms:value></xforms:value>
-								</xforms:item>
-								<xforms:itemset nodeset="instance('languages')/language">
-									<xforms:label ref="."></xforms:label>
-									<xforms:value ref="@value"></xforms:value>
-								</xforms:itemset>
-								<xforms:alert>Required</xforms:alert>
-							</xforms:select1>
-						</div>
-						<div>
-							<xforms:select1 ref="mods:accessCondition/@xlink:href">
-								<xforms:label>Rights</xforms:label>
-								<xforms:itemset nodeset="instance('licenses')/license">
-									<xforms:label ref="."></xforms:label>
-									<xforms:value ref="@value"></xforms:value>
-								</xforms:itemset>
-								<xforms:action ev:event="xforms-value-changed">
-									<xforms:var name="label" select="."></xforms:var>
-									<xforms:setvalue ref="instance('doc')/mods:accessCondition" value="$label"></xforms:setvalue>
-								</xforms:action>
-							</xforms:select1>
-						</div>
-						<div>
-							<xforms:textarea ref="mods:abstract">
-								<xforms:label>Abstract</xforms:label>
-								<xforms:alert>Required</xforms:alert>
-							</xforms:textarea>
+						<div class="subsection">
+							<h3>Subject Terms</h3>
+							<div class="trigger-container">
+								<xforms:trigger appearance="minimal">
+									<xforms:label>
+										<span class="glyphicon glyphicon-plus"></span>Geographic</xforms:label>
+									<xforms:action ev:event="DOMActivate">
+										<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
+										<xforms:insert origin="instance('geographic-template')" context="mods:subject[last()]"></xforms:insert>
+									</xforms:action>
+								</xforms:trigger>
+								<xforms:trigger appearance="minimal">
+									<xforms:label>
+										<span class="glyphicon glyphicon-plus"></span>Name</xforms:label>
+									<xforms:action ev:event="DOMActivate">
+										<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
+										<xforms:insert origin="instance('name-template')" context="mods:subject[last()]"></xforms:insert>
+									</xforms:action>
+								</xforms:trigger>
+								<xforms:trigger appearance="minimal">
+									<xforms:label>
+										<span class="glyphicon glyphicon-plus"></span>Temporal</xforms:label>
+									<xforms:action ev:event="DOMActivate">
+										<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
+										<xforms:insert origin="instance('temporal-template')" context="mods:subject[last()]"></xforms:insert>
+									</xforms:action>
+								</xforms:trigger>
+								<xforms:trigger appearance="minimal">
+									<xforms:label>
+										<span class="glyphicon glyphicon-plus"></span>Topic</xforms:label>
+									<xforms:action ev:event="DOMActivate">
+										<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
+										<xforms:insert origin="instance('topic-template')" context="mods:subject[last()]"></xforms:insert>
+									</xforms:action>
+								</xforms:trigger>
+							</div>
+							<xforms:repeat nodeset="mods:subject[mods:geographic]">
+								<etdpub:geographic ref="mods:geographic"></etdpub:geographic>
+							</xforms:repeat>
+							<xforms:repeat nodeset="mods:subject[mods:name]">
+								<etdpub:name ref="mods:name"></etdpub:name>
+							</xforms:repeat>
+							<xforms:repeat nodeset="mods:subject[mods:temporal]">
+								<etdpub:temporal ref="mods:temporal"></etdpub:temporal>
+							</xforms:repeat>
+							<xforms:repeat nodeset="mods:subject[mods:topic]">
+								<etdpub:topic ref="mods:topic"></etdpub:topic>
+							</xforms:repeat>
 						</div>
 					</div>
 					<div class="col-md-6">

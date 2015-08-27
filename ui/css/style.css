@@ -60,7 +60,7 @@ body{
 	display:inline;
 	margin-right:10px;
 }
-.filter-container {
+.filter-container{
 	margin-bottom:20px;
 }
 .stacked_term{
@@ -70,22 +70,27 @@ body{
 	border-radius:5px;
 	vertical-align:middle;
 }
+button.multiselect{
+	margin-bottom:20px;
+}
 /*
   ***************************************
   PAGE DISPLAY
   ***************************************
  */
- .doc-icon{
- 	vertical-align:bottom;
- 	margin-left:10px;
- }
+.doc-icon{
+	vertical-align:bottom;
+	margin-left:10px;
+}
 div#mapcontainer{
 	width:100%;
 	height:400px;
 }
-.ol-attribution {
-  max-width: calc(100% - 3em);
+.ol-attribution{
+	max-width:calc(100% - 3em);
 }
-.ol-control button, .ol-attribution, .ol-scale-line-inner {
-  font-family: 'Lucida Grande',Verdana,Geneva,Lucida,Arial,Helvetica,sans-serif;
+.ol-control button,
+.ol-attribution,
+.ol-scale-line-inner{
+	font-family:'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
 }

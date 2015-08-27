@@ -48,6 +48,15 @@
 				</xsl:variable>
 				
 				<xsl:variable name="fl">id,title,author,date,university,language</xsl:variable>
+				<xsl:variable name="facets" as="node()*">
+					<facets>
+						<facet>genre_facet</facet>
+						<facet>geographic_facet</facet>
+						<facet>name_facet</facet>
+						<facet>temporal_facet</facet>
+						<facet>topic_facet</facet>
+					</facets>
+				</xsl:variable>
 				
 				<!-- config variables -->
 				<xsl:variable name="solr-url" select="concat(/config/solr/url, 'select/')"/>
@@ -55,10 +64,10 @@
 				<xsl:variable name="service">
 					<xsl:choose>
 						<xsl:when test="string($q)">
-							<xsl:value-of select="concat($solr-url, '?q=', encode-for-uri($q), '&amp;sort=', encode-for-uri($sort), '&amp;start=',$start, '&amp;rows=', $rows, '&amp;fl=', $fl, '&amp;hl=true&amp;hl.fl=text&amp;hl.snippets=3&amp;hl.simple.pre=%3Cstrong%3E&amp;hl.simple.post=%3C/strong%3E&amp;facet=true&amp;facet.field=genre_facet&amp;facet.field=topic_facet&amp;facet.field=geographic_facet&amp;facet.sort=index&amp;facet.limit=-1', $other-params)"/>
+							<xsl:value-of select="concat($solr-url, '?q=', encode-for-uri($q), '&amp;sort=', encode-for-uri($sort), '&amp;start=',$start, '&amp;rows=', $rows, '&amp;fl=', $fl, '&amp;hl=true&amp;hl.fl=text&amp;hl.snippets=3&amp;hl.simple.pre=%3Cstrong%3E&amp;hl.simple.post=%3C/strong%3E&amp;facet=true&amp;facet.field=', string-join($facets//facet, '&amp;facet.field='), '&amp;facet.sort=index&amp;facet.limit=-1', $other-params)"/>
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat($solr-url, '?q=*:*&amp;sort=', encode-for-uri($sort), '&amp;start=',$start, '&amp;rows=', $rows, '&amp;fl=', $fl, '&amp;hl=true&amp;hl.fl=text&amp;hl.snippets=3&amp;hl.simple.pre=%3Cstrong%3E&amp;hl.simple.post=%3C/strong%3E&amp;facet=true&amp;facet.field=genre_facet&amp;facet.field=topic_facet&amp;facet.field=geographic_facet&amp;facet.sort=index&amp;facet.limit=-1', $other-params)"/>
+							<xsl:value-of select="concat($solr-url, '?q=*:*&amp;sort=', encode-for-uri($sort), '&amp;start=',$start, '&amp;rows=', $rows, '&amp;fl=', $fl, '&amp;hl=true&amp;hl.fl=text&amp;hl.snippets=3&amp;hl.simple.pre=%3Cstrong%3E&amp;hl.simple.post=%3C/strong%3E&amp;facet=true&amp;facet.field=', string-join($facets//facet, '&amp;facet.field='), '&amp;facet.sort=index&amp;facet.limit=-1', $other-params)"/>
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:variable>

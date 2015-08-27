@@ -43,7 +43,7 @@
 			</xsl:for-each>
 
 			<!-- subject facets -->
-			<xsl:for-each select="mods:subject/*|mods:genre">
+			<xsl:for-each select="mods:subject/*">
 				<field name="{local-name()}_facet" update="set">
 					<xsl:value-of select="."/>
 				</field>

@@ -1,0 +1,277 @@
+<!-- 	author: Ethan Gruber, American Numismatic Society 
+	last modified: August, 2015
+	function: MODS subject/name: Getty ULAN, Nomisma.org dynasties, persons, and organizations
+-->
+
+<xbl:xbl xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+	xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:xbl="http://www.w3.org/ns/xbl" xmlns:xxbl="http://orbeon.org/oxf/xml/xbl" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:res="http://www.w3.org/2005/sparql-results#">
+	<xbl:binding id="etdpub-name" element="etdpub|name">
+		<xbl:template>
+			<xforms:group xbl:attr="model context ref bind" xxbl:scope="outer">
+				<xbl:content includes="xforms|label,xforms|help,xforms|hint,xforms|alert"/>
+				<xforms:group xxbl:scope="inner">
+					<xforms:var name="binding" as="node()?">
+						<xxforms:sequence select="." xxbl:scope="outer"/>
+					</xforms:var>
+					<xforms:action ev:event="xforms-enabled" ev:target="#observer">
+						<xforms:setvalue ref="instance('interface-type')">nomisma</xforms:setvalue>
+					</xforms:action>
+					<xforms:group ref="$binding">
+						<xforms:group ref=".[string(text())]">
+							<div>
+								<xforms:output ref=".">
+									<xforms:label>Name</xforms:label>
+								</xforms:output>
+								<xforms:trigger appearance="minimal">
+									<xforms:label>
+										<span class="glyphicon glyphicon-new-window"/>
+									</xforms:label>
+									<xforms:load ev:event="DOMActivate" show="new" ref="@valueUri"/>
+								</xforms:trigger>
+
+								<xforms:trigger appearance="minimal">
+									<xforms:action ev:event="DOMActivate">
+										<!-- delete all holdover values before removing bind, possible orbeon bug -->
+										<xforms:setvalue ref="instance('temp')"/>
+										<xforms:setvalue ref="instance('temp')/@href"/>
+										<xforms:delete context="instance('feed')/*"/>
+										<xforms:setvalue ref="instance('search-query')"/>
+										<xforms:delete nodeset="$binding/parent::node()"/>
+									</xforms:action>
+									<xforms:label>
+										<span class="glyphicon glyphicon-remove"/>
+									</xforms:label>
+								</xforms:trigger>
+							</div>
+						</xforms:group>
+						<xforms:group ref=".[not(string(text()))]">
+							<div class="lookup">
+								<h4>Name</h4>
+								<xforms:trigger appearance="minimal">
+									<xforms:delete ev:event="DOMActivate" nodeset="$binding/parent::node()"/>
+									<xforms:label>
+										<span class="glyphicon glyphicon-remove"/>
+									</xforms:label>
+								</xforms:trigger>
+								<div class="bg-info alert-box">
+									<span class="glyphicon glyphicon-info-sign"/>
+									<strong>Notice:</strong> Content is required.</div>
+								<div>
+									<radiogroup>
+										<xforms:select1 ref="instance('interface-type')" appearance="full">
+											<xforms:label>Interface Type</xforms:label>
+											<xforms:item>
+												<xforms:label>Nomisma</xforms:label>
+												<xforms:value>nomisma</xforms:value>
+											</xforms:item>
+											<xforms:item>
+												<xforms:label>Getty ULAN</xforms:label>
+												<xforms:value>ulan</xforms:value>
+											</xforms:item>
+											<xforms:action ev:event="xforms-value-changed">
+												<xforms:action if=". = 'nomisma'">
+													<!-- clear temp -->
+													<xforms:setvalue ref="instance('temp')"/>
+													<xforms:setvalue ref="instance('temp')/@href"/>
+													<xforms:delete context="instance('feed')/*"/>
+													<xforms:setvalue ref="instance('search-query')"/>
+
+													<!-- set source if the attributes already exist -->
+													<xforms:setvalue ref="$binding/@authority">nomisma</xforms:setvalue>
+													<xforms:toggle case="nomisma-search"/>
+												</xforms:action>
+												<xforms:action if=". = 'ulan'">
+													<!-- clear temp -->
+													<xforms:setvalue ref="instance('temp')"/>
+													<xforms:setvalue ref="instance('temp')/@href"/>
+													<xforms:delete context="instance('feed')/*"/>
+													<xforms:setvalue ref="instance('search-query')"/>
+
+													<xforms:setvalue ref="$binding/@authority">ulan</xforms:setvalue>
+													<xforms:toggle case="ulan-search"/>
+												</xforms:action>
+											</xforms:action>
+										</xforms:select1>
+									</radiogroup>
+								</div>
+								<xforms:switch>
+									<xforms:case id="nomisma-search">
+										<div>
+											<xforms:input ref="instance('search-query')">
+												<xforms:label>Search</xforms:label>
+											</xforms:input>
+											<xforms:trigger>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:delete context="instance('feed')/*"/>
+													<xforms:send submission="query-nomisma"/>
+												</xforms:action>
+												<xforms:label>Search</xforms:label>
+											</xforms:trigger>
+										</div>
+
+										<xforms:group ref=".[count(instance('feed')//atom:entry) &gt; 0]">
+											<xforms:select1 ref="instance('temp')/@href" appearance="compact" size="10">
+												<xforms:label>Location</xforms:label>
+												<xforms:itemset nodeset="instance('feed')//atom:entry">
+													<xforms:label ref="atom:title"/>
+													<xforms:value ref="atom:link[not(@rel)]/@href"/>
+												</xforms:itemset>
+												<xforms:action ev:event="xforms-value-changed">
+													<xforms:var name="id" select="tokenize(instance('temp')/@href, '/')[last()]"/>
+													<xforms:setvalue ref="instance('control-instance')/description" value="instance('feed')//atom:entry[atom:id = $id]/atom:summary"/>
+												</xforms:action>
+											</xforms:select1>
+											<xforms:trigger>
+												<xforms:label>Select</xforms:label>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:var name="id" select="tokenize(instance('temp')/@href, '/')[last()]"/>
+													<xforms:setvalue ref="$binding/@valueUri" value="instance('temp')/@href"/>
+													<xforms:setvalue ref="$binding" value="instance('feed')//atom:entry[atom:id = $id]/atom:title"/>
+												</xforms:action>
+											</xforms:trigger>
+										</xforms:group>
+										<xforms:group ref=".[string(instance('temp')/@href)]">
+											<div>
+												<xforms:output ref="instance('control-instance')/description">
+													<xforms:label>Description</xforms:label>
+												</xforms:output>
+												<xforms:trigger appearance="minimal">
+													<xforms:label>
+														<span class="glyphicon glyphicon-new-window"/>
+													</xforms:label>
+													<xforms:load ev:event="DOMActivate" show="new" ref="instance('temp')/@href"/>
+												</xforms:trigger>
+											</div>
+										</xforms:group>
+									</xforms:case>
+									<xforms:case id="ulan-search">
+										<div>
+											<xforms:input ref="instance('search-query')">
+												<xforms:label>Search</xforms:label>
+											</xforms:input>
+											<xforms:trigger>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:var name="search_query" select="string-join(tokenize(instance('search-query'), ' '), ' AND ')"/>
+													<xforms:setvalue ref="instance('sparqlQuery')" value="normalize-space(replace(instance('sparqlQueryTemplate'), 'SEARCH_QUERY', $search_query))"/>
+													<xforms:send submission="query-getty"/>
+												</xforms:action>
+												<xforms:label>Search</xforms:label>
+											</xforms:trigger>
+										</div>
+										<xforms:group ref=".[count(instance('getty-response')//res:result) &gt; 0]">
+											<xforms:select1 ref="instance('temp')/@href" appearance="compact" length="20">
+												<xforms:label>Location</xforms:label>
+												<xforms:itemset nodeset="instance('getty-response')//res:result">
+													<xforms:label ref="res:binding[@name='label']/res:literal"/>
+													<xforms:value ref="res:binding[@name='c']/res:uri"/>
+												</xforms:itemset>
+												<xforms:action ev:event="xforms-value-changed">
+													<xforms:setvalue ref="instance('control-instance')/description" value="instance('getty-response')//res:result[res:binding[@name='c']/res:uri =
+														instance('temp')/@href]/res:binding[@name='scopeNote']/res:literal"/>
+												</xforms:action>
+											</xforms:select1>
+											<xforms:trigger>
+												<xforms:label>Select</xforms:label>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:setvalue ref="$binding/@valueUri" value="instance('temp')/@href"/>
+													<xforms:setvalue ref="$binding" value="instance('getty-response')//res:result[res:binding[@name='c']/res:uri =
+														instance('temp')/@href]/res:binding[@name='label']/res:literal"/>
+												</xforms:action>
+											</xforms:trigger>
+										</xforms:group>
+										<xforms:group ref=".[string(instance('temp')/@href)]">
+											<div>
+												<xforms:output ref="instance('control-instance')/description">
+													<xforms:label>Description</xforms:label>
+												</xforms:output>
+												<xforms:trigger appearance="minimal">
+													<xforms:label>
+														<span class="glyphicon glyphicon-new-window"/>
+													</xforms:label>
+													<xforms:load ev:event="DOMActivate" show="new" ref="instance('temp')/@href"/>
+												</xforms:trigger>
+											</div>
+										</xforms:group>
+									</xforms:case>
+								</xforms:switch>
+							</div>
+						</xforms:group>
+					</xforms:group>
+					<!-- ********************************************************************** -->
+					<xforms:model id="geographic-model" xmlns:xi="http://www.w3.org/2001/XInclude">
+						<xforms:instance id="control-instance">
+							<control xmlns="">
+								<description/>
+							</control>
+						</xforms:instance>
+
+						<!-- temp instance used by both interfaces to avoid inconsistent referencing to $binding -->
+						<xforms:instance id="temp">
+							<temp href="" xmlns=""/>
+						</xforms:instance>
+
+						<xforms:instance id="search-query">
+							<query/>
+						</xforms:instance>
+
+						<!-- instances for nomisma -->
+						<xforms:instance id="feed">
+							<feed xmlns=""/>
+						</xforms:instance>
+
+						<!-- getty TNG instances -->
+						<xforms:instance id="sparqlQueryTemplate">
+							<query><![CDATA[PREFIX gvp: <http://vocab.getty.edu/ontology#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX luc: <http://www.ontotext.com/owlim/lucene#>
+PREFIX ulan: <http://vocab.getty.edu/ulan/>
+SELECT ?c ?label ?scopeNote WHERE {
+?c a gvp:PersonConcept; skos:inScheme ulan: ;
+gvp:prefLabelGVP/xl:literalForm ?label ;
+skos:scopeNote/rdf:value ?scopeNote ;
+luc:term "SEARCH_QUERY"} LIMIT 20]]></query>
+						</xforms:instance>
+						<xforms:instance id="sparqlQuery">
+							<query xmlns=""/>
+						</xforms:instance>
+						<xforms:instance id="getty-response">
+							<sparql xmlns="http://www.w3.org/2005/sparql-results#"/>
+						</xforms:instance>
+						<!-- mint type radio button -->
+						<xforms:instance id="interface-type">
+							<interface/>
+						</xforms:instance>
+
+						<!-- ********* SUBMISSIONS ***********-->
+						<!-- query nomisma -->
+						<xforms:submission id="query-nomisma" serialization="none" method="get"
+							action="http://nomisma.org/feed/?q={instance('search-query')}+AND+%28type:%22foaf:Organization%22%20OR%20type:%22foaf:Person%22%20OR%20type:%22rdac:Famiy%22%29&amp;sort=score+desc"
+							instance="feed" replace="instance">
+							<xforms:header>
+								<xforms:name>User-Agent</xforms:name>
+								<xforms:value>XForms/etdpub</xforms:value>
+							</xforms:header>
+							<xforms:message ev:event="xforms-submit-error" level="modal">Unable to communicate with Nomisma.org Atom feed.</xforms:message>
+						</xforms:submission>
+
+						<xforms:submission id="query-getty" action="http://vocab.getty.edu/sparql?query={encode-for-uri(instance('sparqlQuery'))}" ref="instance('getty-response')" replace="instance"
+							method="get">
+							<xforms:header>
+								<xforms:name>User-Agent</xforms:name>
+								<xforms:value>XForms/etdpub</xforms:value>
+							</xforms:header>
+							<xforms:header>
+								<xforms:name>Accept</xforms:name>
+								<xforms:value>application/sparql-results+xml</xforms:value>
+							</xforms:header>
+							<xforms:message ev:event="xforms-submit-error" level="modal">SPARQL query failed.</xforms:message>
+						</xforms:submission>
+					</xforms:model>
+				</xforms:group>
+			</xforms:group>
+		</xbl:template>
+	</xbl:binding>
+
+</xbl:xbl>
