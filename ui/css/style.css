@@ -14,8 +14,8 @@ body{
 }
 .highlight{
 	background-color:#F7F7F9;
-	border:1px dashed #E1E1E8;
-	border-radius:4px;
+	border:1px solid #E1E1E8;
+	border-radius:12px;
 	margin-bottom:14px;
 	padding:9px 14px;
 }
@@ -59,6 +59,21 @@ body{
 	width:200px;
 	display:inline;
 	margin-right:10px;
+}
+.search-form{
+	padding:20px;
+	background-color:#F8F8F8;
+	border:1px solid #E1E1E8;
+	border-radius:12px;
+
+}
+.search-form .form-control{
+	width:80%;
+	display:inline;
+}
+.search-form button{
+	margin-left:5%;
+	width:15%;
 }
 .filter-container{
 	margin-bottom:20px;

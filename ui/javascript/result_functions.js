@@ -1,7 +1,7 @@
 $(document).ready(function () {
 	$('#keyword_button').click(function () {
 		var query = new Array();
-		var text = 'text:' + $('#search_text').val();
+		var text = $('#search_text').val();
 		
 		if (text.length > 0) {
 			query.push(getQuery());

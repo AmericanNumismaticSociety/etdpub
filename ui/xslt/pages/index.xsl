@@ -32,24 +32,22 @@
 					<h1>
 						<xsl:value-of select="/config/title"/>
 					</h1>
-					<div>
-						<!--<xsl:call-template name="search"/>-->
+					<div class="col-sm-12 col-md-6 col-md-offset-3">
+						<xsl:call-template name="search"/>
 					</div>
-					<p>Information</p>
+					<div class="col-md-12">
+						<p>Information</p>
+					</div>
+					
 				</div>
 			</div>
 		</div>
 	</xsl:template>
 	
 	<xsl:template name="search">
-		<form action="{$display_path}results" class="filter-form" method="get">
-			<span>
-				<b>Keyword: </b>
-			</span>
-			<input type="text" id="search_text" class="form-control" placeholder="Search"/>
-			<input type="hidden" name="q"/>
-			<input type="hidden" id="facet_form_query"/>
-			<button id="keyword_button" class="btn btn-default">
+		<form action="{$display_path}results" class="search-form" method="get">			
+			<input type="text" name="q" class="form-control" placeholder="Keyword Search"/>
+			<button id="keyword_button" class="btn btn-primary">
 				<span class="glyphicon glyphicon-search"/>
 			</button>
 		</form>

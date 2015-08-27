@@ -26,7 +26,7 @@
 		<html lang="en">
 			<head>
 				<title>
-					<xsl:value-of select="/content/config/title"/>
+					<xsl:value-of select="/content/config/title"/>: Browse
 				</title>
 				<meta name="viewport" content="width=device-width, initial-scale=1"/>
 				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"/>
@@ -190,13 +190,10 @@
 	</xsl:template>
 
 	<xsl:template name="search">
-		<form action="{$display_path}results" class="filter-form" method="get">
-			<span>
-				<b>Keyword: </b>
-			</span>
-			<input type="text" id="search_text" class="form-control" placeholder="Search">
-				<xsl:if test="count($tokenized_q[contains(., 'text:')]) &gt; 0">
-					<xsl:attribute name="value" select="replace(string-join($tokenized_q[contains(., 'text:')], ' '), 'text:', '')"/>
+		<form action="{$display_path}results" class="filter-form" method="get">			
+			<input type="text" id="search_text" class="form-control" placeholder="Keyword Search">
+				<xsl:if test="count($tokenized_q[not(contains(., ':'))]) &gt; 0">
+					<xsl:attribute name="value" select="string-join($tokenized_q[not(contains(., ':'))], ' ')"/>
 				</xsl:if>
 			</input>
 			<input type="hidden" name="q"/>
@@ -229,9 +226,7 @@
 								<xsl:when test="string($field)">
 									<xsl:value-of select="etdpub:normalize_fields($field)"/>
 								</xsl:when>
-								<xsl:otherwise>
-									<xsl:value-of select="etdpub:normalize_fields($field)"/>
-								</xsl:otherwise>
+								<xsl:otherwise>Keyword</xsl:otherwise>
 							</xsl:choose>
 						</xsl:variable>
 						<xsl:variable name="term">
