@@ -61,7 +61,7 @@
 	</xsl:template>
 
 	<xsl:template name="body">
-		<div class="container">
+		<div class="container content">
 			<div class="row">
 				<div class="col-md-12">
 					<h1>Browse</h1>
