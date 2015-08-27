@@ -85,6 +85,7 @@
 					<status></status>
 					<id></id>
 					<media_url></media_url>
+					<new>true</new>
 				</controls>
 			</xforms:instance>
 
@@ -147,13 +148,17 @@
 				<xforms:bind nodeset="mods:location/mods:url" required="true()"></xforms:bind>
 				<xforms:bind nodeset="mods:language/mods:languageTerm" required="true()"></xforms:bind>
 				<xforms:bind nodeset="mods:recordInfo">
-					<xforms:bind nodeset="mods:recordIdentifier" required="true()" type="xs:anyURI"></xforms:bind>
+					<xforms:bind nodeset="mods:recordIdentifier" required="true()" constraint="matches(., &quot;^([a-z0-9\-\._&#x0027;]*)?$&quot;)"></xforms:bind>
 				</xforms:bind>
 				<xforms:bind nodeset="mods:subject">
 					<xforms:bind nodeset="*" required="true()">
 						<xforms:bind nodeset="@valueUri" constraint="string-length(.) &gt; 0"/>
 					</xforms:bind>
 				</xforms:bind>
+			</xforms:bind>
+			
+			<xforms:bind nodeset="instance('control-instance')">
+				<xforms:bind nodeset="new" type="xs:boolean"/>
 			</xforms:bind>
 
 			<!-- **************** MODEL-CONSTRUCT-DONE ********************** -->
@@ -182,15 +187,17 @@
 			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/mods/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml"
 				replace="instance" instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load MODS record from eXist.</xforms:message>
+				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/new" value="false()"/>
 			</xforms:submission>
 
 			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/mods/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml" method="put"
 				replace="none" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error Saving Documents. Be sure all required inputs are filled in.</xforms:message>
-
-				<!-- publish to Solr -->
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Successfully saved MODS record to eXist.</xforms:setvalue>
+					<!-- set the new status to false to prevent further editing of the ID -->
+					<xforms:setvalue ref="instance('control-instance')/new" value="false()"/>
+					<!-- publish to Solr -->
 					<xforms:send submission="put-document"></xforms:send>
 				</xforms:action>
 			</xforms:submission>
@@ -441,12 +448,22 @@
 						<xforms:group ref="mods:recordInfo">
 							<div class="subsection">
 								<h2>Record Info</h2>
-								<div>
-									<xforms:output ref="mods:recordIdentifier">
-										<xforms:label>ID</xforms:label>
-										<xforms:alert>Required</xforms:alert>
-									</xforms:output>
-								</div>
+								<xforms:group ref=".[instance('control-instance')/new = true()]">
+									<div>
+										<xforms:input ref="mods:recordIdentifier">
+											<xforms:label>ID</xforms:label>
+											<xforms:alert>Required</xforms:alert>
+										</xforms:input>
+									</div>
+								</xforms:group>
+								<xforms:group ref=".[instance('control-instance')/new = false()]">
+									<div>
+										<xforms:output ref="mods:recordIdentifier">
+											<xforms:label>ID</xforms:label>
+											<xforms:alert>Required</xforms:alert>
+										</xforms:output>
+									</div>
+								</xforms:group>
 								<div>
 									<xforms:output ref="mods:recordCreationDate">
 										<xforms:label>Creation Date</xforms:label>
