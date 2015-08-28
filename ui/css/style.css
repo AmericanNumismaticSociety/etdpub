@@ -3,8 +3,18 @@
   GLOBAL
   ****************************************
  */
-body{
+ html{
 	background-color:#F8F8F8;
+	background-attachment:scroll;
+	background-image:url("http://numismatics.org/authorities/ui/images/pattern.gif");
+	background-position:center top;
+	background-repeat:repeat;
+}
+body{
+	color:#535e70;
+	font-family:Georgia, "Times New Roman", Times, serif;
+	font-size:14px;
+	line-height:18px;
 }
 .content{
 	background-color:white;
@@ -14,6 +24,10 @@ body{
 }
 .navbar{
 	margin-bottom:0;
+	border-bottom:4px solid black;
+}
+.navbar-brand{
+	padding:5px;
 }
 .highlight{
 	background-color:#F7F7F9;
@@ -31,8 +45,16 @@ body{
   ***************************************
  */
 #footer{
-	padding:10px 0;	
+	background-color:#535e70;
+	padding-top:10px;
+	padding-bottom:10px;
 	text-align:center;
+	font-size:80%;
+	color:white;
+}
+#footer a{
+	color:white;
+	text-decoration:underline;
 }
 /*
   ***************************************

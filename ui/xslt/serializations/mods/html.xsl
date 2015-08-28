@@ -48,7 +48,7 @@
 					<xsl:text>: </xsl:text>
 					<xsl:value-of select="mods:titleInfo/mods:title"/>
 				</title>
-				<link rel="shortcut icon" type="image/x-icon" href="{$display_path}/ui/images/favicon.png"/>
+				<link rel="shortcut icon" type="image/x-icon" href="{$display_path}ui/images/favicon.png"/>
 				<meta name="viewport" content="width=device-width, initial-scale=1"/>
 				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"/>
 				<!-- bootstrap -->
