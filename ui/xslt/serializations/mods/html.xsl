@@ -64,25 +64,25 @@
 	</xsl:template>
 
 	<xsl:template name="display">
-		<div class="container content" typeof="" about="{$id}">
+		<div class="container content" itemscope="" itemtype="http://schema.org/ScholarlyArticle">
 			<div class="row">
 				<div class="col-md-12">
-					<h2>
+					<h2 itemprop="name">
 						<xsl:value-of select="mods:titleInfo/mods:title"/>
 					</h2>
 				</div>
 				<div class="col-md-9">
 					<dl class="dl-horizontal">
 						<dt>Author</dt>
-						<dd>
+						<dd itemprop="author">
 							<xsl:value-of select="mods:name/mods:namePart"/>
 						</dd>
 						<dt>Date</dt>
-						<dd>
+						<dd itemprop="dateCreated">
 							<xsl:value-of select="mods:originInfo/mods:dateCreated"/>
 						</dd>
 						<dt>University</dt>
-						<dd>
+						<dd itemprop="publisher">
 							<xsl:value-of select="mods:originInfo/mods:publisher"/>
 						</dd>
 						<xsl:for-each select="mods:language">
@@ -94,7 +94,7 @@
 							</dd>
 						</xsl:for-each>
 						<dt>Abstract</dt>
-						<dd>
+						<dd itemprop="about">
 							<xsl:value-of select="mods:abstract"/>
 						</dd>
 					</dl>
@@ -123,7 +123,7 @@
 				<div class="col-md-3">
 					<div class="highlight">
 						<h4>
-							<a href="{$display_path}{mods:location/mods:url}">
+							<a href="{$display_path}{mods:location/mods:url}" itemprop="url">
 								<span class="glyphicon glyphicon-download-alt"/>
 								<xsl:text>Download</xsl:text>
 								<xsl:choose>
@@ -140,7 +140,7 @@
 							</a>
 						</h4>
 						<xsl:variable name="license" select="mods:accessCondition/@xlink:href"/>
-						<a href="{$license}">
+						<a href="{$license}" itemprop="licence">
 							<xsl:choose>
 								<xsl:when test="contains($license, 'http://creativecommons.org/licenses/by/')">
 									<img src="http://i.creativecommons.org/l/by/3.0/88x31.png" alt="CC BY" title="CC BY"/>
@@ -170,6 +170,9 @@
 
 	<xsl:template match="mods:subject/*">
 		<li>
+			<xsl:if test="local-name()='genre'">
+				<xsl:attribute name="itemprop">genre</xsl:attribute>
+			</xsl:if>
 			<a href="{$display_path}results?q={local-name()}_facet:&#x022;{.}&#x022;">
 				<xsl:value-of select="."/>
 			</a>

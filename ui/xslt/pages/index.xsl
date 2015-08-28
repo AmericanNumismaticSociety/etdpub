@@ -7,7 +7,7 @@
 		<html lang="en">
 			<head>
 				<title>
-					<xsl:value-of select="/config/title"/>
+					<xsl:value-of select="/index/config/title"/>
 				</title>
 				<meta name="viewport" content="width=device-width, initial-scale=1"/>
 				<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"/>
@@ -30,22 +30,21 @@
 			<div class="row">
 				<div class="col-md-12">
 					<h1>
-						<xsl:value-of select="/config/title"/>
+						<xsl:value-of select="/index/config/title"/>
 					</h1>
 					<div class="col-sm-12 col-md-6 col-md-offset-3">
 						<xsl:call-template name="search"/>
 					</div>
-					<div class="col-md-12">
-						<p>Information</p>
+					<div class="col-sm-12 col-md-8 col-md-offset-2">
+						<xsl:copy-of select="/index/content/index"/>
 					</div>
-					
 				</div>
 			</div>
 		</div>
 	</xsl:template>
-	
+
 	<xsl:template name="search">
-		<form action="{$display_path}results" class="search-form" method="get">			
+		<form action="{$display_path}results" class="search-form info-window" method="get">
 			<input type="text" name="q" class="form-control" placeholder="Keyword Search"/>
 			<button id="keyword_button" class="btn btn-primary">
 				<span class="glyphicon glyphicon-search"/>

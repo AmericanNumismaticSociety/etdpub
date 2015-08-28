@@ -62,12 +62,12 @@ body{
 	display:inline;
 	margin-right:10px;
 }
-.search-form{
+.info-window{
 	padding:20px;
 	background-color:#F8F8F8;
 	border:1px solid #E1E1E8;
 	border-radius:12px;
-
+	margin-bottom:20px;
 }
 .search-form .form-control{
 	width:80%;

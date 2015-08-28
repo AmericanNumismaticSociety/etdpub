@@ -24,7 +24,7 @@
 	* PUBLIC INTERFACE *
 	***************** -->
 	<!-- **** PAGES **** -->	
-	<page path="/etdpub/" model="xpl/models/config.xpl" view="xpl/views/pages/index.xpl"/>
+	<page path="/etdpub/" model="xpl/models/pages/index.xpl" view="xpl/views/pages/index.xpl"/>
 	
 	<!-- **** SERIALIZATIONS **** -->
 	<!-- Solr (index is browse home) -->
