@@ -38,7 +38,31 @@
 					</div>
 					<div class="col-sm-12 col-md-8 col-md-offset-2">
 						<xsl:copy-of select="/index/content/index"/>
-					</div>
+						<hr/>
+						<div class="col-md-6">
+							<h4>Pelagios Annotations</h4>
+							<table class="table-dl">
+								<tr>
+									<td>
+										<a href="http://pelagios-project.blogspot.com/">
+											<img src="{$display_path}ui/images/pelagios_icon.png"/>
+										</a>
+									</td>
+									<td>
+										<strong>VoID (RDF): </strong>
+										<a href="pelagios.void.rdf">XML</a>
+										<br/>
+										<strong>Dump (RDF): </strong>
+										<a href="pelagios.rdf">XML</a>
+									</td>
+								</tr>
+							</table>
+						</div>	
+						<div class="col-md-6">
+							<h4>Atom</h4>
+							
+						</div>
+					</div>	
 				</div>
 			</div>
 		</div>

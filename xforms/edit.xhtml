@@ -115,6 +115,14 @@
 					<url></url>
 				</config>
 			</xforms:instance>
+			
+			<xforms:instance id="generator-config">
+				<config xmlns="">
+					<url></url>
+					<mode>binary</mode>
+					<content-type></content-type>
+				</config>
+			</xforms:instance>			
 
 			<xforms:instance id="delete-config">
 				<config xmlns="">
@@ -434,11 +442,11 @@
 										<xforms:action ev:event="xforms-submit-done">
 											<xforms:setvalue ref="instance('generator-config')/url" value="instance('file')"></xforms:setvalue>
 											<xforms:setvalue ref="instance('generator-config')/content-type" value="instance('file')/@mediatype"></xforms:setvalue>
-											<xforms:setvalue ref="instance('serializer-config')/url" value="concat('oxf:/apps/etdpub/docs/', instance('file')/@filename)"></xforms:setvalue>
+											<xforms:setvalue ref="instance('serializer-config')/url" value="concat('oxf:/apps/etdpub/docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
 											<xforms:insert nodeset="instance('dump')"
 												origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/move-file.xpl', ('generator-config', 'serializer-config'), (instance('generator-config'), instance('serializer-config')), 'data')"></xforms:insert>
 											<!-- set the data within the MODS document -->
-											<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url" value="concat('docs/', instance('file')/@filename)"></xforms:setvalue>
+											<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url" value="concat('docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
 											<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType" value="instance('file')/@mediatype"></xforms:setvalue>
 										</xforms:action>
 									</xforms:action>

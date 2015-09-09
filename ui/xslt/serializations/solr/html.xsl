@@ -108,7 +108,7 @@
 						<xsl:call-template name="metadata"/>
 					</div>
 					<div class="col-md-6">
-						<xsl:variable name="snippets" select="saxon:parse(concat('&lt;div&gt;', string-join(//lst[@name='highlighting']/lst[@name=$id]/arr[@name='text']/str, '...'), '&lt;/div&gt;'))"/>
+						<xsl:variable name="snippets" select="saxon:parse(concat('&lt;div&gt;', replace(string-join(//lst[@name='highlighting']/lst[@name=$id]/arr[@name='text']/str, '...'), '&amp;', '&amp;amp;'), '&lt;/div&gt;'))"/>
 
 						<div class="highlight">
 							<xsl:copy-of select="$snippets"/>

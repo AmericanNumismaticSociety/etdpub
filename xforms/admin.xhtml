@@ -167,64 +167,64 @@
 							</div>
 						</xforms:group>
 						<h1>etdpub Administration</h1>
-						<a href="edit/"><span class="glyphicon glyphicon-file"></span>Create New EAC-CPF Record</a>
-
-						<a href="{instance('config')/url}" style="float:right" target="_blank">View Pubic Interface <span class="glyphicon glyphicon-new-window"/></a>
-
+						<p><a href="edit/"><span class="glyphicon glyphicon-file"></span>Create New EAC-CPF Record</a> | <a href="{instance('config')/url}" target="_blank">View Pubic Interface <span
+									class="glyphicon glyphicon-new-window"></span></a>
+						</p>
 						<xforms:group ref=".[count(instance('pagination-result')//record) &gt; 0]">
-							<h3>List of Records</h3>
-							<!-- pagination variables -->
-							<xforms:var name="numFound" select="number(instance('control-instance')/numFound)"></xforms:var>
-
-							<table class="table">
-								<thead>
-									<tr>
-										<th>Title</th>
-										<th style="width:10%">View</th>
-										<th style="width:5%">Delete</th>
-									</tr>
-								</thead>
-								<tbody>
-									<xforms:repeat nodeset="instance('pagination-result')//record">
-										<xforms:var name="id" select="id"></xforms:var>
-										<xforms:var name="media_url" select="media_url"></xforms:var>
+							<div>
+								<h3>List of Records</h3>
+								<!-- pagination variables -->
+								<xforms:var name="numFound" select="number(instance('control-instance')/numFound)"></xforms:var>
+								<table class="table">
+									<thead>
 										<tr>
-											<td>
-												<h4>
-													<a href="edit/?id={$id}">
-														<xforms:output ref="title"></xforms:output>
-													</a>
-												</h4>
-												<div>
-													<xforms:output ref="author">
-														<xforms:label>Author</xforms:label>
-													</xforms:output>
-												</div>
-												<div>
-													<xforms:output ref="date">
-														<xforms:label>Date</xforms:label>
-													</xforms:output>
-												</div>
-											</td>
-											<td class="text-center">
-												<a href="{instance('config')/url}id/{$id}.xml" target="_blank">xml</a> | <a href="{instance('config')/url}id/{$id}" target="_blank">html</a>
-											</td>
-											<td class="text-center">
-												<xforms:trigger appearance="minimal">
-													<xforms:label>
-														<span class="glyphicon glyphicon-remove"></span>
-													</xforms:label>
-													<xforms:action ev:event="DOMActivate">
-														<xforms:setvalue ref="instance('control-instance')/id" value="$id"></xforms:setvalue>
-														<xforms:setvalue ref="instance('control-instance')/media_url" value="$media_url"></xforms:setvalue>
-														<xforms:dispatch target="delete" name="fr-show"></xforms:dispatch>
-													</xforms:action>
-												</xforms:trigger>
-											</td>
+											<th>Title</th>
+											<th style="width:10%">View</th>
+											<th style="width:5%">Delete</th>
 										</tr>
-									</xforms:repeat>
-								</tbody>
-							</table>
+									</thead>
+									<tbody>
+										<xforms:repeat nodeset="instance('pagination-result')//record">
+											<xforms:var name="id" select="id"></xforms:var>
+											<xforms:var name="media_url" select="media_url"></xforms:var>
+											<tr>
+												<td>
+													<h4>
+														<a href="edit/?id={$id}">
+															<xforms:output ref="title"></xforms:output>
+														</a>
+													</h4>
+													<div>
+														<xforms:output ref="author">
+															<xforms:label>Author</xforms:label>
+														</xforms:output>
+													</div>
+													<div>
+														<xforms:output ref="date">
+															<xforms:label>Date</xforms:label>
+														</xforms:output>
+													</div>
+												</td>
+												<td class="text-center">
+													<a href="{instance('config')/url}id/{$id}.xml" target="_blank">xml</a> | <a href="{instance('config')/url}id/{$id}" target="_blank">html</a>
+												</td>
+												<td class="text-center">
+													<xforms:trigger appearance="minimal">
+														<xforms:label>
+															<span class="glyphicon glyphicon-remove"></span>
+														</xforms:label>
+														<xforms:action ev:event="DOMActivate">
+															<xforms:setvalue ref="instance('control-instance')/id" value="$id"></xforms:setvalue>
+															<xforms:setvalue ref="instance('control-instance')/media_url" value="$media_url"></xforms:setvalue>
+															<xforms:dispatch target="delete" name="fr-show"></xforms:dispatch>
+														</xforms:action>
+													</xforms:trigger>
+												</td>
+											</tr>
+										</xforms:repeat>
+									</tbody>
+								</table>
+							</div>
 						</xforms:group>
 						<xforms:group ref=".[count(instance('pagination-result')//record)=0]">
 							<h1>No records in collection.</h1>
@@ -239,20 +239,18 @@
 							<xforms:action ev:event="DOMActivate">
 								<!-- first delete the uploaded media -->
 								<xforms:setvalue ref="instance('delete-config')/delete/url" value="concat('oxf:/apps/etdpub/', instance('control-instance')/media_url)"></xforms:setvalue>
-								<xforms:insert nodeset="instance('dump')" origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-document.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
-
+								<xforms:insert nodeset="instance('dump')"
+									origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-document.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
 								<!-- delete the doc from eXist and Solr -->
 								<xforms:send submission="delete-doc"></xforms:send>
 								<xforms:setvalue ref="instance('deleteId')/query" value="concat('id:&#x022;', instance('control-instance')/id, '&#x022;')"></xforms:setvalue>
 								<xforms:send submission="delete-solr-doc"></xforms:send>
-
 								<!-- reload table -->
 								<xforms:setvalue ref="instance('eXist-xquery')/exist:text" value="instance('xqueries')/query[@id='get-objects']"></xforms:setvalue>
 								<xforms:send submission="xquery-pagination"></xforms:send>
 							</xforms:action>
 						</fr:positive-choice>
 					</fr:alert-dialog>
-
 					<!--<fr:xforms-inspector id="orbeon-xforms-inspector"></fr:xforms-inspector>-->
 				</div>
 			</div>
