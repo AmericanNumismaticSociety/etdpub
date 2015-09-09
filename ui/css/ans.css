@@ -1,0 +1,139 @@
+/*
+  ****************************************
+  GLOBAL
+  ****************************************
+ */
+ html{
+ 	background-image:url("http://numismatics.org/authorities/ui/images/pattern.gif");
+	background-color:#F8F8F8;
+	background-attachment:scroll;	
+	background-position:center top;
+	background-repeat:repeat;
+}
+body{
+	color:#535e70;
+	background-image:url("http://numismatics.org/authorities/ui/images/pattern.gif");
+	font-family:Georgia, "Times New Roman", Times, serif;
+	font-size:14px;
+	line-height:18px;
+}
+.content{
+	background-color:white;
+	border-bottom:1px solid #e7e7e7;
+	border-left:1px solid #e7e7e7;
+	border-right:1px solid #e7e7e7;
+}
+.navbar{
+	margin-bottom:0;
+	border-bottom:4px solid black;
+}
+.navbar-brand{
+	padding:5px;
+}
+.highlight{
+	background-color:#F7F7F9;
+	border:1px solid #E1E1E8;
+	border-radius:12px;
+	margin-bottom:14px;
+	padding:9px 14px;
+}
+.table-dl td{
+	padding:5px;
+}
+/*
+  ***************************************
+  FOOTER
+  ***************************************
+ */
+#footer{
+	background-color:#535e70;
+	padding-top:10px;
+	padding-bottom:10px;
+	text-align:center;
+	font-size:80%;
+	color:white;
+}
+#footer a{
+	color:white;
+	text-decoration:underline;
+}
+/*
+  ***************************************
+  PAGINATION/SEARCH RESULTS
+  ***************************************
+ */
+.result-doc{
+	margin:10px 0;
+	padding:10px 0;
+	border-bottom:1px solid silver;
+}
+.doc-label{
+	font-size:120%;
+}
+.paging_div{
+	padding:10px 0;
+	vertical-align:bottom
+}
+.page-nos{
+	text-align:right;
+}
+.filter-form{
+	display:inline;
+}
+.filter-form .form-control{
+	width:200px;
+	display:inline;
+	margin-right:10px;
+}
+.info-window{
+	padding:20px;
+	background-color:#F8F8F8;
+	border:1px solid #E1E1E8;
+	border-radius:12px;
+	margin-bottom:20px;
+}
+.search-form .form-control{
+	width:80%;
+	display:inline;
+}
+.search-form button{
+	margin-left:5%;
+	width:15%;
+}
+.filter-container{
+	margin-bottom:20px;
+}
+.stacked_term{
+	padding:2px;
+	margin-bottom:5px;
+	border:1px solid #E7E7E7;
+	border-radius:5px;
+	vertical-align:middle;
+}
+button.multiselect{
+	margin-bottom:20px;
+}
+/*
+  ***************************************
+  PAGE DISPLAY
+  ***************************************
+ */
+.doc-icon{
+	vertical-align:bottom;
+	margin-left:10px;
+}
+div#mapcontainer{
+	width:100%;
+	height:400px;
+}
+.ol-attribution{
+	max-width:calc(100% - 3em);
+}
+.ol-control button,
+.ol-attribution,
+.ol-scale-line-inner{
+	font-family:'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+}
+.external-link{
+	margin:0px 5px;
+}

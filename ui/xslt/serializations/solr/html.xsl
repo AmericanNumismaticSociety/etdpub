@@ -42,7 +42,7 @@
 				<script type="text/javascript" src="{$display_path}ui/javascript/get_facets.js"/>
 				<script type="text/javascript" src="{$display_path}ui/javascript/result_functions.js"/>
 
-				<link rel="stylesheet" href="{$display_path}ui/css/style.css"/>
+				<link rel="stylesheet" href="{$display_path}ui/css/{//config/style}.css"/>
 			</head>
 			<body>
 				<xsl:call-template name="header"/>
