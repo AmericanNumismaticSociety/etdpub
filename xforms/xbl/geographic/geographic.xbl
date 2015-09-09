@@ -28,7 +28,7 @@
 									<xforms:label>
 										<span class="glyphicon glyphicon-new-window"/>
 									</xforms:label>
-									<xforms:load ev:event="DOMActivate" show="new" ref="@valueUri"/>
+									<xforms:load ev:event="DOMActivate" show="new" ref="@valueURI"/>
 								</xforms:trigger>
 
 								<xforms:trigger appearance="minimal">
@@ -163,7 +163,7 @@
 												<xforms:label>Select</xforms:label>
 												<xforms:action ev:event="DOMActivate">
 													<xforms:var name="id" select="tokenize(instance('temp')/@href, '/')[last()]"/>
-													<xforms:setvalue ref="$binding/@valueUri" value="instance('temp')/@href"/>
+													<xforms:setvalue ref="$binding/@valueURI" value="instance('temp')/@href"/>
 													<xforms:setvalue ref="$binding" value="instance('feed')//atom:entry[atom:id = $id]/atom:title"/>
 												</xforms:action>
 											</xforms:trigger>
@@ -209,7 +209,7 @@
 												<xforms:label>Select</xforms:label>
 												<xforms:action ev:event="DOMActivate">
 													<xforms:var name="geonameId" select="instance('temp')/@href"/>
-													<xforms:setvalue ref="$binding/@valueUri" value="concat('http://www.geonames.org/', instance('temp')/@href)"/>
+													<xforms:setvalue ref="$binding/@valueURI" value="concat('http://www.geonames.org/', instance('temp')/@href)"/>
 													<xforms:setvalue ref="$binding" value="instance('geonames')//geoname[geonameId = $geonameId]/label"/>
 												</xforms:action>
 											</xforms:trigger>
@@ -244,7 +244,7 @@
 											<xforms:trigger>
 												<xforms:label>Select</xforms:label>
 												<xforms:action ev:event="DOMActivate">
-													<xforms:setvalue ref="$binding/@valueUri" value="instance('temp')/@href"/>
+													<xforms:setvalue ref="$binding/@valueURI" value="instance('temp')/@href"/>
 													<xforms:setvalue ref="$binding" value="instance('getty-response')//res:result[res:binding[@name='c']/res:uri =
 														instance('temp')/@href]/res:binding[@name='label']/res:literal"/>
 												</xforms:action>
@@ -293,7 +293,7 @@
 											<xforms:trigger>
 												<xforms:label>Select</xforms:label>
 												<xforms:action ev:event="DOMActivate">
-													<xforms:setvalue ref="$binding/@valueUri" value="instance('temp')/@href"/>
+													<xforms:setvalue ref="$binding/@valueURI" value="instance('temp')/@href"/>
 													<xforms:setvalue ref="$binding" value="instance('feed')//rss:item[rss:link = instance('temp')/@href]/rss:title"/>
 												</xforms:action>
 											</xforms:trigger>

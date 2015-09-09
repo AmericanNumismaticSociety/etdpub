@@ -24,7 +24,7 @@
 								</xforms:output>
 								<xforms:trigger appearance="minimal">
 									<xforms:label><span class="glyphicon glyphicon-new-window"/></xforms:label>
-									<xforms:load ev:event="DOMActivate" show="new" ref="@valueUri"/>
+									<xforms:load ev:event="DOMActivate" show="new" ref="@valueURI"/>
 								</xforms:trigger>
 								<xforms:trigger appearance="minimal">
 									<xforms:action ev:event="DOMActivate">
@@ -72,7 +72,7 @@
 									<xforms:trigger>
 										<xforms:label>Select</xforms:label>
 										<xforms:action ev:event="DOMActivate">
-											<xforms:setvalue ref="$binding/@valueUri" value="instance('temp')/@href"/>
+											<xforms:setvalue ref="$binding/@valueURI" value="instance('temp')/@href"/>
 											<!--<xforms:setvalue ref="$binding/@identifier" value="instance('temp')/@identifier"/>-->
 											<xforms:setvalue ref="$binding" value="instance('feed')//atom:entry[atom:link[@rel='alternate' and not(@type)]/@href = instance('temp')/@href]/atom:title"/>
 										</xforms:action>

@@ -11,7 +11,7 @@
 			xmlns:nmo="http://nomisma.org/ontology#">
 
 			<xsl:variable name="id-param">
-				<xsl:for-each select="distinct-values(descendant::*[contains(@valueUri, 'nomisma.org')]/@valueUri)">
+				<xsl:for-each select="distinct-values(descendant::*[contains(@valueURI, 'nomisma.org')]/@valueURI)">
 					<xsl:value-of select="substring-after(., 'id/')"/>
 					<xsl:if test="not(position()=last())">
 						<xsl:text>|</xsl:text>
@@ -68,20 +68,20 @@
 				<field name="{local-name()}_facet" update="set">
 					<xsl:value-of select="."/>
 				</field>
-				<xsl:if test="string(@valueUri)">
+				<xsl:if test="string(@valueURI)">
 					<field name="{local-name()}_uri" update="set">
-						<xsl:value-of select="@valueUri"/>
+						<xsl:value-of select="@valueURI"/>
 					</field>
 				</xsl:if>
 
 				<!-- Pleiades URIs -->
-				<xsl:if test="contains(@valueUri, 'pleiades.stoa.org')">
+				<xsl:if test="contains(@valueURI, 'pleiades.stoa.org')">
 					<field name="pleiades_uri" update="set">
-						<xsl:value-of select="@valueUri"/>
+						<xsl:value-of select="@valueURI"/>
 					</field>
 				</xsl:if>
-				<xsl:if test="contains(@valueUri, 'nomisma.org')">
-					<xsl:variable name="href" select="@valueUri"/>
+				<xsl:if test="contains(@valueURI, 'nomisma.org')">
+					<xsl:variable name="href" select="@valueURI"/>
 					
 					<xsl:for-each select="$rdf/*[@rdf:about=$href]/skos:closeMatch[contains(@rdf:resource, 'pleiades.stoa.org')]">
 						<field name="pleiades_uri" update="set">

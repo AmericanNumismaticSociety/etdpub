@@ -178,8 +178,8 @@
 				<xsl:value-of select="."/>
 			</a>
 			
-			<xsl:if test="string(@valueUri)">
-				<a href="{@valueUri}" title="{@valueUri}" class="external-link">
+			<xsl:if test="string(@valueURI)">
+				<a href="{@valueURI}" title="{@valueURI}" class="external-link">
 					<img src="{$display_path}ui/images/external.png" alt="External Link"/>
 				</a>
 			</xsl:if>

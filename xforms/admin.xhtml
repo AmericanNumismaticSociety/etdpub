@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-    Copyright (C) 2012 Ethan Gruber
+    Copyright (C) 2015 Ethan Gruber
     etdpub: https://github.com/ewg118/etdpub
     Apache License 2.0
 -->
@@ -167,9 +167,13 @@
 							</div>
 						</xforms:group>
 						<h1>etdpub Administration</h1>
-						<p><a href="edit/"><span class="glyphicon glyphicon-file"></span>Create New EAC-CPF Record</a> | <a href="{instance('config')/url}" target="_blank">View Pubic Interface <span
-									class="glyphicon glyphicon-new-window"></span></a>
-						</p>
+						<p><a href="{instance('config')/url}" target="_blank">View Pubic Interface <span class="glyphicon glyphicon-new-window"></span></a></p>
+						<h3>Create New Documents</h3>
+						<ul>
+							<xforms:repeat nodeset="instance('config')/templates/template">
+								<li><a href="edit/?template={@id}"><span class="glyphicon glyphicon-file"></span><xforms:output ref="."></xforms:output></a></li>
+							</xforms:repeat>
+						</ul>
 						<xforms:group ref=".[count(instance('pagination-result')//record) &gt; 0]">
 							<div>
 								<h3>List of Records</h3>

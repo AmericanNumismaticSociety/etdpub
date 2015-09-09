@@ -15,40 +15,7 @@
 		<!-- model -->
 		<xforms:model>
 			<xforms:instance id="doc" xxforms:exclude-result-prefixes="#all">
-				<modsCollection xmlns="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-					xsi:schemaLocation="http://www.loc.gov/mods/v3 http://www.loc.gov/standards/mods/mods.xsd">
-					<mods version="3.5">
-						<titleInfo>
-							<title></title>
-						</titleInfo>
-						<name>
-							<namePart></namePart>
-						</name>
-						<abstract></abstract>
-						<originInfo>
-							<publisher></publisher>
-							<dateCreated></dateCreated>
-						</originInfo>
-						<language>
-							<languageTerm>en</languageTerm>
-						</language>
-						<physicalDescription>
-							<internetMediaType></internetMediaType>
-						</physicalDescription>
-						<location>
-							<url></url>
-						</location>
-						<accessCondition xlink:type="simple" xlink:href="http://creativecommons.org/licenses/by-nc/4.0">Attribution-NonCommercial CC BY-NC</accessCondition>
-						<recordInfo>
-							<recordContentSource>American Numismatic Society</recordContentSource>
-							<recordCreationDate encoding="iso8601"></recordCreationDate>
-							<recordIdentifier></recordIdentifier>
-						</recordInfo>
-						<subject>
-							<genre valueUri="http://vocab.getty.edu/aat/300028029">dissertations</genre>
-						</subject>
-					</mods>
-				</modsCollection>
+				<template></template>
 			</xforms:instance>
 
 			<!-- MODS templates -->
@@ -57,19 +24,19 @@
 			</xforms:instance>
 
 			<xforms:instance id="geographic-template" xxforms:exclude-result-prefixes="#all">
-				<geographic authority="" valueUri="" xmlns="http://www.loc.gov/mods/v3"></geographic>
+				<geographic authority="" valueURI="" xmlns="http://www.loc.gov/mods/v3"></geographic>
 			</xforms:instance>
-			
+
 			<xforms:instance id="name-template" xxforms:exclude-result-prefixes="#all">
-				<name authority="" valueUri="" xmlns="http://www.loc.gov/mods/v3"></name>
+				<name authority="" valueURI="" xmlns="http://www.loc.gov/mods/v3"></name>
 			</xforms:instance>
 
 			<xforms:instance id="temporal-template" xxforms:exclude-result-prefixes="#all">
-				<temporal authority="aat" valueUri="" xmlns="http://www.loc.gov/mods/v3"></temporal>
+				<temporal authority="aat" valueURI="" xmlns="http://www.loc.gov/mods/v3"></temporal>
 			</xforms:instance>
 
 			<xforms:instance id="topic-template" xxforms:exclude-result-prefixes="#all">
-				<topic authority="lcsh" valueUri="" xmlns="http://www.loc.gov/mods/v3"></topic>
+				<topic authority="lcsh" valueURI="" xmlns="http://www.loc.gov/mods/v3"></topic>
 			</xforms:instance>
 
 			<xforms:instance id="exist-config">
@@ -86,6 +53,8 @@
 					<id></id>
 					<media_url></media_url>
 					<new>true</new>
+					<template></template>
+					<template-error>false</template-error>
 				</controls>
 			</xforms:instance>
 
@@ -115,14 +84,14 @@
 					<url></url>
 				</config>
 			</xforms:instance>
-			
+
 			<xforms:instance id="generator-config">
 				<config xmlns="">
 					<url></url>
 					<mode>binary</mode>
 					<content-type></content-type>
 				</config>
-			</xforms:instance>			
+			</xforms:instance>
 
 			<xforms:instance id="delete-config">
 				<config xmlns="">
@@ -160,29 +129,34 @@
 				</xforms:bind>
 				<xforms:bind nodeset="mods:subject">
 					<xforms:bind nodeset="*" required="true()">
-						<xforms:bind nodeset="@valueUri" constraint="string-length(.) &gt; 0"/>
+						<xforms:bind nodeset="@valueURI" constraint="string-length(.) &gt; 0"></xforms:bind>
 					</xforms:bind>
 				</xforms:bind>
 			</xforms:bind>
-			
+
 			<xforms:bind nodeset="instance('control-instance')">
-				<xforms:bind nodeset="new" type="xs:boolean"/>
+				<xforms:bind nodeset="new" type="xs:boolean"></xforms:bind>
+				<xforms:bind nodeset="template-error" type="xs:boolean"></xforms:bind>
 			</xforms:bind>
 
 			<!-- **************** MODEL-CONSTRUCT-DONE ********************** -->
 			<xforms:action ev:event="xforms-model-construct-done">
 				<xforms:send submission="load-config"></xforms:send>
-
+				<xforms:action if="string(xxforms:get-request-parameter('template'))">
+					<xforms:setvalue ref="instance('control-instance')/template" value="string(xxforms:get-request-parameter('template'))"></xforms:setvalue>
+					<xforms:send submission="load-template"></xforms:send>
+					<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordCreationDate" value="format-date(current-date(), '[Y0001]-[M01]-[D01]')" ev:event="xforms-submit-done"
+					></xforms:setvalue>
+				</xforms:action>
 				<!-- load id if parameter is passed -->
-				<xforms:action if="string(xxforms:get-request-parameter('id'))">
-					<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier" value="xxforms:get-request-parameter('id')"></xforms:setvalue>
+				<xforms:action if="string(xxforms:get-request-parameter('id'))">					
 					<xforms:setvalue ref="instance('control-instance')/id" value="xxforms:get-request-parameter('id')"></xforms:setvalue>
 					<xforms:send submission="load-doc"></xforms:send>
 				</xforms:action>
-				<!-- if the record is new -->
-				<xforms:action if="not(string(xxforms:get-request-parameter('id')))">
-					<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordCreationDate" value="format-date(current-date(), '[Y0001]-[M01]-[D01]')"></xforms:setvalue>
-				</xforms:action>
+			</xforms:action>
+			
+			<xforms:action ev:event="xforms-ready">
+				<xforms:toggle case="template-error" if="instance('control-instance')/template-error = true()"/>
 			</xforms:action>
 
 			<!-- ************************* SUBMISSIONS ************************** -->
@@ -192,10 +166,15 @@
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load config file in eXist.</xforms:message>
 			</xforms:submission>
 
-			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/mods/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml"
+			<xforms:submission id="load-template" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/templates/{instance('control-instance')/template}.xml"
+				replace="instance" instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				<xforms:setvalue ref="instance('control-instance')/template-error" ev:event="xforms-submit-error" value="true()"></xforms:setvalue>
+			</xforms:submission>
+
+			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/mods/{instance('control-instance')/id}.xml"
 				replace="instance" instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load MODS record from eXist.</xforms:message>
-				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/new" value="false()"/>
+				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/new" value="false()"></xforms:setvalue>
 			</xforms:submission>
 
 			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/mods/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml" method="put"
@@ -204,7 +183,7 @@
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Successfully saved MODS record to eXist.</xforms:setvalue>
 					<!-- set the new status to false to prevent further editing of the ID -->
-					<xforms:setvalue ref="instance('control-instance')/new" value="false()"/>
+					<xforms:setvalue ref="instance('control-instance')/new" value="false()"></xforms:setvalue>
 					<!-- publish to Solr -->
 					<xforms:send submission="put-document"></xforms:send>
 				</xforms:action>
@@ -253,236 +232,249 @@
 	</head>
 
 	<body>
-		<div class="container-fluid">
-			<div class="row" id="form">
-				<div class="col-md-12">
-					<p><a href="../"><span class="glyphicon glyphicon-arrow-left"></span>Return to Admin</a></p>
-					<xforms:group ref=".[string-length(instance('control-instance')/status) &gt; 0]">
-						<div class="bg-info alert-box">
-							<span class="glyphicon glyphicon-info-sign"></span>
-							<strong>Status:</strong>
-							<xforms:output ref="instance('control-instance')/status"></xforms:output>
-						</div>
-					</xforms:group>
-					<xforms:group ref=".[not(string(instance('doc')/mods:mods/mods:location/mods:url))]">
-						<div class="bg-danger alert-box">
-							<span class="glyphicon glyphicon-exclamation-sign"></span>
-							<strong>Alert:</strong> There must be an uploaded document.</div>
-					</xforms:group>
-					<div class="submission">
-						<xforms:submit submission="save-doc">
-							<xforms:label><span class="glyphicon glyphicon-floppy-disk"></span>Save</xforms:label>
-						</xforms:submit>
-						<xforms:submit submission="load-doc">
-							<xforms:label><span class="glyphicon glyphicon-refresh"></span>Load</xforms:label>
-						</xforms:submit>
-					</div>
-					<h1>Edit Metadata</h1>
-				</div>
-				<xforms:group ref="instance('doc')/mods:mods">
-					<div class="col-md-6">
-						<div class="subsection">
-							<div>
-								<xforms:input ref="mods:titleInfo/mods:title">
-									<xforms:label>Title</xforms:label>
-									<xforms:alert>Required</xforms:alert>
-									<xforms:action ev:event="xforms-value-changed">
-										<xforms:var name="title" select="."></xforms:var>
-										<!-- set the id, only if it was previously blank (new file) -->
-										<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier" value="replace(lower-case($title), '\s', '_')"
-											if="not(string(instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier))"></xforms:setvalue>
-									</xforms:action>
-								</xforms:input>
-							</div>
-							<div>
-								<xforms:input ref="mods:name/mods:namePart">
-									<xforms:label>Author</xforms:label>
-									<xforms:alert>Required</xforms:alert>
-								</xforms:input>
-							</div>
-							<div>
-								<xforms:input ref="mods:originInfo/mods:publisher">
-									<xforms:label>University</xforms:label>
-									<xforms:alert>Required</xforms:alert>
-								</xforms:input>
-							</div>
-							<div>
-								<xforms:input ref="mods:originInfo/mods:dateCreated">
-									<xforms:label>Date</xforms:label>
-									<xforms:alert>Required. Must be a year.</xforms:alert>
-								</xforms:input>
-							</div>
-							<div>
-								<xforms:select1 ref="mods:language/mods:languageTerm">
-									<xforms:label>Language</xforms:label>
-									<xforms:item>
-										<xforms:label>Select...</xforms:label>
-										<xforms:value></xforms:value>
-									</xforms:item>
-									<xforms:itemset nodeset="instance('languages')/language">
-										<xforms:label ref="."></xforms:label>
-										<xforms:value ref="@value"></xforms:value>
-									</xforms:itemset>
-									<xforms:alert>Required</xforms:alert>
-								</xforms:select1>
-							</div>
-							<div>
-								<xforms:select1 ref="mods:accessCondition/@xlink:href">
-									<xforms:label>Rights</xforms:label>
-									<xforms:itemset nodeset="instance('licenses')/license">
-										<xforms:label ref="."></xforms:label>
-										<xforms:value ref="@value"></xforms:value>
-									</xforms:itemset>
-									<xforms:action ev:event="xforms-value-changed">
-										<xforms:var name="label" select="."></xforms:var>
-										<xforms:setvalue ref="instance('doc')/mods:accessCondition" value="$label"></xforms:setvalue>
-									</xforms:action>
-								</xforms:select1>
-							</div>
-							<div>
-								<xforms:textarea ref="mods:abstract">
-									<xforms:label>Abstract</xforms:label>
-									<xforms:alert>Required</xforms:alert>
-								</xforms:textarea>
-							</div>
-						</div>
-						<div class="subsection">
-							<h3>Subject Terms</h3>
-							<div class="trigger-container">
-								<xforms:trigger appearance="minimal">
-									<xforms:label>
-										<span class="glyphicon glyphicon-plus"></span>Geographic</xforms:label>
-									<xforms:action ev:event="DOMActivate">
-										<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
-										<xforms:insert origin="instance('geographic-template')" context="mods:subject[last()]"></xforms:insert>
-									</xforms:action>
-								</xforms:trigger>
-								<xforms:trigger appearance="minimal">
-									<xforms:label>
-										<span class="glyphicon glyphicon-plus"></span>Name</xforms:label>
-									<xforms:action ev:event="DOMActivate">
-										<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
-										<xforms:insert origin="instance('name-template')" context="mods:subject[last()]"></xforms:insert>
-									</xforms:action>
-								</xforms:trigger>
-								<xforms:trigger appearance="minimal">
-									<xforms:label>
-										<span class="glyphicon glyphicon-plus"></span>Temporal</xforms:label>
-									<xforms:action ev:event="DOMActivate">
-										<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
-										<xforms:insert origin="instance('temporal-template')" context="mods:subject[last()]"></xforms:insert>
-									</xforms:action>
-								</xforms:trigger>
-								<xforms:trigger appearance="minimal">
-									<xforms:label>
-										<span class="glyphicon glyphicon-plus"></span>Topic</xforms:label>
-									<xforms:action ev:event="DOMActivate">
-										<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
-										<xforms:insert origin="instance('topic-template')" context="mods:subject[last()]"></xforms:insert>
-									</xforms:action>
-								</xforms:trigger>
-							</div>
-							<xforms:repeat nodeset="mods:subject[mods:geographic]">
-								<etdpub:geographic ref="mods:geographic"></etdpub:geographic>
-							</xforms:repeat>
-							<xforms:repeat nodeset="mods:subject[mods:name]">
-								<etdpub:name ref="mods:name"></etdpub:name>
-							</xforms:repeat>
-							<xforms:repeat nodeset="mods:subject[mods:temporal]">
-								<etdpub:temporal ref="mods:temporal"></etdpub:temporal>
-							</xforms:repeat>
-							<xforms:repeat nodeset="mods:subject[mods:topic]">
-								<etdpub:topic ref="mods:topic"></etdpub:topic>
-							</xforms:repeat>
-						</div>
-					</div>
-					<div class="col-md-6">
-						<xforms:group ref=".[string(mods:location/mods:url)]">
-							<div class="subsection">
-								<h2>Media <small>
-										<xforms:trigger appearance="minimal">
-											<xforms:label><span class="glyphicon glyphicon-new-window"></span></xforms:label>
-											<xforms:action ev:event="DOMActivate">
-												<xforms:setvalue ref="instance('control-instance')/media_url" value="concat(instance('config')/url, instance('doc')/mods:mods/mods:location/mods:url)"></xforms:setvalue>
-												<xforms:load ref="instance('control-instance')/media_url"></xforms:load>
-											</xforms:action>
-										</xforms:trigger>
-										<xforms:trigger appearance="minimal">
-											<xforms:label><span class="glyphicon glyphicon-remove"></span></xforms:label>
-											<xforms:dispatch ev:event="DOMActivate" target="delete-dialog" name="fr-show"></xforms:dispatch>
-										</xforms:trigger>
-									</small>
-								</h2>
-								<div>
-									<xforms:output ref="mods:location/mods:url">
-										<xforms:label>URL</xforms:label>
-									</xforms:output>
+		<xforms:switch>
+			<xforms:case id="default">
+				<div class="container-fluid">
+					<div class="row" id="form">
+						<div class="col-md-12">
+							<p><a href="../"><span class="glyphicon glyphicon-arrow-left"></span>Return to Admin</a></p>
+							<xforms:group ref=".[string-length(instance('control-instance')/status) &gt; 0]">
+								<div class="bg-info alert-box">
+									<span class="glyphicon glyphicon-info-sign"></span>
+									<strong>Status:</strong>
+									<xforms:output ref="instance('control-instance')/status"></xforms:output>
 								</div>
-								<div>
-									<xforms:output ref="mods:physicalDescription/mods:internetMediaType">
-										<xforms:label>Content Type</xforms:label>
-									</xforms:output>
-								</div>
+							</xforms:group>
+							<xforms:group ref=".[not(string(instance('doc')/mods:mods/mods:location/mods:url))]">
+								<div class="bg-danger alert-box">
+									<span class="glyphicon glyphicon-exclamation-sign"></span>
+									<strong>Alert:</strong> There must be an uploaded document.</div>
+							</xforms:group>
+							<div class="submission">
+								<xforms:submit submission="save-doc">
+									<xforms:label><span class="glyphicon glyphicon-floppy-disk"></span>Save</xforms:label>
+								</xforms:submit>
+								<xforms:submit submission="load-doc">
+									<xforms:label><span class="glyphicon glyphicon-refresh"></span>Load</xforms:label>
+								</xforms:submit>
 							</div>
-						</xforms:group>
-						<xforms:group ref=".[not(string(mods:location/mods:url))]">
-							<div class="subsection">
-								<h2>Upload Media</h2>
-								<fr:upload ref="instance('file')">
-									<xforms:filename ref="@filename"></xforms:filename>
-									<xforms:mediatype ref="@mediatype"></xforms:mediatype>
-									<xxforms:size ref="@size"></xxforms:size>
-								</fr:upload>
-								<br />
-								<xforms:trigger>
-									<xforms:label>Upload</xforms:label>
-									<xforms:action ev:event="DOMActivate">
-										<xforms:send submission="upload-file"></xforms:send>
-										<!--get the temp file written to disk, and move it into the docs folder in the etdpub app directory -->
-										<xforms:action ev:event="xforms-submit-done">
-											<xforms:setvalue ref="instance('generator-config')/url" value="instance('file')"></xforms:setvalue>
-											<xforms:setvalue ref="instance('generator-config')/content-type" value="instance('file')/@mediatype"></xforms:setvalue>
-											<xforms:setvalue ref="instance('serializer-config')/url" value="concat('oxf:/apps/etdpub/docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
-											<xforms:insert nodeset="instance('dump')"
-												origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/move-file.xpl', ('generator-config', 'serializer-config'), (instance('generator-config'), instance('serializer-config')), 'data')"></xforms:insert>
-											<!-- set the data within the MODS document -->
-											<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url" value="concat('docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
-											<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType" value="instance('file')/@mediatype"></xforms:setvalue>
-										</xforms:action>
-									</xforms:action>
-								</xforms:trigger>
-							</div>
-						</xforms:group>
-						<xforms:group ref="mods:recordInfo">
-							<div class="subsection">
-								<h2>Record Info</h2>
-								<xforms:group ref=".[instance('control-instance')/new = true()]">
+							<h1>Edit Metadata</h1>
+						</div>
+						<xforms:group ref="instance('doc')/mods:mods">
+							<div class="col-md-6">
+								<div class="subsection">
 									<div>
-										<xforms:input ref="mods:recordIdentifier">
-											<xforms:label>ID</xforms:label>
+										<xforms:input ref="mods:titleInfo/mods:title">
+											<xforms:label>Title</xforms:label>
+											<xforms:alert>Required</xforms:alert>
+											<xforms:action ev:event="xforms-value-changed">
+												<xforms:var name="title" select="."></xforms:var>
+												<!-- set the id, only if it was previously blank (new file) -->
+												<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier" value="replace(lower-case($title), '\s', '_')"
+													if="not(string(instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier))"></xforms:setvalue>
+											</xforms:action>
+										</xforms:input>
+									</div>
+									<div>
+										<xforms:input ref="mods:name/mods:namePart">
+											<xforms:label>Author</xforms:label>
 											<xforms:alert>Required</xforms:alert>
 										</xforms:input>
 									</div>
-								</xforms:group>
-								<xforms:group ref=".[instance('control-instance')/new = false()]">
 									<div>
-										<xforms:output ref="mods:recordIdentifier">
-											<xforms:label>ID</xforms:label>
-											<xforms:alert>The ID must be valid.</xforms:alert>
-										</xforms:output>
+										<xforms:input ref="mods:originInfo/mods:publisher">
+											<xforms:label>University</xforms:label>
+											<xforms:alert>Required</xforms:alert>
+										</xforms:input>
+									</div>
+									<div>
+										<xforms:input ref="mods:originInfo/mods:dateCreated">
+											<xforms:label>Date</xforms:label>
+											<xforms:alert>Required. Must be a year.</xforms:alert>
+										</xforms:input>
+									</div>
+									<div>
+										<xforms:select1 ref="mods:language/mods:languageTerm">
+											<xforms:label>Language</xforms:label>
+											<xforms:item>
+												<xforms:label>Select...</xforms:label>
+												<xforms:value></xforms:value>
+											</xforms:item>
+											<xforms:itemset nodeset="instance('languages')/language">
+												<xforms:label ref="."></xforms:label>
+												<xforms:value ref="@value"></xforms:value>
+											</xforms:itemset>
+											<xforms:alert>Required</xforms:alert>
+										</xforms:select1>
+									</div>
+									<div>
+										<xforms:select1 ref="mods:accessCondition/@xlink:href">
+											<xforms:label>Rights</xforms:label>
+											<xforms:itemset nodeset="instance('licenses')/license">
+												<xforms:label ref="."></xforms:label>
+												<xforms:value ref="@value"></xforms:value>
+											</xforms:itemset>
+											<xforms:action ev:event="xforms-value-changed">
+												<xforms:var name="label" select="."></xforms:var>
+												<xforms:setvalue ref="instance('doc')/mods:accessCondition" value="$label"></xforms:setvalue>
+											</xforms:action>
+										</xforms:select1>
+									</div>
+									<div>
+										<xforms:textarea ref="mods:abstract">
+											<xforms:label>Abstract</xforms:label>
+											<xforms:alert>Required</xforms:alert>
+										</xforms:textarea>
+									</div>
+								</div>
+								<div class="subsection">
+									<h3>Subject Terms</h3>
+									<div class="trigger-container">
+										<xforms:trigger appearance="minimal">
+											<xforms:label>
+												<span class="glyphicon glyphicon-plus"></span>Geographic</xforms:label>
+											<xforms:action ev:event="DOMActivate">
+												<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
+												<xforms:insert origin="instance('geographic-template')" context="mods:subject[last()]"></xforms:insert>
+											</xforms:action>
+										</xforms:trigger>
+										<xforms:trigger appearance="minimal">
+											<xforms:label>
+												<span class="glyphicon glyphicon-plus"></span>Name</xforms:label>
+											<xforms:action ev:event="DOMActivate">
+												<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
+												<xforms:insert origin="instance('name-template')" context="mods:subject[last()]"></xforms:insert>
+											</xforms:action>
+										</xforms:trigger>
+										<xforms:trigger appearance="minimal">
+											<xforms:label>
+												<span class="glyphicon glyphicon-plus"></span>Temporal</xforms:label>
+											<xforms:action ev:event="DOMActivate">
+												<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
+												<xforms:insert origin="instance('temporal-template')" context="mods:subject[last()]"></xforms:insert>
+											</xforms:action>
+										</xforms:trigger>
+										<xforms:trigger appearance="minimal">
+											<xforms:label>
+												<span class="glyphicon glyphicon-plus"></span>Topic</xforms:label>
+											<xforms:action ev:event="DOMActivate">
+												<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
+												<xforms:insert origin="instance('topic-template')" context="mods:subject[last()]"></xforms:insert>
+											</xforms:action>
+										</xforms:trigger>
+									</div>
+									<xforms:repeat nodeset="mods:subject[mods:geographic]">
+										<etdpub:geographic ref="mods:geographic"></etdpub:geographic>
+									</xforms:repeat>
+									<xforms:repeat nodeset="mods:subject[mods:name]">
+										<etdpub:name ref="mods:name"></etdpub:name>
+									</xforms:repeat>
+									<xforms:repeat nodeset="mods:subject[mods:temporal]">
+										<etdpub:temporal ref="mods:temporal"></etdpub:temporal>
+									</xforms:repeat>
+									<xforms:repeat nodeset="mods:subject[mods:topic]">
+										<etdpub:topic ref="mods:topic"></etdpub:topic>
+									</xforms:repeat>
+								</div>
+							</div>
+							<div class="col-md-6">
+								<xforms:group ref=".[string(mods:location/mods:url)]">
+									<div class="subsection">
+										<h2>Media <small>
+											<xforms:trigger appearance="minimal">
+												<xforms:label><span class="glyphicon glyphicon-new-window"></span></xforms:label>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:setvalue ref="instance('control-instance')/media_url" value="concat(instance('config')/url, instance('doc')/mods:mods/mods:location/mods:url)"></xforms:setvalue>
+													<xforms:load ref="instance('control-instance')/media_url"></xforms:load>
+												</xforms:action>
+											</xforms:trigger>
+											<xforms:trigger appearance="minimal">
+												<xforms:label><span class="glyphicon glyphicon-remove"></span></xforms:label>
+												<xforms:dispatch ev:event="DOMActivate" target="delete-dialog" name="fr-show"></xforms:dispatch>
+											</xforms:trigger>
+										</small>
+										</h2>
+										<div>
+											<xforms:output ref="mods:location/mods:url">
+												<xforms:label>URL</xforms:label>
+											</xforms:output>
+										</div>
+										<div>
+											<xforms:output ref="mods:physicalDescription/mods:internetMediaType">
+												<xforms:label>Content Type</xforms:label>
+											</xforms:output>
+										</div>
 									</div>
 								</xforms:group>
-								<div>
-									<xforms:output ref="mods:recordCreationDate">
-										<xforms:label>Creation Date</xforms:label>
-									</xforms:output>
-								</div>
+								<xforms:group ref=".[not(string(mods:location/mods:url))]">
+									<div class="subsection">
+										<h2>Upload Media</h2>
+										<fr:upload ref="instance('file')">
+											<xforms:filename ref="@filename"></xforms:filename>
+											<xforms:mediatype ref="@mediatype"></xforms:mediatype>
+											<xxforms:size ref="@size"></xxforms:size>
+										</fr:upload>
+										<br />
+										<xforms:trigger>
+											<xforms:label>Upload</xforms:label>
+											<xforms:action ev:event="DOMActivate">
+												<xforms:send submission="upload-file"></xforms:send>
+												<!--get the temp file written to disk, and move it into the docs folder in the etdpub app directory -->
+												<xforms:action ev:event="xforms-submit-done">
+													<xforms:setvalue ref="instance('generator-config')/url" value="instance('file')"></xforms:setvalue>
+													<xforms:setvalue ref="instance('generator-config')/content-type" value="instance('file')/@mediatype"></xforms:setvalue>
+													<xforms:setvalue ref="instance('serializer-config')/url" value="concat('oxf:/apps/etdpub/docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
+													<xforms:insert nodeset="instance('dump')"
+														origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/move-file.xpl', ('generator-config', 'serializer-config'), (instance('generator-config'), instance('serializer-config')), 'data')"></xforms:insert>
+													<!-- set the data within the MODS document -->
+													<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url" value="concat('docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
+													<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType" value="instance('file')/@mediatype"></xforms:setvalue>
+												</xforms:action>
+											</xforms:action>
+										</xforms:trigger>
+									</div>
+								</xforms:group>
+								<xforms:group ref="mods:recordInfo">
+									<div class="subsection">
+										<h2>Record Info</h2>
+										<xforms:group ref=".[instance('control-instance')/new = true()]">
+											<div>
+												<xforms:input ref="mods:recordIdentifier">
+													<xforms:label>ID</xforms:label>
+													<xforms:alert>Required</xforms:alert>
+												</xforms:input>
+											</div>
+										</xforms:group>
+										<xforms:group ref=".[instance('control-instance')/new = false()]">
+											<div>
+												<xforms:output ref="mods:recordIdentifier">
+													<xforms:label>ID</xforms:label>
+													<xforms:alert>The ID must be valid.</xforms:alert>
+												</xforms:output>
+											</div>
+										</xforms:group>
+										<div>
+											<xforms:output ref="mods:recordCreationDate">
+												<xforms:label>Creation Date</xforms:label>
+											</xforms:output>
+										</div>
+									</div>
+								</xforms:group>
 							</div>
 						</xforms:group>
 					</div>
-				</xforms:group>
-			</div>
-		</div>
+				</div>
+			</xforms:case>
+			<xforms:case id="template-error">
+				<div class="container-fluid">
+					<div class="row">
+						<div class="col-md-12">
+							<h1>Template error</h1>
+						</div>
+					</div>
+				</div>
+			</xforms:case>
+		</xforms:switch>
 
 		<fr:alert-dialog id="delete-dialog">
 			<fr:label>Delete Document</fr:label>
@@ -503,6 +495,6 @@
 			</fr:negative-choice>
 		</fr:alert-dialog>
 
-		<!--<fr:xforms-inspector></fr:xforms-inspector>-->
+		<fr:xforms-inspector></fr:xforms-inspector>
 	</body>
 </html>
