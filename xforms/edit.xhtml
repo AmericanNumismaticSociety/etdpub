@@ -55,6 +55,7 @@
 					<new>true</new>
 					<template></template>
 					<template-error>false</template-error>
+					<stream_url/>
 				</controls>
 			</xforms:instance>
 
@@ -71,6 +72,12 @@
 					<license value="http://creativecommons.org/licenses/by-nc/4.0">Attribution-NonCommercial CC BY-NC</license>
 					<license value="http://creativecommons.org/licenses/by-nc-nd/4.0">Attribution-NonCommercial-NoDerivs CC BY-NC-ND </license>
 				</licenses>
+			</xforms:instance>
+
+			<xforms:instance id="content-types">
+				<content-types xmlns="">
+					<type extension="pdf">application/pdf</type>
+				</content-types>
 			</xforms:instance>
 
 			<!-- upload instances -->
@@ -149,14 +156,16 @@
 					></xforms:setvalue>
 				</xforms:action>
 				<!-- load id if parameter is passed -->
-				<xforms:action if="string(xxforms:get-request-parameter('id'))">					
+				<xforms:action if="string(xxforms:get-request-parameter('id'))">
 					<xforms:setvalue ref="instance('control-instance')/id" value="xxforms:get-request-parameter('id')"></xforms:setvalue>
 					<xforms:send submission="load-doc"></xforms:send>
 				</xforms:action>
 			</xforms:action>
-			
+
 			<xforms:action ev:event="xforms-ready">
-				<xforms:toggle case="template-error" if="instance('control-instance')/template-error = true()"/>
+				<xforms:toggle case="template-error" if="instance('control-instance')/template-error = true()"></xforms:toggle>
+				<xforms:toggle case="etd-upload" if="instance('control-instance')/template = 'etd'"></xforms:toggle>
+				<xforms:toggle case="manual-link" if="not(instance('control-instance')/template = 'etd')"></xforms:toggle>
 			</xforms:action>
 
 			<!-- ************************* SUBMISSIONS ************************** -->
@@ -171,19 +180,24 @@
 				<xforms:setvalue ref="instance('control-instance')/template-error" ev:event="xforms-submit-error" value="true()"></xforms:setvalue>
 			</xforms:submission>
 
-			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/mods/{instance('control-instance')/id}.xml"
-				replace="instance" instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/mods/{instance('control-instance')/id}.xml" replace="instance"
+				instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load MODS record from eXist.</xforms:message>
-				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/new" value="false()"></xforms:setvalue>
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:setvalue ref="instance('control-instance')/new" value="false()"></xforms:setvalue>
+					<xforms:setvalue ref="instance('control-instance')/template" if="instance('doc')//mods:genre='dissertations'">etd</xforms:setvalue>
+				</xforms:action>
 			</xforms:submission>
 
 			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/mods/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml" method="put"
-				replace="none" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				replace="none" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">				
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error Saving Documents. Be sure all required inputs are filled in.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Successfully saved MODS record to eXist.</xforms:setvalue>
 					<!-- set the new status to false to prevent further editing of the ID -->
 					<xforms:setvalue ref="instance('control-instance')/new" value="false()"></xforms:setvalue>
+					<!-- set the document URL -->
+					<xforms:setvalue ref="instance('control-instance')/stream_url" value="if (matches(instance('doc')/mods:mods/mods:location/mods:url, '^https?://')) then instance('doc')/mods:mods/mods:location/mods:url else concat(instance('config')/url, instance('doc')/mods:mods/mods:location/mods:url)"/>
 					<!-- publish to Solr -->
 					<xforms:send submission="put-document"></xforms:send>
 				</xforms:action>
@@ -204,11 +218,12 @@
 			</xforms:submission>
 
 			<xforms:submission id="put-document" ref="instance('dump')" method="post" replace="none"
-				resource="{instance('config')/solr/url}update/extract?literal.id={instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}&amp;stream.url={concat(instance('config')/url, instance('doc')/mods:mods/mods:location/mods:url)}&amp;fmap.content=text&amp;fmap.date=timestamp&amp;commit=true">
+				resource="{instance('config')/solr/url}update/extract?literal.id={instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}&amp;stream.url={instance('control-instance')/stream_url}&amp;fmap.content=text&amp;fmap.date=timestamp&amp;commit=true">
 				<xforms:header>
 					<xforms:name>Content-type</xforms:name>
 					<xforms:value ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType"></xforms:value>
 				</xforms:header>
+				<xforms:message ev:event="xforms-submit" level="ephemeral">Working</xforms:message>
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to index the document file.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Document successfully saved to Solr.</xforms:setvalue>
@@ -248,7 +263,7 @@
 							<xforms:group ref=".[not(string(instance('doc')/mods:mods/mods:location/mods:url))]">
 								<div class="bg-danger alert-box">
 									<span class="glyphicon glyphicon-exclamation-sign"></span>
-									<strong>Alert:</strong> There must be an uploaded document.</div>
+									<strong>Alert:</strong> There must be a linked or uploaded document.</div>
 							</xforms:group>
 							<div class="submission">
 								<xforms:submit submission="save-doc">
@@ -378,62 +393,97 @@
 								</div>
 							</div>
 							<div class="col-md-6">
-								<xforms:group ref=".[string(mods:location/mods:url)]">
-									<div class="subsection">
-										<h2>Media <small>
-											<xforms:trigger appearance="minimal">
-												<xforms:label><span class="glyphicon glyphicon-new-window"></span></xforms:label>
-												<xforms:action ev:event="DOMActivate">
-													<xforms:setvalue ref="instance('control-instance')/media_url" value="concat(instance('config')/url, instance('doc')/mods:mods/mods:location/mods:url)"></xforms:setvalue>
-													<xforms:load ref="instance('control-instance')/media_url"></xforms:load>
-												</xforms:action>
-											</xforms:trigger>
-											<xforms:trigger appearance="minimal">
-												<xforms:label><span class="glyphicon glyphicon-remove"></span></xforms:label>
-												<xforms:dispatch ev:event="DOMActivate" target="delete-dialog" name="fr-show"></xforms:dispatch>
-											</xforms:trigger>
-										</small>
-										</h2>
+								<xforms:switch>
+									<xforms:case id="etd-upload">
+										<xforms:group ref=".[string(mods:location/mods:url)]">
+											<div class="subsection">
+												<h2>Media <small>
+														<xforms:trigger appearance="minimal">
+															<xforms:label><span class="glyphicon glyphicon-new-window"></span></xforms:label>
+															<xforms:action ev:event="DOMActivate">
+																<xforms:setvalue ref="instance('control-instance')/media_url"
+																	value="concat(instance('config')/url, instance('doc')/mods:mods/mods:location/mods:url)"></xforms:setvalue>
+																<xforms:load ref="instance('control-instance')/media_url"></xforms:load>
+															</xforms:action>
+														</xforms:trigger>
+														<xforms:trigger appearance="minimal">
+															<xforms:label><span class="glyphicon glyphicon-remove"></span></xforms:label>
+															<xforms:dispatch ev:event="DOMActivate" target="delete-dialog" name="fr-show"></xforms:dispatch>
+														</xforms:trigger>
+													</small>
+												</h2>
+												<div>
+													<xforms:output ref="mods:location/mods:url">
+														<xforms:label>URL</xforms:label>
+													</xforms:output>
+												</div>
+												<div>
+													<xforms:output ref="mods:physicalDescription/mods:internetMediaType">
+														<xforms:label>Content Type</xforms:label>
+													</xforms:output>
+												</div>
+											</div>
+										</xforms:group>
+										<xforms:group ref=".[not(string(mods:location/mods:url))]">
+											<div class="subsection">
+												<h2>Upload Media</h2>
+												<fr:upload ref="instance('file')">
+													<xforms:filename ref="@filename"></xforms:filename>
+													<xforms:mediatype ref="@mediatype"></xforms:mediatype>
+													<xxforms:size ref="@size"></xxforms:size>
+												</fr:upload>
+												<br />
+												<xforms:trigger>
+													<xforms:label>Upload</xforms:label>
+													<xforms:action ev:event="DOMActivate">
+														<xforms:send submission="upload-file"></xforms:send>
+														<!--get the temp file written to disk, and move it into the docs folder in the etdpub app directory -->
+														<xforms:action ev:event="xforms-submit-done">
+															<xforms:setvalue ref="instance('generator-config')/url" value="instance('file')"></xforms:setvalue>
+															<xforms:setvalue ref="instance('generator-config')/content-type" value="instance('file')/@mediatype"></xforms:setvalue>
+															<xforms:setvalue ref="instance('serializer-config')/url"
+																value="concat('oxf:/apps/etdpub/docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
+															<xforms:insert nodeset="instance('dump')"
+																origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/move-file.xpl', ('generator-config', 'serializer-config'), (instance('generator-config'), instance('serializer-config')), 'data')"></xforms:insert>
+															<!-- set the data within the MODS document -->
+															<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url"
+																value="concat('docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
+															<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType" value="instance('file')/@mediatype"
+															></xforms:setvalue>
+														</xforms:action>
+													</xforms:action>
+												</xforms:trigger>
+											</div>
+										</xforms:group>
+									</xforms:case>
+									<xforms:case id="manual-link">
+										<h2>Link Media</h2>
 										<div>
-											<xforms:output ref="mods:location/mods:url">
+											<!--<xforms:input ref="instance('control-instance')/media_url">
+												<xforms:label>URL</xforms:label>												
+											</xforms:input>
+											<xforms:trigger>
+												<xforms:label>Validate</xforms:label>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType" value="xxforms:get-request-header('User-Agent')"/>
+												</xforms:action>
+											</xforms:trigger>-->
+											<xforms:input ref="mods:location/mods:url">
 												<xforms:label>URL</xforms:label>
-											</xforms:output>
+												<xforms:action ev:event="xforms-value-changed">
+													<xforms:var name="extension" select="tokenize(., '\.')[last()]"></xforms:var>
+													<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType"
+														value="instance('content-types')/type[@extension=$extension]"></xforms:setvalue>
+												</xforms:action>
+											</xforms:input>
 										</div>
 										<div>
 											<xforms:output ref="mods:physicalDescription/mods:internetMediaType">
 												<xforms:label>Content Type</xforms:label>
 											</xforms:output>
 										</div>
-									</div>
-								</xforms:group>
-								<xforms:group ref=".[not(string(mods:location/mods:url))]">
-									<div class="subsection">
-										<h2>Upload Media</h2>
-										<fr:upload ref="instance('file')">
-											<xforms:filename ref="@filename"></xforms:filename>
-											<xforms:mediatype ref="@mediatype"></xforms:mediatype>
-											<xxforms:size ref="@size"></xxforms:size>
-										</fr:upload>
-										<br />
-										<xforms:trigger>
-											<xforms:label>Upload</xforms:label>
-											<xforms:action ev:event="DOMActivate">
-												<xforms:send submission="upload-file"></xforms:send>
-												<!--get the temp file written to disk, and move it into the docs folder in the etdpub app directory -->
-												<xforms:action ev:event="xforms-submit-done">
-													<xforms:setvalue ref="instance('generator-config')/url" value="instance('file')"></xforms:setvalue>
-													<xforms:setvalue ref="instance('generator-config')/content-type" value="instance('file')/@mediatype"></xforms:setvalue>
-													<xforms:setvalue ref="instance('serializer-config')/url" value="concat('oxf:/apps/etdpub/docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
-													<xforms:insert nodeset="instance('dump')"
-														origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/move-file.xpl', ('generator-config', 'serializer-config'), (instance('generator-config'), instance('serializer-config')), 'data')"></xforms:insert>
-													<!-- set the data within the MODS document -->
-													<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url" value="concat('docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
-													<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType" value="instance('file')/@mediatype"></xforms:setvalue>
-												</xforms:action>
-											</xforms:action>
-										</xforms:trigger>
-									</div>
-								</xforms:group>
+									</xforms:case>
+								</xforms:switch>
 								<xforms:group ref="mods:recordInfo">
 									<div class="subsection">
 										<h2>Record Info</h2>
@@ -470,6 +520,10 @@
 					<div class="row">
 						<div class="col-md-12">
 							<h1>Template error</h1>
+							<p><a href="../"><span class="glyphicon glyphicon-arrow-left"></span>Return to Admin</a></p>
+							<div class="bg-danger alert-box">
+								<span class="glyphicon glyphicon-exclamation-sign"></span>
+								<strong>Alert:</strong> The template ID is invalid.</div>
 						</div>
 					</div>
 				</div>

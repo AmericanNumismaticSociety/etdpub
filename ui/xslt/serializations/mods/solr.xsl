@@ -38,11 +38,8 @@
 			<field name="title" update="add">
 				<xsl:value-of select="//mods:title"/>
 			</field>
-			<field name="author" update="add">
-				<xsl:value-of select="//mods:namePart"/>
-			</field>
-			<field name="university" update="add">
-				<xsl:value-of select="//mods:publisher"/>
+			<field name="author" update="set">
+				<xsl:value-of select="string-join(mods:name/mods:namePart, ', ')"/>
 			</field>
 			<field name="timestamp" update="set">
 				<xsl:value-of select="if (contains(string(current-dateTime()), 'Z')) then current-dateTime() else concat(string(current-dateTime()), 'Z')"/>
@@ -62,6 +59,27 @@
 					<xsl:value-of select="mods:languageTerm"/>
 				</field>
 			</xsl:for-each>
+			
+			<!-- index authors and publishers as facets -->
+			<xsl:for-each select="mods:name">
+				<field name="author_facet" update="add">
+					<xsl:value-of select="mods:namePart"/>
+				</field>
+			</xsl:for-each>			
+			<xsl:for-each select="descendant::mods:publisher">
+				<xsl:choose>
+					<xsl:when test="ancestor::mods:mods/mods:subject/mods:genre[.='dissertations']">
+						<field name="university" update="add">
+							<xsl:value-of select="."/>
+						</field>
+					</xsl:when>
+					<xsl:otherwise>
+						<field name="publisher_facet" update="add">
+							<xsl:value-of select="."/>
+						</field>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:for-each>		
 
 			<!-- subject facets -->
 			<xsl:for-each select="mods:subject/*">

@@ -172,10 +172,13 @@
 			<dd>
 				<xsl:value-of select="str[@name='date']"/>
 			</dd>
-			<dt>University</dt>
-			<dd>
-				<xsl:value-of select="str[@name='university']"/>
-			</dd>
+			<xsl:if test="str[@name='university']">
+				<dt>University</dt>
+				<dd>
+					<xsl:value-of select="str[@name='university']"/>
+				</dd>
+			</xsl:if>
+			
 			<xsl:for-each select="arr[@name='language']/str">
 				<xsl:variable name="lang" select="."/>
 				<dt>Language</dt>

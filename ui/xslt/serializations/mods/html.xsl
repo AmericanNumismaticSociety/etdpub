@@ -74,15 +74,17 @@
 				</div>
 				<div class="col-md-9">
 					<dl class="dl-horizontal">
-						<dt>Author</dt>
-						<dd itemprop="author">
-							<xsl:value-of select="mods:name/mods:namePart"/>
-						</dd>
+						<xsl:for-each select="mods:name">
+							<dt>Author</dt>
+							<dd itemprop="author">
+								<xsl:value-of select="mods:namePart"/>
+							</dd>
+						</xsl:for-each>						
 						<dt>Date</dt>
 						<dd itemprop="dateCreated">
 							<xsl:value-of select="mods:originInfo/mods:dateCreated"/>
 						</dd>
-						<dt>University</dt>
+						<dt>Publisher</dt>
 						<dd itemprop="publisher">
 							<xsl:value-of select="mods:originInfo/mods:publisher"/>
 						</dd>
@@ -123,8 +125,10 @@
 				</div>
 				<div class="col-md-3">
 					<div class="highlight">
+						<xsl:variable name="href" select="if (matches(mods:location/mods:url, '^https?://')) then mods:location/mods:url else concat($display_path, mods:location/mods:url)"/>
+						
 						<h4>
-							<a href="{$display_path}{mods:location/mods:url}" itemprop="url">
+							<a href="{$href}" itemprop="url">
 								<span class="glyphicon glyphicon-download-alt"/>
 								<xsl:text>Download</xsl:text>
 								<xsl:choose>
