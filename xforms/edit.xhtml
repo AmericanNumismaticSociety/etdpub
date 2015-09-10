@@ -55,6 +55,7 @@
 					<new>true</new>
 					<template></template>
 					<template-error>false</template-error>
+					<working>false</working>
 					<stream_url/>
 				</controls>
 			</xforms:instance>
@@ -144,6 +145,7 @@
 			<xforms:bind nodeset="instance('control-instance')">
 				<xforms:bind nodeset="new" type="xs:boolean"></xforms:bind>
 				<xforms:bind nodeset="template-error" type="xs:boolean"></xforms:bind>
+				<xforms:bind nodeset="working" type="xs:boolean"></xforms:bind>
 			</xforms:bind>
 
 			<!-- **************** MODEL-CONSTRUCT-DONE ********************** -->
@@ -223,10 +225,11 @@
 					<xforms:name>Content-type</xforms:name>
 					<xforms:value ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType"></xforms:value>
 				</xforms:header>
-				<xforms:message ev:event="xforms-submit" level="ephemeral">Working</xforms:message>
+				<xforms:setvalue ev:event="xforms-submit" ref="instance('control-instance')/working" value="true()"/>
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to index the document file.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Document successfully saved to Solr.</xforms:setvalue>
+					<xforms:setvalue ref="instance('control-instance')/working" value="false()"/>
 					<xforms:send submission="mods-to-solr"></xforms:send>
 				</xforms:action>
 			</xforms:submission>
@@ -253,6 +256,11 @@
 					<div class="row" id="form">
 						<div class="col-md-12">
 							<p><a href="../"><span class="glyphicon glyphicon-arrow-left"></span>Return to Admin</a></p>
+							<xforms:group ref=".[instance('control-instance')/working=true()]">
+								<div class="bg-info alert-box">
+									<span class="glyphicon glyphicon-info-sign"></span>
+									<strong>Working:</strong> Indexing document...</div>
+							</xforms:group>
 							<xforms:group ref=".[string-length(instance('control-instance')/status) &gt; 0]">
 								<div class="bg-info alert-box">
 									<span class="glyphicon glyphicon-info-sign"></span>
@@ -549,6 +557,6 @@
 			</fr:negative-choice>
 		</fr:alert-dialog>
 
-		<fr:xforms-inspector></fr:xforms-inspector>
+		<!--<fr:xforms-inspector></fr:xforms-inspector>-->
 	</body>
 </html>
