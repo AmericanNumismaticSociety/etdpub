@@ -35,7 +35,7 @@
 			<field name="id">
 				<xsl:value-of select="//mods:recordIdentifier"/>
 			</field>
-			<field name="title" update="add">
+			<field name="title" update="set">
 				<xsl:value-of select="//mods:title"/>
 			</field>
 			<field name="author" update="set">
