@@ -116,19 +116,19 @@
 
 			<!--***************** XQUERY ******************-->
 			<!-- xquery for getting and processing query results into pages of items -->
-			<xforms:submission id="xquery-pagination" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/mods" method="post" replace="instance" instance="pagination-result"
+			<xforms:submission id="xquery-pagination" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance" instance="pagination-result"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error querying eXist database.</xforms:message>
 			</xforms:submission>
 
-			<xforms:submission id="xquery-collection" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/mods" method="post" replace="instance" instance="xquery-result"
+			<xforms:submission id="xquery-collection" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance" instance="xquery-result"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error querying eXist database.</xforms:message>
 			</xforms:submission>
 
 			<!--***************** EXIST-DB ******************-->
 			<!-- delete finding aid -->
-			<xforms:submission id="delete-doc" action="{instance('exist-config')/url}etdpub/mods/{instance('control-instance')/id}.xml" method="delete" replace="none"
+			<xforms:submission id="delete-doc" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml" method="delete" replace="none"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/status">MODS record successfully deleted.</xforms:setvalue>
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error deleting document from eXist database.</xforms:message>

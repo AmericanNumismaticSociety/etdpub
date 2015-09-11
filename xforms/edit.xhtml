@@ -182,7 +182,7 @@
 				<xforms:setvalue ref="instance('control-instance')/template-error" ev:event="xforms-submit-error" value="true()"></xforms:setvalue>
 			</xforms:submission>
 
-			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/mods/{instance('control-instance')/id}.xml" replace="instance"
+			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml" replace="instance"
 				instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load MODS record from eXist.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
@@ -191,7 +191,7 @@
 				</xforms:action>
 			</xforms:submission>
 
-			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/mods/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml" method="put"
+			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/records/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml" method="put"
 				replace="none" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">				
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error Saving Documents. Be sure all required inputs are filled in.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">

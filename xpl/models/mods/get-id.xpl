@@ -42,7 +42,7 @@
 					
 					<config>
 						<url>
-							<xsl:value-of select="concat(/exist-config/url, 'etdpub/mods/', $id, '.xml')"/>
+							<xsl:value-of select="concat(/exist-config/url, 'etdpub/records/', $id, '.xml')"/>
 						</url>
 						<content-type>application/xml</content-type>
 						<encoding>utf-8</encoding>
