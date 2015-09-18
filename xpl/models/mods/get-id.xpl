@@ -34,6 +34,12 @@
 							<xsl:when test="substring($basename, string-length($basename) - 4) = '.solr'">
 								<xsl:value-of select="substring-before($basename, '.solr')"/>
 							</xsl:when>
+							<xsl:when test="substring($basename, string-length($basename) - 3) = '.opf'">
+								<xsl:value-of select="substring-before($basename, '.opf')"/>
+							</xsl:when>
+							<xsl:when test="substring($basename, string-length($basename) - 4) = '.epub'">
+								<xsl:value-of select="substring-before($basename, '.epub')"/>
+							</xsl:when>
 							<xsl:otherwise>
 								<xsl:value-of select="$basename"/>
 							</xsl:otherwise>
