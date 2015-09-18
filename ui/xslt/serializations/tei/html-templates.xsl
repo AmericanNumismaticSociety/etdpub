@@ -136,11 +136,11 @@
 				</xsl:choose>
 			</a>
 			
-			<!--<xsl:if test="child::tei:div2">
+			<xsl:if test="child::tei:div2">
 				<ul>
 					<xsl:apply-templates select="tei:div2" mode="toc"/>
 				</ul>
-			</xsl:if>-->
+			</xsl:if>
 		</li>
 	</xsl:template>
 </xsl:stylesheet>
