@@ -143,4 +143,16 @@
 			</xsl:if>
 		</li>
 	</xsl:template>
+	
+	<!-- figure images -->
+	<xsl:template match="tei:figure">
+		<div class="figure highlight">
+			<xsl:apply-templates/>
+		</div>
+	</xsl:template>
+	
+	<xsl:template match="tei:graphic">
+		<xsl:variable name="src" select="if(matches(@url, 'https?://')) then @url else concat($display_path, 'media/', $id, '/', @url)"/>
+		<img src="{$src}" alt="figure"/>
+	</xsl:template>
 </xsl:stylesheet>

@@ -150,4 +150,16 @@
 			<xsl:apply-templates/>
 		</li>
 	</xsl:template>
+	
+	<!-- figure images -->
+	<xsl:template match="tei:figure">
+		<div class="figure">
+			<xsl:apply-templates/>
+		</div>
+	</xsl:template>
+	
+	<xsl:template match="tei:graphic">
+		<xsl:variable name="src" select="concat('images/', tokenize(@url, '/')[last()])"/>
+		<img src="{$src}" alt="figure"/>
+	</xsl:template>
 </xsl:stylesheet>

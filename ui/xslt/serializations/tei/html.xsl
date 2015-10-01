@@ -11,7 +11,7 @@
 	<!-- variables -->
 	<xsl:variable name="display_path">../</xsl:variable>
 	<xsl:variable name="url" select="/content/config/url"/>
-	<xsl:variable name="id" select="/tei:TEI/@xml:id"/>
+	<xsl:variable name="id" select="/content/tei:TEI/@xml:id"/>
 
 	<xsl:variable name="namespaces" as="node()*">
 		<namespaces>

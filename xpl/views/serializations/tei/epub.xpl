@@ -25,7 +25,7 @@
 		<p:input name="config">
 			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 				<xsl:variable name="basename"
-					select="substring-before(tokenize(/request/request-url, '/')[last()], '.zip')"/>
+					select="substring-before(tokenize(/request/request-url, '/')[last()], '.epub')"/>
 
 				<xsl:template match="/">
 					<config>
@@ -45,7 +45,7 @@
 		<p:input name="config">
 			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 				<xsl:variable name="basename"
-					select="substring-before(tokenize(/request/request-url, '/')[last()], '.zip')"/>
+					select="substring-before(tokenize(/request/request-url, '/')[last()], '.epub')"/>
 				
 				<xsl:template match="/">
 					<config>
@@ -64,7 +64,7 @@
 		<p:input name="config">
 			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 				<xsl:variable name="basename"
-					select="substring-before(tokenize(/request/request-url, '/')[last()], '.zip')"/>
+					select="substring-before(tokenize(/request/request-url, '/')[last()], '.epub')"/>
 
 				<xsl:template match="/">
 					<config>
@@ -77,14 +77,44 @@
 		</p:input>
 		<p:output name="data" id="opf-serializer-config"/>
 	</p:processor>
-
-	<!-- zip config -->
+	
+	<!-- generate directory scanner config -->
 	<p:processor name="oxf:unsafe-xslt">
 		<p:input name="data" href="#request"/>
 		<p:input name="config">
 			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 				<xsl:variable name="basename"
-					select="substring-before(tokenize(/request/request-url, '/')[last()], '.zip')"/>
+					select="substring-before(tokenize(/request/request-url, '/')[last()], '.epub')"/>
+				
+				<xsl:template match="/">
+					<config>
+						<base-directory><xsl:value-of select="concat('oxf:/apps/etdpub/media/', $basename)"/></base-directory>
+						<include>*.jpg</include>
+						<include>*.png</include>
+						<include>*.gif</include>
+						<case-sensitive>true</case-sensitive>
+						<default-excludes>true</default-excludes>
+					</config>
+				</xsl:template>
+			</xsl:stylesheet>
+		</p:input>
+		<p:output name="data" id="directory-scanner-config"/>
+	</p:processor>
+	
+	<p:processor name="oxf:directory-scanner">
+		<p:input name="config" href="#directory-scanner-config"/>
+		<p:output name="data" id="directory-scan"/>
+	</p:processor>
+
+	<!-- zip config -->
+	<p:processor name="oxf:unsafe-xslt">
+		<p:input name="data" href="#request"/>
+		<p:input name="scan" href="#directory-scan"/>
+		<p:input name="config">
+			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+				<xsl:variable name="basename"
+					select="substring-before(tokenize(/request/request-url, '/')[last()], '.epub')"/>
+				<xsl:variable name="path" select="doc('input:scan')/directory/@path"/>
 
 				<xsl:template match="/">
 					<files file-name="{$basename}.epub">
@@ -99,6 +129,14 @@
 						<file name="OEBPS/content.opf">
 							<xsl:value-of select="concat('file:///tmp/', $basename, '.opf')"/>
 						</file>
+						<!-- CSS -->
+						<file name="OEBPS/css/style.css">oxf:/apps/etdpub/ui/css/epub.css</file>
+						<!-- directory-scan to include images -->
+						<xsl:for-each select="doc('input:scan')//file">
+							<file name="OEBPS/images/{@name}">
+								<xsl:value-of select="concat('file://', $path, '/', @name)"/>
+							</file>
+						</xsl:for-each>
 					</files>
 				</xsl:template>
 			</xsl:stylesheet>
@@ -197,6 +235,4 @@
 		<p:input name="data" href="#zip-config"/>
 		<p:output name="data" ref="data"/>
 	</p:processor>
-
-
 </p:config>

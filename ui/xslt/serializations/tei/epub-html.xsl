@@ -21,6 +21,7 @@
 				<title>
 					<xsl:value-of select="//tei:titleStmt/tei:title"/>
 				</title>
+				<link rel="stylesheet" href="css/style.css"/>
 				<!--<link rel="shortcut icon" type="image/x-icon"
 					href="{$display_path}ui/images/favicon.png"/>
 				<meta name="viewport" content="width=device-width, initial-scale=1"/>
