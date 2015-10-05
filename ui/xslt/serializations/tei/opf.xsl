@@ -14,12 +14,41 @@
 				<xsl:apply-templates select="/tei:TEI/tei:teiHeader"/>
 			</metadata>
 			<manifest>
-				<item href="index.xhtml" id="content" media-type="application/xhtml+xml"/>
 				<item href="toc.xhtml" id="toc" media-type="application/xhtml+xml" properties="nav"/>
+				<item href="teiHeader.xhtml" id="header" media-type="application/xhtml+xml"/>
+				<xsl:for-each select="descendant::tei:body/tei:div1">
+					<item
+						href="{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml"
+						id="{@type}{format-number(position(), '000')}"
+						media-type="application/xhtml+xml"/>
+				</xsl:for-each>
+				
+				<!-- images files -->
+				<xsl:for-each select="descendant::tei:graphic[@url]">
+					<xsl:variable name="extension" select="tokenize(@url, '\.')[last()]"/>
+
+					<item href="images/{@url}" id="img{position()}">
+						<xsl:attribute name="media-type">
+							<xsl:choose>
+								<xsl:when test="matches(lower-case($extension), 'jpe?g')"
+									>image/jpeg</xsl:when>
+								<xsl:when test="matches(lower-case($extension), 'png')"
+									>image/png</xsl:when>
+							</xsl:choose>
+						</xsl:attribute>
+					</item>
+				</xsl:for-each>
+				
+				<!-- css -->
+				<item href="css/style.css" id="css" media-type="text/css"/>
 			</manifest>
 			<spine>
 				<itemref idref="toc" linear="no"/>
-				<itemref idref="content" linear="yes"/>
+				<itemref idref="header" linear="yes"/>
+				<xsl:for-each select="descendant::tei:body/tei:div1">
+					<itemref idref="{@type}{format-number(position(), '000')}" linear="yes"/>
+				</xsl:for-each>
+				
 			</spine>
 		</package>
 

@@ -32,8 +32,10 @@
 	
 	<xsl:template match="tei:p">
 		<p>
-			<xsl:apply-templates/>
+			<!-- suppress figures from within the paragraph, put them afterwards -->
+			<xsl:apply-templates select="node()[not(local-name()='figure')]"/>
 		</p>
+		<xsl:apply-templates select="tei:figure"/>
 	</xsl:template>
 	
 	<xsl:template match="tei:lb">
@@ -103,6 +105,21 @@
 		<li>
 			<xsl:apply-templates/>
 		</li>
+	</xsl:template>
+	
+	<!--  quotes -->
+	<xsl:template match="tei:quote">
+		<blockquote>
+			<xsl:apply-templates select="node()[not(local-name()='figure')]"/>
+		</blockquote>
+		<xsl:apply-templates select="tei:figure"/>
+	</xsl:template>
+	
+	<xsl:template match="tei:q">
+		<q>
+			<xsl:apply-templates select="node()[not(local-name()='figure')]"/>
+		</q>
+		<xsl:apply-templates select="tei:figure"/>
 	</xsl:template>
 	
 	<!-- linking -->

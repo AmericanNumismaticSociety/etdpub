@@ -4,7 +4,7 @@
 	Function: Workflow chain to compile the necessary components for an EPUB file, serialize to /tmp, and package into a zip file with the Orbeon zip processor.
 -->
 <p:config xmlns:p="http://www.orbeon.com/oxf/pipeline"
-	xmlns:oxf="http://www.orbeon.com/oxf/processors">
+	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:tei="http://www.tei-c.org/ns/1.0">
 
 	<p:param type="input" name="data"/>
 	<p:param type="output" name="data"/>
@@ -38,7 +38,7 @@
 		</p:input>
 		<p:output name="data" id="html-serializer-config"/>
 	</p:processor>
-	
+
 	<!-- navigation HTML document -->
 	<p:processor name="oxf:unsafe-xslt">
 		<p:input name="data" href="#request"/>
@@ -46,7 +46,7 @@
 			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 				<xsl:variable name="basename"
 					select="substring-before(tokenize(/request/request-url, '/')[last()], '.epub')"/>
-				
+
 				<xsl:template match="/">
 					<config>
 						<url>
@@ -77,7 +77,7 @@
 		</p:input>
 		<p:output name="data" id="opf-serializer-config"/>
 	</p:processor>
-	
+
 	<!-- generate directory scanner config -->
 	<p:processor name="oxf:unsafe-xslt">
 		<p:input name="data" href="#request"/>
@@ -85,10 +85,12 @@
 			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 				<xsl:variable name="basename"
 					select="substring-before(tokenize(/request/request-url, '/')[last()], '.epub')"/>
-				
+
 				<xsl:template match="/">
 					<config>
-						<base-directory><xsl:value-of select="concat('oxf:/apps/etdpub/media/', $basename)"/></base-directory>
+						<base-directory>
+							<xsl:value-of select="concat('oxf:/apps/etdpub/media/', $basename)"/>
+						</base-directory>
 						<include>*.jpg</include>
 						<include>*.png</include>
 						<include>*.gif</include>
@@ -100,7 +102,7 @@
 		</p:input>
 		<p:output name="data" id="directory-scanner-config"/>
 	</p:processor>
-	
+
 	<p:processor name="oxf:directory-scanner">
 		<p:input name="config" href="#directory-scanner-config"/>
 		<p:output name="data" id="directory-scan"/>
@@ -108,21 +110,29 @@
 
 	<!-- zip config -->
 	<p:processor name="oxf:unsafe-xslt">
-		<p:input name="data" href="#request"/>
+		<p:input name="data" href="#data"/>
+		<p:input name="request" href="#request"/>
 		<p:input name="scan" href="#directory-scan"/>
 		<p:input name="config">
 			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 				<xsl:variable name="basename"
-					select="substring-before(tokenize(/request/request-url, '/')[last()], '.epub')"/>
+					select="substring-before(tokenize(doc('input:request')/request/request-url, '/')[last()], '.epub')"/>
 				<xsl:variable name="path" select="doc('input:scan')/directory/@path"/>
 
 				<xsl:template match="/">
 					<files file-name="{$basename}.epub">
 						<file name="mimetype">file:///tmp/mimetype</file>
 						<file name="META-INF/container.xml">file:///tmp/container.xml</file>
-						<file name="OEBPS/index.xhtml">
-							<xsl:value-of select="concat('file:///tmp/', $basename, '.xhtml')"/>
+						<file name="OEBPS/teiHeader.xhtml">
+							<xsl:value-of select="concat('file:///tmp/', $basename, '-teiHeader.xhtml')"/>
 						</file>
+						<!-- generate chapters -->
+						<xsl:for-each select="descendant::tei:body/tei:div1">
+							<file name="OEBPS/{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">
+								<xsl:value-of select="concat('file:///tmp/', $basename, '-', parent::node()/local-name(), '-', format-number(position(), '000'), '.xhtml')"/>
+							</file>
+						</xsl:for-each>
+						
 						<file name="OEBPS/toc.xhtml">
 							<xsl:value-of select="concat('file:///tmp/', $basename, '.nav.xhtml')"/>
 						</file>
@@ -152,6 +162,7 @@
 		<p:output name="data" id="html-content"/>
 	</p:processor>
 
+	<!-- this will generate a dummy record to force the result-document for individual chapters -->
 	<p:processor name="oxf:file-serializer">
 		<p:input name="config" href="#html-serializer-config"/>
 		<p:input name="data" href="#html-content"/>
@@ -185,20 +196,20 @@
 		</p:input>
 		<p:input name="data" href="#container-xml"/>
 	</p:processor>
-	
-	<!-- 1. serialize the XML document into Navigation HTML -->
+
+	<!-- 3. serialize the XML document into Navigation HTML -->
 	<p:processor name="oxf:pipeline">
 		<p:input name="data" href="#data"/>
 		<p:input name="config" href="epub-nav.xpl"/>
 		<p:output name="data" id="nav-content"/>
 	</p:processor>
-	
+
 	<p:processor name="oxf:file-serializer">
 		<p:input name="config" href="#nav-serializer-config"/>
 		<p:input name="data" href="#nav-content"/>
 	</p:processor>
 
-	<!-- generate and serialize mimetype text file -->
+	<!-- 4. generate and serialize mimetype text file -->
 	<p:processor name="oxf:text-converter">
 		<p:input name="config">
 			<config/>
@@ -218,7 +229,7 @@
 		<p:input name="data" href="#mimetype"/>
 	</p:processor>
 
-	<!-- generate and serialize content.opf -->
+	<!-- 5. generate and serialize content.opf -->
 	<p:processor name="oxf:pipeline">
 		<p:input name="data" href="#data"/>
 		<p:input name="config" href="opf.xpl"/>
@@ -230,7 +241,7 @@
 		<p:input name="data" href="#content-opf"/>
 	</p:processor>
 
-	<!-- for generating the zip config -->
+	<!-- 6. generate zip file -->
 	<p:processor name="oxf:zip">
 		<p:input name="data" href="#zip-config"/>
 		<p:output name="data" ref="data"/>
