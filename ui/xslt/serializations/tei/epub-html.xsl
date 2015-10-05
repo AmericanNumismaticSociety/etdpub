@@ -4,7 +4,8 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:epub="http://www.idpf.org/2007/ops"
 	xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
 	xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="tei xs xlink etdpub" version="2.0">
-	<xsl:output encoding="UTF-8" indent="yes"/>
+	<!-- xml method must be explicitly forced, or else the meta element does not conform to EPUB validation (defaults to xhtml) -->
+	<xsl:output encoding="UTF-8" indent="yes" method="xml"/>
 	<xsl:include href="xhtml-templates.xsl"/>
 
 	<!-- variables -->
@@ -23,13 +24,16 @@
 
 	<xsl:template match="tei:div1">
 		<xsl:result-document
-			href="file:///tmp/{$id}-{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">			
+			href="file:///tmp/{$id}-{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">		
 			<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
 				<head>
 					<title>
 						<xsl:value-of select="tei:head"/>
 					</title>
-					<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+					<xsl:element name="meta">
+						<xsl:attribute name="http-equiv">content-type</xsl:attribute>
+						<xsl:attribute name="content">text/html; charset=utf-8</xsl:attribute>
+					</xsl:element>
 					<link rel="stylesheet" href="css/style.css"/>
 				</head>
 				<body>
