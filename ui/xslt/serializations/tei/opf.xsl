@@ -15,13 +15,13 @@
 			</metadata>
 			<manifest>
 				<item href="toc.xhtml" id="toc" media-type="application/xhtml+xml" properties="nav"/>
-				<item href="teiHeader.xhtml" id="header" media-type="application/xhtml+xml"/>
-				<xsl:for-each select="descendant::tei:body/tei:div1">
+				<item href="index.xhtml" id="content" media-type="application/xhtml+xml"/>
+				<!--<xsl:for-each select="descendant::tei:body/tei:div1">
 					<item
 						href="{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml"
-						id="{@type}{format-number(position(), '000')}"
+						id="{parent::node()/local-name()}-{format-number(position(), '000')}"
 						media-type="application/xhtml+xml"/>
-				</xsl:for-each>
+				</xsl:for-each>-->
 				
 				<!-- images files -->
 				<xsl:for-each select="descendant::tei:graphic[@url]">
@@ -43,11 +43,12 @@
 				<item href="css/style.css" id="css" media-type="text/css"/>
 			</manifest>
 			<spine>
+				<itemref idref="content" linear="yes"/>
 				<itemref idref="toc" linear="no"/>
-				<itemref idref="header" linear="yes"/>
-				<xsl:for-each select="descendant::tei:body/tei:div1">
-					<itemref idref="{@type}{format-number(position(), '000')}" linear="yes"/>
-				</xsl:for-each>
+				<!--<itemref idref="header" linear="yes"/>-->
+				<!--<xsl:for-each select="descendant::tei:body/tei:div1">
+					<itemref idref="{parent::node()/local-name()}-{format-number(position(), '000')}" linear="yes"/>
+				</xsl:for-each>-->
 				
 			</spine>
 		</package>

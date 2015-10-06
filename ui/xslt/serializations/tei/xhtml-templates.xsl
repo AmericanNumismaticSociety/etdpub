@@ -7,12 +7,10 @@
 
 	<xsl:template match="tei:div2">
 		<xsl:variable name="frag"
-			select="if(@xml:id) then @xml:id else format-number(count(preceding-sibling::tei:div2) + 1, '000')"/>
+			select="concat(parent::node()/parent::node()/local-name(), '-', format-number(count(../preceding-sibling::tei:div1) + 1, '000'), '-', format-number(count(preceding-sibling::tei:div2) + 1, '000'))"/>
 
 		<section epub:type="{@type}">
-			<xsl:if test="local-name()='div2'">
-				<a id="{$frag}"/>
-			</xsl:if>
+			<a id="{$frag}"/>
 			<xsl:apply-templates/>
 		</section>
 	</xsl:template>
@@ -118,7 +116,7 @@
 			<xsl:apply-templates/>
 		</li>
 	</xsl:template>
-	
+
 	<!--  quotes -->
 	<!-- suppress figures from quotes -->
 	<xsl:template match="tei:quote">
@@ -126,7 +124,7 @@
 			<xsl:apply-templates select="node()[not(local-name()='figure')]"/>
 		</blockquote>
 	</xsl:template>
-	
+
 	<xsl:template match="tei:q">
 		<q>
 			<xsl:apply-templates select="node()[not(local-name()='figure')]"/>
@@ -135,19 +133,19 @@
 
 	<!-- linking -->
 	<xsl:template match="tei:ref">
-		<xsl:variable name="target">
+		<!--<xsl:variable name="target">
 			<xsl:choose>
 				<xsl:when test="substring(@target, 1, 1) = '#'">
-					<xsl:value-of select="concat(ancestor::tei:div1/parent::node()/local-name(), '-', format-number(count(ancestor::tei:div1/preceding-sibling::node()[local-name()='div1']) + 1, '000'), '.xhtml', @target)"/>
+					<xsl:value-of select="concat(ancestor::tei:div1/parent::node()/local-name(), '-', format-number(count(ancestor::tei:div1/preceding-sibling::tei:div1) + 1, '000'), '.xhtml', @target)"/>
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:value-of select="@target"/>
 				</xsl:otherwise>
 			</xsl:choose>
-		</xsl:variable>
-		
-		
-		<a href="{$target}">
+		</xsl:variable>-->
+
+
+		<a href="{@target}">
 			<xsl:apply-templates/>
 		</a>
 	</xsl:template>
@@ -155,7 +153,7 @@
 	<!-- suppress footnotes from the body -->
 	<xsl:template match="tei:note[@place]"/>
 
-	<xsl:template match="tei:note[@place]" mode="endnote">		
+	<xsl:template match="tei:note[@place]" mode="endnote">
 		<li>
 			<a id="{@xml:id}"/>
 			<xsl:apply-templates/>

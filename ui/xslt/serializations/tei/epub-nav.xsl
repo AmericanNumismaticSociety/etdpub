@@ -17,7 +17,7 @@
 					</header>
 					<nav id="pub-toc" epub:type="toc">
 						<ol class="toc">
-							<xsl:apply-templates select="tei:teiHeader"/>
+							<!--<xsl:apply-templates select="tei:teiHeader"/>-->
 							<xsl:apply-templates select="tei:text"/>
 						</ol>
 					</nav>
@@ -37,10 +37,10 @@
 	</xsl:template>
 	
 	<xsl:template match="tei:div1">
-		<xsl:variable name="file" select="concat(parent::node()/local-name(), '-', format-number(position(), '000'))"/>
+		<xsl:variable name="marker" select="concat(parent::node()/local-name(), '-', format-number(position(), '000'))"/>
 		
 		<li>
-			<a href="{$file}.xhtml">
+			<a href="index.xhtml#{$marker}">
 				<xsl:choose>
 					<xsl:when test="tei:head">
 						<xsl:value-of select="tei:head"/>
@@ -54,7 +54,7 @@
 			<xsl:if test="child::tei:div2">
 				<ol>
 					<xsl:apply-templates select="tei:div2">
-						<xsl:with-param name="file" select="$file"/>
+						<xsl:with-param name="marker" select="$marker"/>
 					</xsl:apply-templates>
 					
 				</ol>
@@ -63,10 +63,10 @@
 	</xsl:template>
 	
 	<xsl:template match="tei:div2">
-		<xsl:param name="file"/>
+		<xsl:param name="marker"/>
 		
 		<li>
-			<a href="{$file}.xhtml#{if (@xml:id) then @xml:id else format-number(position(), '000')}">
+			<a href="index.xhtml#{$marker}-{format-number(position(), '000')}">
 				<xsl:choose>
 					<xsl:when test="tei:head">
 						<xsl:value-of select="tei:head"/>

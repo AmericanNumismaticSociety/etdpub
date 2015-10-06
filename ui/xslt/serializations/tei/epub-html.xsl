@@ -5,24 +5,58 @@
 	xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
 	xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="tei xs xlink etdpub" version="2.0">
 	<!-- xml method must be explicitly forced, or else the meta element does not conform to EPUB validation (defaults to xhtml) -->
-	<xsl:output encoding="UTF-8" indent="yes" method="xml"/>
+	<xsl:output encoding="UTF-8" indent="yes"/>
 	<xsl:include href="xhtml-templates.xsl"/>
 
 	<!-- variables -->
 	<xsl:variable name="display_path">../</xsl:variable>
 	<xsl:variable name="id" select="/content/tei:TEI/@xml:id"/>
 
-	<xsl:template match="/content/tei:TEI">
-		<!-- generate result documents for the following sections in file:///tmp -->		
-		<xsl:apply-templates select="tei:teiHeader"/>
-		<xsl:apply-templates select="tei:text"/>
+	<xsl:template match="/">
+		<xsl:apply-templates select="/content/tei:TEI"/>
+		
+		
+	</xsl:template>
+	
+	<xsl:template match="tei:TEI">
+		<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
+			<head>
+				<title>
+					<xsl:value-of select="//tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:title"/>
+				</title>
+				<link rel="stylesheet" href="css/style.css"/>
+			</head>
+			<body>		
+				<xsl:apply-templates select="tei:text"/>
+			</body>
+		</html>
 	</xsl:template>
 	
 	<xsl:template match="tei:text">
 		<xsl:apply-templates select="tei:body/tei:div1"/>
 	</xsl:template>
-
+	
 	<xsl:template match="tei:div1">
+		<section epub:type="{@type}">
+			<xsl:variable name="frag"
+				select="concat(parent::node()/local-name(), '-', format-number(count(preceding-sibling::tei:div1) + 1, '000'))"/>
+			
+			<a id="{$frag}"/>
+			
+			<xsl:apply-templates select="*"/>
+		</section>
+		<xsl:if test="count(descendant::tei:note[@place]) &gt; 0">
+			<section epub:type="rearnotes">
+				<h2>End Notes</h2>
+				<ul>
+					<xsl:apply-templates select="descendant::tei:note[@place]"
+						mode="endnote"/>
+				</ul>
+			</section>						
+		</xsl:if>
+	</xsl:template>
+
+	<!--<xsl:template match="tei:div1">
 		<xsl:result-document
 			href="file:///tmp/{$id}-{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">		
 			<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
@@ -53,10 +87,10 @@
 			</html>
 		</xsl:result-document>
 
-	</xsl:template>
+	</xsl:template>-->
 
 
-	<xsl:template match="tei:teiHeader">
+	<!--<xsl:template match="tei:teiHeader">
 		<xsl:result-document href="file:///tmp/{$id}-teiHeader.xhtml">
 			<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
 				<head>
@@ -80,5 +114,5 @@
 				</body>
 			</html>
 		</xsl:result-document>
-	</xsl:template>
+	</xsl:template>-->
 </xsl:stylesheet>

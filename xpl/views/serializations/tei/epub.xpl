@@ -123,15 +123,18 @@
 					<files file-name="{$basename}.epub">
 						<file name="mimetype">file:///tmp/mimetype</file>
 						<file name="META-INF/container.xml">file:///tmp/container.xml</file>
-						<file name="OEBPS/teiHeader.xhtml">
+						<!--<file name="OEBPS/teiHeader.xhtml">
 							<xsl:value-of select="concat('file:///tmp/', $basename, '-teiHeader.xhtml')"/>
+						</file>-->
+						<file name="OEBPS/index.xhtml">
+							<xsl:value-of select="concat('file:///tmp/', $basename, '.xhtml')"/>
 						</file>
 						<!-- generate chapters -->
-						<xsl:for-each select="descendant::tei:body/tei:div1">
+						<!--<xsl:for-each select="descendant::tei:body/tei:div1">
 							<file name="OEBPS/{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">
 								<xsl:value-of select="concat('file:///tmp/', $basename, '-', parent::node()/local-name(), '-', format-number(position(), '000'), '.xhtml')"/>
 							</file>
-						</xsl:for-each>
+						</xsl:for-each>-->
 						
 						<file name="OEBPS/toc.xhtml">
 							<xsl:value-of select="concat('file:///tmp/', $basename, '.nav.xhtml')"/>
