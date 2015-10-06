@@ -10,7 +10,7 @@
 			select="concat(parent::node()/parent::node()/local-name(), '-', format-number(count(../preceding-sibling::tei:div1) + 1, '000'), '-', format-number(count(preceding-sibling::tei:div2) + 1, '000'))"/>
 
 		<section epub:type="{@type}">
-			<a id="{$frag}"/>
+			<a id="{format-number(count(preceding-sibling::tei:div2) + 1, '000')}"/>
 			<xsl:apply-templates/>
 		</section>
 	</xsl:template>

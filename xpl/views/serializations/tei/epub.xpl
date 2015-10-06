@@ -58,6 +58,26 @@
 		</p:input>
 		<p:output name="data" id="nav-serializer-config"/>
 	</p:processor>
+	
+	<!-- NCX -->
+	<p:processor name="oxf:unsafe-xslt">
+		<p:input name="data" href="#request"/>
+		<p:input name="config">
+			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
+				<xsl:variable name="basename"
+					select="substring-before(tokenize(/request/request-url, '/')[last()], '.epub')"/>
+				
+				<xsl:template match="/">
+					<config>
+						<url>
+							<xsl:value-of select="concat('file:///tmp/', $basename, '.ncx')"/>
+						</url>
+					</config>
+				</xsl:template>
+			</xsl:stylesheet>
+		</p:input>
+		<p:output name="data" id="ncx-serializer-config"/>
+	</p:processor>
 
 	<p:processor name="oxf:unsafe-xslt">
 		<p:input name="data" href="#request"/>
@@ -126,18 +146,20 @@
 						<!--<file name="OEBPS/teiHeader.xhtml">
 							<xsl:value-of select="concat('file:///tmp/', $basename, '-teiHeader.xhtml')"/>
 						</file>-->
-						<file name="OEBPS/index.xhtml">
+						<!--<file name="OEBPS/index.xhtml">
 							<xsl:value-of select="concat('file:///tmp/', $basename, '.xhtml')"/>
-						</file>
+						</file>-->
 						<!-- generate chapters -->
-						<!--<xsl:for-each select="descendant::tei:body/tei:div1">
+						<xsl:for-each select="descendant::tei:body/tei:div1">
 							<file name="OEBPS/{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">
 								<xsl:value-of select="concat('file:///tmp/', $basename, '-', parent::node()/local-name(), '-', format-number(position(), '000'), '.xhtml')"/>
 							</file>
-						</xsl:for-each>-->
-						
+						</xsl:for-each>						
 						<file name="OEBPS/toc.xhtml">
 							<xsl:value-of select="concat('file:///tmp/', $basename, '.nav.xhtml')"/>
+						</file>
+						<file name="OEBPS/toc.ncx">
+							<xsl:value-of select="concat('file:///tmp/', $basename, '.ncx')"/>
 						</file>
 						<file name="OEBPS/content.opf">
 							<xsl:value-of select="concat('file:///tmp/', $basename, '.opf')"/>
@@ -199,17 +221,30 @@
 		</p:input>
 		<p:input name="data" href="#container-xml"/>
 	</p:processor>
-
-	<!-- 3. serialize the XML document into Navigation HTML -->
+	
+	<!-- serialize into Nav HTML -->
 	<p:processor name="oxf:pipeline">
 		<p:input name="data" href="#data"/>
 		<p:input name="config" href="epub-nav.xpl"/>
 		<p:output name="data" id="nav-content"/>
 	</p:processor>
-
+	
 	<p:processor name="oxf:file-serializer">
 		<p:input name="config" href="#nav-serializer-config"/>
 		<p:input name="data" href="#nav-content"/>
+	</p:processor>
+
+
+	<!-- 3. serialize the XML document into NCX -->
+	<p:processor name="oxf:pipeline">
+		<p:input name="data" href="#data"/>
+		<p:input name="config" href="ncx.xpl"/>
+		<p:output name="data" id="ncx-content"/>
+	</p:processor>
+
+	<p:processor name="oxf:file-serializer">
+		<p:input name="config" href="#ncx-serializer-config"/>
+		<p:input name="data" href="#ncx-content"/>
 	</p:processor>
 
 	<!-- 4. generate and serialize mimetype text file -->

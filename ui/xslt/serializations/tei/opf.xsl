@@ -14,15 +14,16 @@
 				<xsl:apply-templates select="/tei:TEI/tei:teiHeader"/>
 			</metadata>
 			<manifest>
+				<item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml"/>
 				<item href="toc.xhtml" id="toc" media-type="application/xhtml+xml" properties="nav"/>
-				<item href="index.xhtml" id="content" media-type="application/xhtml+xml"/>
-				<!--<xsl:for-each select="descendant::tei:body/tei:div1">
+				<!--<item href="index.xhtml" id="content" media-type="application/xhtml+xml"/>-->
+				<xsl:for-each select="descendant::tei:body/tei:div1">
 					<item
 						href="{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml"
 						id="{parent::node()/local-name()}-{format-number(position(), '000')}"
 						media-type="application/xhtml+xml"/>
-				</xsl:for-each>-->
-				
+				</xsl:for-each>
+
 				<!-- images files -->
 				<xsl:for-each select="descendant::tei:graphic[@url]">
 					<xsl:variable name="extension" select="tokenize(@url, '\.')[last()]"/>
@@ -38,18 +39,19 @@
 						</xsl:attribute>
 					</item>
 				</xsl:for-each>
-				
+
 				<!-- css -->
 				<item href="css/style.css" id="css" media-type="text/css"/>
 			</manifest>
-			<spine>
-				<itemref idref="content" linear="yes"/>
-				<itemref idref="toc" linear="no"/>
+			<spine toc="ncx">
+				<!--<itemref idref="content" linear="yes"/>-->
 				<!--<itemref idref="header" linear="yes"/>-->
-				<!--<xsl:for-each select="descendant::tei:body/tei:div1">
-					<itemref idref="{parent::node()/local-name()}-{format-number(position(), '000')}" linear="yes"/>
-				</xsl:for-each>-->
-				
+				<xsl:for-each select="descendant::tei:body/tei:div1">
+					<itemref
+						idref="{parent::node()/local-name()}-{format-number(position(), '000')}"
+						linear="yes"/>
+				</xsl:for-each>
+				<itemref idref="toc" linear="no"/>
 			</spine>
 		</package>
 

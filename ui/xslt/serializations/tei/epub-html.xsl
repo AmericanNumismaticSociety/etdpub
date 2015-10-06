@@ -5,7 +5,7 @@
 	xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
 	xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="tei xs xlink etdpub" version="2.0">
 	<!-- xml method must be explicitly forced, or else the meta element does not conform to EPUB validation (defaults to xhtml) -->
-	<xsl:output encoding="UTF-8" indent="yes"/>
+	<xsl:output encoding="UTF-8" indent="yes" method="xml"/>
 	<xsl:include href="xhtml-templates.xsl"/>
 
 	<!-- variables -->
@@ -36,7 +36,7 @@
 		<xsl:apply-templates select="tei:body/tei:div1"/>
 	</xsl:template>
 	
-	<xsl:template match="tei:div1">
+	<!--<xsl:template match="tei:div1">
 		<section epub:type="{@type}">
 			<xsl:variable name="frag"
 				select="concat(parent::node()/local-name(), '-', format-number(count(preceding-sibling::tei:div1) + 1, '000'))"/>
@@ -54,9 +54,9 @@
 				</ul>
 			</section>						
 		</xsl:if>
-	</xsl:template>
+	</xsl:template>-->
 
-	<!--<xsl:template match="tei:div1">
+	<xsl:template match="tei:div1">
 		<xsl:result-document
 			href="file:///tmp/{$id}-{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">		
 			<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
@@ -86,8 +86,7 @@
 				</body>
 			</html>
 		</xsl:result-document>
-
-	</xsl:template>-->
+	</xsl:template>
 
 
 	<!--<xsl:template match="tei:teiHeader">

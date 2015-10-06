@@ -17,19 +17,12 @@
 					</header>
 					<nav id="pub-toc" epub:type="toc">
 						<ol class="toc">
-							<!--<xsl:apply-templates select="tei:teiHeader"/>-->
 							<xsl:apply-templates select="tei:text"/>
 						</ol>
 					</nav>
 				</section>
 			</body>
 		</html>
-	</xsl:template>
-	
-	<xsl:template match="tei:teiHeader">
-		<li>
-			<a href="teiHeader.xhtml">Header</a>
-		</li>
 	</xsl:template>
 	
 	<xsl:template match="tei:text">
@@ -40,7 +33,7 @@
 		<xsl:variable name="marker" select="concat(parent::node()/local-name(), '-', format-number(position(), '000'))"/>
 		
 		<li>
-			<a href="index.xhtml#{$marker}">
+			<a href="{$marker}.xhtml">
 				<xsl:choose>
 					<xsl:when test="tei:head">
 						<xsl:value-of select="tei:head"/>
@@ -66,7 +59,7 @@
 		<xsl:param name="marker"/>
 		
 		<li>
-			<a href="index.xhtml#{$marker}-{format-number(position(), '000')}">
+			<a href="{$marker}.xhtml#{format-number(position(), '000')}">
 				<xsl:choose>
 					<xsl:when test="tei:head">
 						<xsl:value-of select="tei:head"/>
