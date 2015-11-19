@@ -1,0 +1,323 @@
+<!-- 	author: Ethan Gruber, American Numismatic Society 
+	last modified: August, 2015
+	function: MODS subject/name: Getty ULAN, Nomisma.org dynasties, persons, and organizations
+-->
+
+<xbl:xbl xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+	xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:xbl="http://www.w3.org/ns/xbl" xmlns:xxbl="http://orbeon.org/oxf/xml/xbl" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/"
+	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:mods="http://www.loc.gov/mods/v3">
+	<xbl:binding id="etdpub-name-creator" element="etdpub|name-creator">
+		<xbl:template>
+			<xforms:group xbl:attr="model context ref bind" xxbl:scope="outer">
+				<xbl:content includes="xforms|label,xforms|help,xforms|hint,xforms|alert"/>
+				<xforms:group xxbl:scope="inner">
+					<xforms:var name="binding" as="node()?">
+						<xxforms:sequence select="." xxbl:scope="outer"/>
+					</xforms:var>
+					<xforms:action ev:event="xforms-enabled" ev:target="#observer">
+						<xforms:send submission="load-config" if="not(string($binding/mods:namePart))"/>
+					</xforms:action>
+					<xforms:group ref="$binding">
+						<xforms:group ref=".[string(mods:namePart)]">
+							<h4>Creator</h4>
+							<xforms:group ref=".[count(parent::node()/mods:name) &gt; 1]">
+								<xforms:trigger appearance="minimal">
+									<xforms:action ev:event="DOMActivate">
+										<!-- delete all holdover values before removing bind, possible orbeon bug -->
+										<xforms:setvalue ref="instance('temp')"/>
+										<xforms:setvalue ref="instance('temp')/@href"/>
+										<xforms:delete context="instance('feed')/*"/>
+										<xforms:setvalue ref="instance('search-query')"/>
+										<xforms:delete nodeset="$binding/parent::node()"/>
+									</xforms:action>
+									<xforms:label>
+										<span class="glyphicon glyphicon-remove"/>
+									</xforms:label>
+								</xforms:trigger>
+							</xforms:group>
+							<div>
+								<xforms:output ref="mods:namePart">
+									<xforms:label>Name</xforms:label>
+								</xforms:output>
+								<xforms:trigger appearance="minimal">
+									<xforms:label>
+										<span class="glyphicon glyphicon-new-window"/>
+									</xforms:label>
+									<xforms:hint value="@valueURI"/>
+									<xforms:load ev:event="DOMActivate" show="new" ref="@valueURI"/>
+								</xforms:trigger>
+							</div>
+							<div>
+								<xforms:select1 ref="mods:role/mods:roleTerm[@type='code']">
+									<xforms:label>Role</xforms:label>
+									<xforms:alert>Required</xforms:alert>
+									<xforms:item>
+										<xforms:label>Select Role...</xforms:label>
+										<xforms:value/>
+									</xforms:item>
+									<xforms:itemset nodeset="instance('relators')/relator">
+										<xforms:label ref="."/>
+										<xforms:value ref="@code"/>
+									</xforms:itemset>
+									<xforms:action ev:event="xforms-value-changed">
+										<xforms:var name="code" select="."/>
+										<xforms:setvalue ref="ancestor::mods:role/mods:roleTerm[@type='text']" value="instance('relators')/relator[@code=$code]"/>
+									</xforms:action>
+								</xforms:select1>
+							</div>
+						</xforms:group>
+						<xforms:group ref=".[not(string(mods:namePart))]">
+							<div>
+								<h4>Creator</h4>
+								<xforms:group ref=".[count(parent::node()/mods:name) &gt; 1]">
+									<xforms:trigger appearance="minimal">
+										<xforms:delete nodeset="." ev:event="DOMActivate"/>
+										<xforms:label>
+											<span class="glyphicon glyphicon-remove"/>
+										</xforms:label>
+									</xforms:trigger>
+								</xforms:group>
+								<div class="bg-info alert-box">
+									<span class="glyphicon glyphicon-info-sign"/>
+									<strong>Notice:</strong> Content is required.</div>
+								<div>
+									<radiogroup>
+										<xforms:select1 ref="instance('interface-type')" appearance="full">
+											<xforms:label>Interface Type</xforms:label>
+											<xforms:itemset nodeset="instance('interfaces')/interface">
+												<xforms:label ref="@name"/>
+												<xforms:value ref="."/>
+											</xforms:itemset>
+											<xforms:action ev:event="xforms-value-changed">
+												<xforms:action if=". = 'viaf'">
+													<!-- remove temporary values, applicable when switching back to persnames from local -->
+													<xforms:delete context="instance('viaf-response')/*"/>
+													<xforms:setvalue ref="instance('search-query')"/>
+
+													<!-- create attributes, clear $binding text when applicable -->
+													<xforms:setvalue ref="$binding/mods:namePart"/>
+													<xforms:insert if="not($binding/@authority)" context="$binding" origin="xforms:attribute('authority', 'viaf')"/>
+													<xforms:insert if="not($binding/@valueURI)" context="$binding" origin="xforms:attribute('valueURI', '')"/>
+
+													<!-- pre-populate the select list -->
+													<xforms:toggle case="viaf-search"/>
+												</xforms:action>
+												<xforms:action if=". = 'xeac'">
+													<!-- remove temporary values, applicable when switching back to persnames from local -->
+													<xforms:delete context="instance('xeac-response')/*"/>
+													<xforms:setvalue ref="instance('search-query')"/>
+
+													<!-- add valueURI attribute if it does not exist -->
+													<xforms:insert if="not($binding/@valueURI)" context="$binding" origin="xforms:attribute('valueURI', '')"/>
+
+													<!-- create attributes, clear $binding text when applicable -->
+													<xforms:delete if="$binding/@authority" context="$binding/@authority"/>
+													<xforms:setvalue ref="$binding/mods:namePart"/>
+
+													<!-- pre-populate the select list -->
+													<xforms:toggle case="xeac-search"/>
+												</xforms:action>
+												<xforms:action if=". = 'local'">
+													<!-- clear temp -->
+													<xforms:setvalue ref="instance('temp')"/>
+													<xforms:setvalue ref="instance('temp')/@href"/>
+													<!-- remove attributes -->
+													<xforms:delete if="$binding/@authority" context="$binding/@authority"/>
+													<xforms:delete if="$binding/@valueURI" context="$binding/@valueURI"/>
+
+													<xforms:toggle case="local-search"/>
+												</xforms:action>
+											</xforms:action>
+										</xforms:select1>
+									</radiogroup>
+								</div>
+								<xforms:switch>
+									<xforms:case id="viaf-search">
+										<div>
+											<xforms:input ref="instance('search-query')">
+												<xforms:label>Search</xforms:label>
+											</xforms:input>
+											<xforms:trigger>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:delete context="instance('viaf-response')/*"/>
+													<xforms:send submission="query-viaf"/>
+												</xforms:action>
+												<xforms:label>Search</xforms:label>
+											</xforms:trigger>
+										</div>
+
+										<xforms:group ref=".[count(instance('viaf-response')//item) &gt; 0]">
+											<xforms:select1 ref="instance('temp')/@href" appearance="compact">
+												<xforms:label>Name</xforms:label>
+												<xforms:itemset nodeset="instance('viaf-response')//item">
+													<xforms:label ref="title"/>
+													<xforms:value ref="link"/>
+												</xforms:itemset>
+											</xforms:select1>
+											<xforms:trigger>
+												<xforms:label>Select</xforms:label>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:setvalue ref="$binding/@valueURI" value="instance('temp')/@href"/>
+													<xforms:setvalue ref="$binding/mods:namePart" value="instance('viaf-response')//item[link = instance('temp')/@href]/title"/>
+												</xforms:action>
+											</xforms:trigger>
+										</xforms:group>
+									</xforms:case>
+									<xforms:case id="xeac-search">
+										<div>
+											<xforms:input ref="instance('search-query')">
+												<xforms:label>Search</xforms:label>
+											</xforms:input>
+											<xforms:trigger>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:delete context="instance('xeac-response')/*"/>
+													<xforms:send submission="query-xeac"/>
+												</xforms:action>
+												<xforms:label>Search</xforms:label>
+											</xforms:trigger>
+										</div>
+
+										<xforms:group ref=".[count(instance('xeac-response')//atom:entry) &gt; 0]">
+											<xforms:select1 ref="instance('temp')/@href" appearance="compact">
+												<xforms:label>Name</xforms:label>
+												<xforms:itemset nodeset="instance('xeac-response')//atom:entry">
+													<xforms:label ref="atom:title"/>
+													<xforms:value ref="atom:link[not(@rel)]/@href"/>
+												</xforms:itemset>
+											</xforms:select1>
+											<xforms:trigger>
+												<xforms:label>Select</xforms:label>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:setvalue ref="$binding/@valueURI" value="instance('temp')/@href"/>
+													<xforms:setvalue ref="$binding/mods:namePart" value="instance('xeac-response')//atom:entry[atom:link[not(@rel)]/@href =
+														instance('temp')/@href]/atom:title"/>
+												</xforms:action>
+											</xforms:trigger>
+										</xforms:group>
+									</xforms:case>
+									<xforms:case id="local-search">
+										<div>
+											<xforms:input ref="mods:namePart">
+												<xforms:label>Name</xforms:label>
+												<xforms:alert>Required</xforms:alert>
+											</xforms:input>
+										</div>
+									</xforms:case>
+								</xforms:switch>
+								<div>
+									<xforms:select1 ref="mods:role/mods:roleTerm[@type='code']">
+										<xforms:label>Role</xforms:label>
+										<xforms:alert>Required</xforms:alert>
+										<xforms:item>
+											<xforms:label>Select Role...</xforms:label>
+											<xforms:value/>
+										</xforms:item>
+										<xforms:itemset nodeset="instance('relators')/relator">
+											<xforms:label ref="."/>
+											<xforms:value ref="@code"/>
+										</xforms:itemset>
+										<xforms:action ev:event="xforms-value-changed">
+											<xforms:var name="code" select="."/>
+											<xforms:setvalue ref="ancestor::mods:role/mods:roleTerm[@type='text']" value="instance('relators')/relator[@code=$code]"/>
+										</xforms:action>
+									</xforms:select1>
+								</div>
+							</div>
+						</xforms:group>
+					</xforms:group>
+					<!-- ********************************************************************** -->
+					<xforms:model id="name-creator-model" xmlns:xi="http://www.w3.org/2001/XInclude">
+						<xforms:instance id="exist-config">
+							<xi:include href="../../../exist-config.xml"/>
+						</xforms:instance>
+
+						<xforms:instance id="relators">
+							<xi:include href="../../instances/relators.xml"/>
+						</xforms:instance>
+
+						<xforms:instance id="config">
+							<config xmlns=""/>
+						</xforms:instance>
+
+						<xforms:instance id="control-instance">
+							<control xmlns="">
+								<description/>
+								<count/>
+							</control>
+						</xforms:instance>
+
+						<!-- temp instance used by both interfaces to avoid inconsistent referencing to $binding -->
+						<xforms:instance id="temp">
+							<temp href="" xmlns=""/>
+						</xforms:instance>
+
+						<!-- Instances containing the query string -->
+						<xforms:instance id="search-query">
+							<query/>
+						</xforms:instance>
+
+						<!-- persnames specific instances -->
+						<xforms:instance id="viaf-response">
+							<rss/>
+						</xforms:instance>
+
+						<!-- xeac query -->
+						<xforms:instance id="xeac-response" exclude-result-prefixed="#all">
+							<feed/>
+						</xforms:instance>
+
+						<!-- interface type radio button -->
+						<xforms:instance id="interfaces">
+							<interfaces xmlns="">
+								<interface name="VIAF">viaf</interface>
+								<interface name="Local Vocabulary">local</interface>
+							</interfaces>
+						</xforms:instance>
+
+						<xforms:instance id="interface-type">
+							<interface/>
+						</xforms:instance>
+
+						<!-- ********* SUBMISSIONS ***********-->
+						<!-- queries -->
+						<xforms:submission id="query-viaf" serialization="none" method="get"
+							action="http://viaf.org/viaf/search?query=local.personalNames+all+%22{instance('search-query')}%22&amp;maximumRecords=100&amp;httpAccept=application/rss%2bxml"
+							instance="viaf-response" replace="instance">
+							<xforms:action ev:event="xforms-submit-done">
+								<xforms:message if="number(instance('viaf-response')//opensearch:totalResults) = 0" level="modal">No results found for query.</xforms:message>
+								<xforms:setvalue if="number(instance('viaf-response')//opensearch:totalResults) != 0" ref="instance('control-instance')/count" value="concat('Displaying first 100 of ',
+									instance('viaf-response')//opensearch:totalResults, ' result(s).')"/>
+							</xforms:action>
+						</xforms:submission>
+
+						<xforms:submission id="query-xeac" serialization="none" method="get"
+							action="{instance('config')/xeac}feed/?q=entityType_facet:person+AND+&#x022;{instance('search-query')}&#x022;" instance="xeac-response" replace="instance">
+							<xforms:message ev:event="xforms-submit-error" level="modal">Unable to query xEAC.</xforms:message>
+							<xforms:action ev:event="xforms-submit-done">
+								<xforms:message if="number(instance('xeac-response')//opensearch:totalResults) = 0" level="modal">No results found for query.</xforms:message>
+								<xforms:setvalue if="number(instance('xeac-response')//opensearch:totalResults) != 0" ref="instance('control-instance')/count" value="concat('Displaying first 100 of ',
+									instance('xeac-response')//opensearch:totalResults, ' result(s).')"/>
+							</xforms:action>
+						</xforms:submission>
+
+						<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance" instance="config"
+							xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+							<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load config file in eXist.</xforms:message>
+							<!-- set insert xEAC interface and set as default if there is a xEAC URL -->
+							<xforms:action ev:event="xforms-submit-done">
+								<xforms:action if="string-length(instance('config')/xeac) &gt; 0">
+									<xforms:insert context="instance('interfaces')" at="1" position="after" origin="xforms:element('interface', (xforms:attribute('name', 'xEAC'), 'xeac'))"/>
+									<xforms:setvalue ref="instance('interface-type')">xeac</xforms:setvalue>
+								</xforms:action>
+								<xforms:action if="string-length(instance('config')/xeac) = 0">
+									<xforms:setvalue ref="instance('interface-type')">viaf</xforms:setvalue>
+								</xforms:action>
+							</xforms:action>
+						</xforms:submission>
+					</xforms:model>
+				</xforms:group>
+			</xforms:group>
+		</xbl:template>
+	</xbl:binding>
+
+</xbl:xbl>

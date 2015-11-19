@@ -7,7 +7,7 @@
 	xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:xbl="http://www.w3.org/ns/xbl" xmlns:xxbl="http://orbeon.org/oxf/xml/xbl" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" xmlns:atom="http://www.w3.org/2005/Atom"
 	xmlns:res="http://www.w3.org/2005/sparql-results#">
-	<xbl:binding id="etdpub-name" element="etdpub|name">
+	<xbl:binding id="etdpub-name-subject" element="etdpub|name-subject">
 		<xbl:template>
 			<xforms:group xbl:attr="model context ref bind" xxbl:scope="outer">
 				<xbl:content includes="xforms|label,xforms|help,xforms|hint,xforms|alert"/>
@@ -25,9 +25,8 @@
 									<xforms:label>Name</xforms:label>
 								</xforms:output>
 								<xforms:trigger appearance="minimal">
-									<xforms:label>
-										<span class="glyphicon glyphicon-new-window"/>
-									</xforms:label>
+									<xforms:label><span class="glyphicon glyphicon-new-window"/></xforms:label>
+									<xforms:hint value="@valueURI"></xforms:hint>
 									<xforms:load ev:event="DOMActivate" show="new" ref="@valueURI"/>
 								</xforms:trigger>
 

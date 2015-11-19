@@ -24,6 +24,7 @@
 								</xforms:output>
 								<xforms:trigger appearance="minimal">
 									<xforms:label><span class="glyphicon glyphicon-new-window"/></xforms:label>
+									<xforms:hint value="@valueURI"></xforms:hint>
 									<xforms:load ev:event="DOMActivate" show="new" ref="@valueURI"/>
 								</xforms:trigger>
 								<xforms:trigger appearance="minimal">
