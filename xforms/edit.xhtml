@@ -6,8 +6,8 @@
 		<link rel="stylesheet" href="/fr/style/bootstrap/css/bootstrap.css" type="text/css" />
 		<link rel="stylesheet" href="/fr/style/form-runner-bootstrap-override.css" type="text/css" />
 
-		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
-		<script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+		<script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		<link rel="shortcut icon" href="/ops/images/orbeon-icon-16.ico" />
 		<link rel="icon" href="/ops/images/orbeon-icon-16.png" type="image/png" />
 		<link rel="stylesheet" href="/apps/etdpub/xforms/css/style.css" />
@@ -67,17 +67,17 @@
 			<xforms:instance id="name-template" xxforms:exclude-result-prefixes="#all">
 				<name authority="" valueURI="" xmlns="http://www.loc.gov/mods/v3"></name>
 			</xforms:instance>
-			
+
 			<xforms:instance id="namePart-template" xxforms:exclude-result-prefixes="#all">
 				<namePart xmlns="http://www.loc.gov/mods/v3"></namePart>
 			</xforms:instance>
-			
+
 			<xforms:instance id="role-template" xxforms:exclude-result-prefixes="#all">
 				<role xmlns="http://www.loc.gov/mods/v3">
 					<roleTerm type="text"></roleTerm>
 					<roleTerm type="code" authority="marcrelator"></roleTerm>
 				</role>
-			</xforms:instance>			
+			</xforms:instance>
 
 			<xforms:instance id="temporal-template" xxforms:exclude-result-prefixes="#all">
 				<temporal authority="aat" valueURI="" xmlns="http://www.loc.gov/mods/v3"></temporal>
@@ -191,8 +191,8 @@
 				<xforms:bind nodeset="mods:titleInfo/mods:title" required="true()"></xforms:bind>
 				<xforms:bind nodeset="mods:titleInfo/mods:subTitle" required="true()"></xforms:bind>
 				<xforms:bind nodeset="mods:name">
-					<xforms:bind nodeset="mods:namePart" required="true()"/>
-					<xforms:bind nodeset="mods:role/mods:roleTerm" required="true()"/>
+					<xforms:bind nodeset="mods:namePart" required="true()"></xforms:bind>
+					<xforms:bind nodeset="mods:role/mods:roleTerm" required="true()"></xforms:bind>
 				</xforms:bind>
 				<xforms:bind nodset="mods:abstract" required="true()"></xforms:bind>
 				<xforms:bind nodeset="mods:originInfo">
@@ -265,7 +265,7 @@
 				<xforms:setvalue ref="instance('control-instance')/template-error" ev:event="xforms-submit-error" value="true()"></xforms:setvalue>
 			</xforms:submission>-->
 
-			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/mods/{instance('control-instance')/id}.xml" replace="instance"
+			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml" replace="instance"
 				instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load MODS record from eXist.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
@@ -274,9 +274,9 @@
 					></xforms:setvalue>
 				</xforms:action>
 			</xforms:submission>
-
-			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/mods/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml" method="put"
-				replace="none" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+			
+			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/records/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml"
+				method="put" replace="none" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error Saving Documents. Be sure all required inputs are filled in.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Successfully saved MODS record to eXist.</xforms:setvalue>
@@ -370,7 +370,7 @@
 						</div>
 						<xforms:group ref="instance('doc')/mods:mods">
 							<div class="col-md-6">
-								<h2>Document Metadata</h2>								
+								<h2>Document Metadata</h2>
 								<div class="subsection">
 									<h3>Titles</h3>
 									<xforms:group ref=".[count(mods:titleInfo/mods:subTitle) = 0]">

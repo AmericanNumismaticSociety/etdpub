@@ -12,8 +12,8 @@
 		<link rel="stylesheet" href="/fr/style/bootstrap/css/bootstrap.css" type="text/css" />
 		<link rel="stylesheet" href="/fr/style/form-runner-bootstrap-override.css" type="text/css" />
 
-		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" />
-		<script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+		<link rel="stylesheet" href="http://netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
+		<script type="text/javascript" src="http://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 		<link rel="shortcut icon" href="/ops/images/orbeon-icon-16.ico" />
 		<link rel="icon" href="/ops/images/orbeon-icon-16.png" type="image/png" />
 		<link rel="stylesheet" href="/apps/etdpub/xforms/css/style.css" />
@@ -61,9 +61,15 @@
 			<xforms:instance id="xqueries">
 				<queries xmlns="">
 					<query id="collection-count">&lt;report&gt;{count(collection())}&lt;/report&gt;</query>
-					<query id="get-objects"> declare namespace mods="http://www.loc.gov/mods/v3"; &lt;report> { for $record in collection() return &lt;record> &lt;title&gt;
+					<query id="get-objects">declare namespace mods="http://www.loc.gov/mods/v3"; declare namespace tei="http://www.tei-c.org/ns/1.0"; &lt;report> { for $record in collection() let $type := $record/*/local-name() return if ($type='modsCollection') then &lt;record> &lt;type>mods&lt;/type> &lt;id>{
+						data($record//mods:recordIdentifier) }&lt;/id> &lt;title>{ data($record//mods:title) }&lt;/title>&lt;author>{ data($record//mods:namePart) }&lt;/author> &lt;date>{
+						data($record//mods:dateCreated) }&lt;/date> &lt;media_url&gt;{ data($record//mods:location/mods:url) }&lt;/media_url&gt;&lt;type&gt;MODS&lt;/type&gt; &lt;/record> else if ($type='TEI') then &lt;record>
+					&lt;type>{ lower-case($type) }&lt;/type> &lt;id>{ data($record/*[local-name()='TEI']/@xml:id) }&lt;/id> &lt;title>{
+					data($record//tei:titleStmt/tei:title) }&lt;/title>&lt;type&gt;TEI&lt;/type&gt; &lt;/record> else '' } &lt;/report> </query>
+					
+					<!--<query id="get-objects"> declare namespace mods="http://www.loc.gov/mods/v3"; declare namespace tei="http://www.tei-c.org/ns/1.0"; &lt;report> { for $record in collection() return &lt;record> &lt;title&gt;
 						{data($record//mods:title)}&lt;/title&gt; &lt;id>{data($record//mods:recordIdentifier) }&lt;/id> &lt;author>{ data($record//mods:namePart) }&lt;/author> &lt;date>{
-						data($record//mods:dateCreated) }&lt;/date> &lt;media_url&gt;{ data($record//mods:location/mods:url) }&lt;/media_url&gt; &lt;/record> } &lt;/report> </query>
+						data($record//mods:dateCreated) }&lt;/date> &lt;media_url&gt;{ data($record//mods:location/mods:url) }&lt;/media_url&gt; &lt;/record> } &lt;/report> </query>-->
 				</queries>
 			</xforms:instance>
 
@@ -116,19 +122,19 @@
 
 			<!--***************** XQUERY ******************-->
 			<!-- xquery for getting and processing query results into pages of items -->
-			<xforms:submission id="xquery-pagination" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/mods" method="post" replace="instance" instance="pagination-result"
+			<xforms:submission id="xquery-pagination" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance" instance="pagination-result"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error querying eXist database.</xforms:message>
 			</xforms:submission>
 
-			<xforms:submission id="xquery-collection" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/mods" method="post" replace="instance" instance="xquery-result"
+			<xforms:submission id="xquery-collection" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance" instance="xquery-result"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error querying eXist database.</xforms:message>
 			</xforms:submission>
 
 			<!--***************** EXIST-DB ******************-->
 			<!-- delete finding aid -->
-			<xforms:submission id="delete-doc" action="{instance('exist-config')/url}etdpub/mods/{instance('control-instance')/id}.xml" method="delete" replace="none"
+			<xforms:submission id="delete-doc" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml" method="delete" replace="none"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/status">MODS record successfully deleted.</xforms:setvalue>
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error deleting document from eXist database.</xforms:message>
@@ -182,6 +188,7 @@
 								<table class="table">
 									<thead>
 										<tr>
+											<th>Type</th>
 											<th>Title</th>
 											<th style="width:10%">View</th>
 											<th style="width:5%">Delete</th>
@@ -192,6 +199,7 @@
 											<xforms:var name="id" select="id"></xforms:var>
 											<xforms:var name="media_url" select="media_url"></xforms:var>
 											<tr>
+												<td><xforms:output ref="type"/></td>
 												<td>
 													<h4>
 														<a href="edit/?id={$id}">
