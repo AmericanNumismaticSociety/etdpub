@@ -50,6 +50,11 @@
 			<xforms:instance id="doc" xxforms:exclude-result-prefixes="#all">
 				<eac-cpf xmlns=""></eac-cpf>
 			</xforms:instance>
+			
+			<!-- instance templates -->
+			<xforms:instance id="templates">
+				<xi:include href="instances/templates.xml"></xi:include>
+			</xforms:instance>
 
 			<!-- xquery -->
 			<xforms:instance id="eXist-xquery">
@@ -176,8 +181,8 @@
 						<p><a href="{instance('config')/url}" target="_blank">View Pubic Interface <span class="glyphicon glyphicon-new-window"></span></a></p>
 						<h3>Create New Documents</h3>
 						<ul>
-							<xforms:repeat nodeset="instance('config')/templates/template">
-								<li><a href="edit/?template={@id}"><span class="glyphicon glyphicon-file"></span><xforms:output ref="."></xforms:output></a></li>
+							<xforms:repeat nodeset="xxforms:sort(instance('templates')/template, @label, 'text', 'ascending')">
+								<li><a href="edit/?template={@id}"><span class="glyphicon glyphicon-file"></span><xforms:output ref="@label"></xforms:output></a></li>
 							</xforms:repeat>
 						</ul>
 						<xforms:group ref=".[count(instance('pagination-result')//record) &gt; 0]">
