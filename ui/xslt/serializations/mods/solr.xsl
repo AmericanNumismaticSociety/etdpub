@@ -39,14 +39,11 @@
 				<xsl:value-of select="//mods:title"/>
 			</field>
 			<field name="author" update="set">
-				<xsl:value-of select="string-join(mods:name/mods:namePart, ', ')"/>
+				<xsl:value-of select="string-join(mods:name/mods:namePart, '; ')"/>
 			</field>
 			<field name="timestamp" update="set">
 				<xsl:value-of select="if (contains(string(current-dateTime()), 'Z')) then current-dateTime() else concat(string(current-dateTime()), 'Z')"/>
-			</field>
-			<field name="date" update="add">
-				<xsl:value-of select="//mods:dateCreated"/>
-			</field>
+			</field>			
 			<field name="abstract" update="add">
 				<xsl:value-of select="//mods:abstract"/>
 			</field>
@@ -62,29 +59,29 @@
 			
 			<!-- index authors and publishers as facets -->
 			<xsl:for-each select="mods:name">
-				<field name="author_facet" update="add">
+				<field name="creator_facet" update="add">
 					<xsl:value-of select="mods:namePart"/>
 				</field>
-			</xsl:for-each>			
-			<xsl:for-each select="descendant::mods:publisher">
-				<xsl:choose>
-					<xsl:when test="ancestor::mods:mods/mods:subject/mods:genre[.='dissertations']">
-						<field name="university" update="add">
-							<xsl:value-of select="."/>
-						</field>
-					</xsl:when>
-					<xsl:otherwise>
-						<field name="publisher_facet" update="add">
-							<xsl:value-of select="."/>
-						</field>
-					</xsl:otherwise>
-				</xsl:choose>
-			</xsl:for-each>		
+				<xsl:if test="string(@valueURI)">
+					<field name="creator_uri" update="set">
+						<xsl:value-of select="@valueURI"/>
+					</field>
+				</xsl:if>
+				<xsl:if test="mods:affiliation">
+					<field name="university" update="add">
+						<xsl:value-of select="mods:affiliation"/>
+					</field>
+				</xsl:if>
+			</xsl:for-each>
+			
+			<xsl:apply-templates select="mods:originInfo"/>
 
 			<!-- subject facets -->
-			<xsl:for-each select="mods:subject/*">
+			<xsl:for-each select="mods:genre|mods:subject/*">
+				<xsl:variable name="val" select="if (local-name()='name') then normalize-space(mods:namePart) else normalize-space(.)"/>
+				
 				<field name="{local-name()}_facet" update="set">
-					<xsl:value-of select="."/>
+					<xsl:value-of select="$val"/>
 				</field>
 				<xsl:if test="string(@valueURI)">
 					<field name="{local-name()}_uri" update="set">
@@ -109,5 +106,16 @@
 				</xsl:if>
 			</xsl:for-each>
 		</doc>
+	</xsl:template>
+	
+	<xsl:template match="mods:originInfo">
+		<field name="date" update="add">
+			<xsl:value-of select="mods:dateIssued"/>
+		</field>
+		<xsl:if test="mods:publisher">
+			<field name="publisher_facet" update="add">
+				<xsl:value-of select="mods:publisher"/>
+			</field>			
+		</xsl:if>
 	</xsl:template>
 </xsl:stylesheet>

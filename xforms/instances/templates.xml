@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
-	<template id="article" uri="http://vocab.getty.edu/aat/300048715" case="doc-upload" label="Journal Aricle">articles</template>
-	<template id="auction_catalog" uri="http://vocab.getty.edu/aat/300026068" case="manual-link" label="Auction Catalog">auction catalogs</template>
-	<template id="etd" uri="http://vocab.getty.edu/aat/300028029" case="doc-upload" label="Electronic Thesis or Dissertation">dissertations</template>
-	<template id="journal" uri="http://vocab.getty.edu/aat/300215390" case="no-upload" label="Journal">journals (periodicals)</template>
+	<template id="article" uri="http://vocab.getty.edu/aat/300048715" case="doc-upload" label="Journal Aricle" itemtype="http://schema.org/ScholarlyArticle">articles</template>
+	<template id="auction_catalog" uri="http://vocab.getty.edu/aat/300026068" case="manual-link" label="Auction Catalog" itemtype="http://schema.org/Book">auction catalogs</template>
+	<template id="etd" uri="http://vocab.getty.edu/aat/300028029" case="doc-upload" label="Electronic Thesis or Dissertation" itemtype="http://schema.org/Book">dissertations</template>
+	<template id="journal" uri="http://vocab.getty.edu/aat/300215390" case="no-upload" label="Journal" itemtype="http://schema.org/Book">journals (periodicals)</template>
 </templates>

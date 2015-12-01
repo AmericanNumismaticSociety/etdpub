@@ -22,16 +22,17 @@
 							<title></title>
 						</titleInfo>
 						<name>
-							<namePart></namePart>
+							<namePart></namePart>							
 							<role>
 								<roleTerm type="text">Author</roleTerm>
 								<roleTerm type="code" authority="marcrelator">aut</roleTerm>
 							</role>
 						</name>
 						<abstract></abstract>
-						<originInfo>
-							<publisher></publisher>
-							<dateCreated></dateCreated>
+						<genre valueURI=""></genre>
+						<typeOfResource>text</typeOfResource>
+						<originInfo>							
+							<dateIssued></dateIssued>
 						</originInfo>
 						<language>
 							<languageTerm>en</languageTerm>
@@ -47,15 +48,16 @@
 							<recordContentSource>American Numismatic Society</recordContentSource>
 							<recordCreationDate encoding="iso8601"></recordCreationDate>
 							<recordIdentifier></recordIdentifier>
-						</recordInfo>
-						<subject>
-							<genre valueURI=""></genre>
-						</subject>
+						</recordInfo>						
 					</mods>
 				</modsCollection>
 			</xforms:instance>
 
 			<!-- MODS templates -->
+			<xforms:instance id="affiliation-template" xxforms:exclude-result-prefixes="#all">
+				<affiliation xmlns="http://www.loc.gov/mods/v3"></affiliation>
+			</xforms:instance>
+			
 			<xforms:instance id="subject-template" xxforms:exclude-result-prefixes="#all">
 				<subject xmlns="http://www.loc.gov/mods/v3"></subject>
 			</xforms:instance>
@@ -70,6 +72,10 @@
 
 			<xforms:instance id="namePart-template" xxforms:exclude-result-prefixes="#all">
 				<namePart xmlns="http://www.loc.gov/mods/v3"></namePart>
+			</xforms:instance>
+
+			<xforms:instance id="publisher-template" xxforms:exclude-result-prefixes="#all">
+				<publisher xmlns="http://www.loc.gov/mods/v3"></publisher>
 			</xforms:instance>
 
 			<xforms:instance id="role-template" xxforms:exclude-result-prefixes="#all">
@@ -187,11 +193,12 @@
 				<xforms:bind nodeset="mods:titleInfo/mods:subTitle" required="true()"></xforms:bind>
 				<xforms:bind nodeset="mods:name">
 					<xforms:bind nodeset="mods:namePart" required="true()"></xforms:bind>
+					<xforms:bind nodeset="mods:affiliation" required="true()"/>
 					<xforms:bind nodeset="mods:role/mods:roleTerm" required="true()"></xforms:bind>
 				</xforms:bind>
-				<xforms:bind nodset="mods:abstract" required="true()"></xforms:bind>
+				<xforms:bind nodeset="mods:abstract" required="true()"></xforms:bind>
 				<xforms:bind nodeset="mods:originInfo">
-					<xforms:bind nodeset="mods:dateCreated" required="true()" type="xs:gYear"></xforms:bind>
+					<xforms:bind nodeset="mods:dateIssued" required="true()" type="xs:gYear"></xforms:bind>
 					<xforms:bind nodeset="mods:publisher" required="true()"></xforms:bind>
 				</xforms:bind>
 				<xforms:bind nodeset="mods:location/mods:url" required="true()"></xforms:bind>
@@ -223,9 +230,15 @@
 					<xforms:action if="instance('templates')/template[@id=$template]">
 						<xforms:setvalue ref="instance('control-instance')/template" value="string(xxforms:get-request-parameter('template'))"></xforms:setvalue>
 						<!-- set predetermined values or add elements based on the template -->
-						<xforms:setvalue ref="instance('doc')/mods:mods/mods:subject/mods:genre" value="instance('templates')/template[@id=$template]"></xforms:setvalue>
-						<xforms:setvalue ref="instance('doc')/mods:mods/mods:subject/mods:genre/@valueURI" value="instance('templates')/template[@id=$template]/@uri"></xforms:setvalue>
+						<xforms:setvalue ref="instance('doc')/mods:mods/mods:genre" value="instance('templates')/template[@id=$template]"></xforms:setvalue>
+						<xforms:setvalue ref="instance('doc')/mods:mods/mods:genre/@valueURI" value="instance('templates')/template[@id=$template]/@uri"></xforms:setvalue>
 						<xforms:setvalue ref="instance('doc')/mods:mods/mods:recordInfo/mods:recordCreationDate" value="format-date(current-date(), '[Y0001]-[M01]-[D01]')"></xforms:setvalue>
+						
+						<!-- insert ETD templates -->
+						<xforms:insert context="instance('doc')/mods:mods/mods:name" nodeset="./child::node()[last()]" origin="instance('affiliation-template')" if="$template='etd'"/>
+						
+						<!-- preconditions for journals -->
+						
 					</xforms:action>
 
 					<xforms:action if="not(instance('templates')/template[@id=$template])">
@@ -265,7 +278,7 @@
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load MODS record from eXist.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/new" value="false()"></xforms:setvalue>
-					<xforms:setvalue ref="instance('control-instance')/template" value="instance('templates')/template[@uri=instance('doc')/mods:mods/mods:subject/mods:genre/@valueURI]/@id"
+					<xforms:setvalue ref="instance('control-instance')/template" value="instance('templates')/template[@uri=instance('doc')/mods:mods/mods:genre/@valueURI]/@id"
 					></xforms:setvalue>
 				</xforms:action>
 			</xforms:submission>
@@ -354,7 +367,8 @@
 									<span class="glyphicon glyphicon-exclamation-sign"></span>
 									<strong>Alert:</strong> There must be a linked or uploaded document.</div>
 							</xforms:group>
-							<div class="submission">
+							
+							<div class="col-md-6 col-md-offset-3 text-center">
 								<xforms:submit submission="save-doc">
 									<xforms:label><span class="glyphicon glyphicon-floppy-disk"></span>Save</xforms:label>
 								</xforms:submit>
@@ -365,8 +379,14 @@
 						</div>
 						<xforms:group ref="instance('doc')/mods:mods">
 							<div class="col-md-6">
-								<h2>Document Metadata</h2>
+								<h2>Document Metadata</h2>								
 								<div class="subsection">
+									<div class="text-muted">
+										<xforms:output ref="instance('templates')/template[@id=instance('control-instance')/template]/@label">
+											<xforms:label>Genre</xforms:label>
+										</xforms:output>
+									</div>	
+									
 									<h3>Titles</h3>
 									<xforms:group ref=".[count(mods:titleInfo/mods:subTitle) = 0]">
 										<xforms:trigger appearance="minimal">
@@ -417,59 +437,27 @@
 									</xforms:trigger>
 									<xforms:repeat nodeset="mods:name">
 										<etdpub:name-creator ref="."></etdpub:name-creator>
-									</xforms:repeat>
-									<!--<xforms:repeat nodeset="mods:name">
-										<div>
-											<h4>Creator</h4>
-											<xforms:group ref=".[count(parent::node()/mods:name) &gt; 1]">
-												<xforms:trigger appearance="minimal">
-													<xforms:delete nodeset="." ev:event="DOMActivate"></xforms:delete>
-													<xforms:label>
-														<span class="glyphicon glyphicon-remove"></span>
-													</xforms:label>
-												</xforms:trigger>
-											</xforms:group>
-											<div>
-												<xforms:input ref="mods:namePart">
-													<xforms:label>Name</xforms:label>
-													<xforms:alert>Required</xforms:alert>
-												</xforms:input>
-											</div>
-											<div>											
-												<xforms:select1 ref="mods:role/mods:roleTerm[@type='code']">
-													<xforms:label>Role</xforms:label>
-													<xforms:alert>Required</xforms:alert>
-													<xforms:item>
-														<xforms:label>Select Role...</xforms:label>
-														<xforms:value></xforms:value>
-													</xforms:item>
-													<xforms:itemset nodeset="instance('relators')/relator">
-														<xforms:label ref="."></xforms:label>
-														<xforms:value ref="@code"></xforms:value>
-													</xforms:itemset>
-													<xforms:action ev:event="xforms-value-changed">
-														<xforms:var name="code" select="."></xforms:var>
-														<xforms:setvalue ref="ancestor::mods:role/mods:roleTerm[@type='text']" value="instance('relators')/relator[@code=$code]"></xforms:setvalue>
-													</xforms:action>
-												</xforms:select1>											
-											</div>
-										</div>										
-									</xforms:repeat>-->
+									</xforms:repeat>								
 								</div>
 								<div class="subsection">
 									<h3>Publication</h3>
-									<div>
-										<xforms:input ref="mods:originInfo/mods:publisher">
-											<xforms:label>Publisher</xforms:label>
-											<xforms:alert>Required</xforms:alert>
-										</xforms:input>
-									</div>
-									<div>
-										<xforms:input ref="mods:originInfo/mods:dateCreated">
-											<xforms:label>Date</xforms:label>
-											<xforms:alert>Required. Must be a year.</xforms:alert>
-										</xforms:input>
-									</div>
+									<xforms:group ref="mods:originInfo">
+										<xforms:group ref="mods:publisher">
+											<div>
+												<xforms:input ref=".">
+													<xforms:label>Publisher</xforms:label>
+													<xforms:alert>Required</xforms:alert>
+												</xforms:input>
+											</div>
+										</xforms:group>
+										
+										<div>
+											<xforms:input ref="mods:dateIssued">
+												<xforms:label>Date</xforms:label>
+												<xforms:alert>Required. Must be a year.</xforms:alert>
+											</xforms:input>
+										</div>
+									</xforms:group>
 								</div>
 								<div class="subsection">
 									<h3>Miscellaneous</h3>
@@ -524,6 +512,7 @@
 											<xforms:action ev:event="DOMActivate">
 												<xforms:insert origin="instance('subject-template')" context="." nodeset="./child::node()[last()]"></xforms:insert>
 												<xforms:insert origin="instance('name-template')" context="mods:subject[last()]"></xforms:insert>
+												<xforms:insert origin="instance('namePart-template')" context="mods:subject[last()]/mods:name"></xforms:insert>
 											</xforms:action>
 										</xforms:trigger>
 										<xforms:trigger appearance="minimal">
@@ -543,19 +532,6 @@
 											</xforms:action>
 										</xforms:trigger>
 									</div>
-									<!-- output genre -->
-									<xforms:group ref="mods:subject/mods:genre">
-										<div>
-											<xforms:output ref=".">
-												<xforms:label>Genre</xforms:label>
-											</xforms:output>
-											<xforms:trigger appearance="minimal">
-												<xforms:label><span class="glyphicon glyphicon-new-window"></span></xforms:label>
-												<xforms:hint value="@valueURI"></xforms:hint>
-												<xforms:load ev:event="DOMActivate" show="new" ref="@valueURI"></xforms:load>
-											</xforms:trigger>
-										</div>
-									</xforms:group>
 									<!-- repeatable elements -->
 									<xforms:repeat nodeset="mods:subject[mods:geographic]">
 										<etdpub:geographic ref="mods:geographic"></etdpub:geographic>

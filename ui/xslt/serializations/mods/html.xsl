@@ -8,10 +8,15 @@
 	<xsl:variable name="display_path">../</xsl:variable>
 	<xsl:variable name="url" select="/content/config/url"/>
 	<xsl:variable name="id" select="//mods:recordIdentifier"/>
-
+	<xsl:variable name="genre" select="//mods:mods/mods:genre"/>
+	
 	<!-- language normalization -->
 	<xsl:variable name="languages" as="node()*">
 		<xsl:copy-of select="document('oxf:/apps/etdpub/xforms/instances/languages.xml')/*"/>
+	</xsl:variable>
+	<!-- load available templates -->
+	<xsl:variable name="templates" as="node()*">
+		<xsl:copy-of select="document('oxf:/apps/etdpub/xforms/instances/templates.xml')/*"/>
 	</xsl:variable>
 
 	<xsl:variable name="namespaces" as="node()*">
@@ -26,7 +31,7 @@
 			<namespace prefix="skos">http://www.w3.org/2004/02/skos/core#</namespace>
 		</namespaces>
 	</xsl:variable>
-
+	
 	<xsl:template match="/">
 		<xsl:apply-templates select="/content/mods:modsCollection/mods:mods"/>
 	</xsl:template>
@@ -65,29 +70,44 @@
 	</xsl:template>
 
 	<xsl:template name="display">
-		<div class="container content" itemscope="" itemtype="http://schema.org/ScholarlyArticle">
+		<div class="container content" itemscope="" itemtype="{$templates//template[.=$genre]/@itemtype}">
 			<div class="row">
 				<div class="col-md-12">
 					<h2 itemprop="name">
 						<xsl:value-of select="mods:titleInfo/mods:title"/>
 					</h2>
+					<xsl:if test="mods:titleInfo/mods:subTitle">
+						<h3>
+							<xsl:value-of select="mods:titleInfo/mods:subTitle"/>
+						</h3>
+					</xsl:if>
 				</div>
 				<div class="col-md-9">
 					<dl class="dl-horizontal">
 						<xsl:for-each select="mods:name">
-							<dt>Author</dt>
+							<dt>
+								<xsl:value-of select="mods:role/mods:roleTerm[@type='text']"/>
+							</dt>
 							<dd itemprop="author">
 								<xsl:value-of select="mods:namePart"/>
 							</dd>
+							<xsl:if test="mods:affiliation">
+								<dt>University</dt>
+								<dd itemprop="publisher">
+									<xsl:value-of select="mods:affiliation"/>
+								</dd>
+							</xsl:if>
 						</xsl:for-each>						
 						<dt>Date</dt>
 						<dd itemprop="dateCreated">
-							<xsl:value-of select="mods:originInfo/mods:dateCreated"/>
+							<xsl:value-of select="mods:originInfo/mods:dateIssued"/>
 						</dd>
-						<dt>Publisher</dt>
-						<dd itemprop="publisher">
-							<xsl:value-of select="mods:originInfo/mods:publisher"/>
-						</dd>
+						<xsl:if test="mods:originInfo/mods:publisher">
+							<dt>Publisher</dt>
+							<dd itemprop="publisher">
+								<xsl:value-of select="mods:originInfo/mods:publisher"/>
+							</dd>
+						</xsl:if>
 						<xsl:for-each select="mods:language">
 							<xsl:variable name="lang" select="mods:languageTerm"/>
 
@@ -117,7 +137,7 @@
 							<ul>
 								<xsl:apply-templates select="$subjects/mods:subject/*[local-name()=$name]">
 									<xsl:sort select="local-name()"/>
-									<xsl:sort select="text()"/>
+									<xsl:sort select="if ($name='name') then mods:namePart else text()"/>
 								</xsl:apply-templates>
 							</ul>
 						</xsl:for-each>
@@ -174,16 +194,23 @@
 	</xsl:template>
 
 	<xsl:template match="mods:subject/*">
+		<xsl:variable name="val" select="if (local-name()='name') then normalize-space(mods:namePart) else normalize-space(.)"/>
+		
 		<li>
-			<xsl:if test="local-name()='genre'">
-				<xsl:attribute name="itemprop">genre</xsl:attribute>
-			</xsl:if>
-			<a href="{$display_path}results?q={local-name()}_facet:&#x022;{.}&#x022;">
-				<xsl:value-of select="."/>
+			<a href="{$display_path}results?q={local-name()}_facet:&#x022;{$val}&#x022;">
+				<xsl:value-of select="$val"/>
 			</a>
 			
 			<xsl:if test="string(@valueURI)">
 				<a href="{@valueURI}" title="{@valueURI}" class="external-link">
+					<xsl:choose>
+						<xsl:when test="local-name()='genre'">
+							<xsl:attribute name="itemprop">genre</xsl:attribute>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:attribute name="itemprop">about</xsl:attribute>
+						</xsl:otherwise>
+					</xsl:choose>
 					<img src="{$display_path}ui/images/external.png" alt="External Link"/>
 				</a>
 			</xsl:if>

@@ -19,9 +19,9 @@
 						<xforms:setvalue ref="instance('interface-type')">nomisma</xforms:setvalue>
 					</xforms:action>
 					<xforms:group ref="$binding">
-						<xforms:group ref=".[string(text())]">
+						<xforms:group ref=".[string(mods:namePart)]">
 							<div>
-								<xforms:output ref=".">
+								<xforms:output ref="mods:namePart">
 									<xforms:label>Name</xforms:label>
 								</xforms:output>
 								<xforms:trigger appearance="minimal">
@@ -45,7 +45,7 @@
 								</xforms:trigger>
 							</div>
 						</xforms:group>
-						<xforms:group ref=".[not(string(text()))]">
+						<xforms:group ref=".[not(string(mods:namePart))]">
 							<div class="lookup">
 								<h4>Name</h4>
 								<xforms:trigger appearance="minimal">
@@ -127,7 +127,7 @@
 												<xforms:action ev:event="DOMActivate">
 													<xforms:var name="id" select="tokenize(instance('temp')/@href, '/')[last()]"/>
 													<xforms:setvalue ref="$binding/@valueURI" value="instance('temp')/@href"/>
-													<xforms:setvalue ref="$binding" value="instance('feed')//atom:entry[atom:id = $id]/atom:title"/>
+													<xforms:setvalue ref="$binding/mods:namePart" value="instance('feed')//atom:entry[atom:id = $id]/atom:title"/>
 												</xforms:action>
 											</xforms:trigger>
 										</xforms:group>
@@ -175,7 +175,7 @@
 												<xforms:label>Select</xforms:label>
 												<xforms:action ev:event="DOMActivate">
 													<xforms:setvalue ref="$binding/@valueURI" value="instance('temp')/@href"/>
-													<xforms:setvalue ref="$binding" value="instance('getty-response')//res:result[res:binding[@name='c']/res:uri =
+													<xforms:setvalue ref="$binding/mods:namePart" value="instance('getty-response')//res:result[res:binding[@name='c']/res:uri =
 														instance('temp')/@href]/res:binding[@name='label']/res:literal"/>
 												</xforms:action>
 											</xforms:trigger>

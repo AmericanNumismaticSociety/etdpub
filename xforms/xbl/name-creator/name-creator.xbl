@@ -4,8 +4,9 @@
 -->
 
 <xbl:xbl xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
-	xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:xbl="http://www.w3.org/ns/xbl" xmlns:xxbl="http://orbeon.org/oxf/xml/xbl" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/"
-	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:mods="http://www.loc.gov/mods/v3">
+	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:xbl="http://www.w3.org/ns/xbl" xmlns:xxbl="http://orbeon.org/oxf/xml/xbl"
+	xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
+	xmlns:atom="http://www.w3.org/2005/Atom" xmlns:mods="http://www.loc.gov/mods/v3">
 	<xbl:binding id="etdpub-name-creator" element="etdpub|name-creator">
 		<xbl:template>
 			<xforms:group xbl:attr="model context ref bind" xxbl:scope="outer">
@@ -98,6 +99,8 @@
 													<xforms:setvalue ref="$binding/mods:namePart"/>
 													<xforms:insert if="not($binding/@authority)" context="$binding" origin="xforms:attribute('authority', 'viaf')"/>
 													<xforms:insert if="not($binding/@valueURI)" context="$binding" origin="xforms:attribute('valueURI', '')"/>
+													<xforms:delete context="$binding/@xlink:type"/>
+													<xforms:delete context="$binding/@xlink:role"/>
 
 													<!-- pre-populate the select list -->
 													<xforms:toggle case="viaf-search"/>
@@ -107,8 +110,10 @@
 													<xforms:delete context="instance('xeac-response')/*"/>
 													<xforms:setvalue ref="instance('search-query')"/>
 
-													<!-- add valueURI attribute if it does not exist -->
+													<!-- add valueURI, xlink attributes attribute if they do not exist -->
 													<xforms:insert if="not($binding/@valueURI)" context="$binding" origin="xforms:attribute('valueURI', '')"/>
+													<xforms:insert if="not($binding/@xlink:type)" context="$binding" origin="xforms:attribute('xlink:type', 'simple')"/>
+													<xforms:insert if="not($binding/@xlink:role)" context="$binding" origin="xforms:attribute('xlink:role', 'xeac:authority')"/>
 
 													<!-- create attributes, clear $binding text when applicable -->
 													<xforms:delete if="$binding/@authority" context="$binding/@authority"/>
@@ -122,8 +127,10 @@
 													<xforms:setvalue ref="instance('temp')"/>
 													<xforms:setvalue ref="instance('temp')/@href"/>
 													<!-- remove attributes -->
-													<xforms:delete if="$binding/@authority" context="$binding/@authority"/>
-													<xforms:delete if="$binding/@valueURI" context="$binding/@valueURI"/>
+													<xforms:delete context="$binding/@authority"/>
+													<xforms:delete context="$binding/@valueURI"/>
+													<xforms:delete context="$binding/@xlink:type"/>
+													<xforms:delete context="$binding/@xlink:role"/>
 
 													<xforms:toggle case="local-search"/>
 												</xforms:action>
@@ -222,8 +229,15 @@
 										</xforms:action>
 									</xforms:select1>
 								</div>
+								<div>
+									<xforms:input ref="mods:affiliation">
+										<xforms:label>University</xforms:label>
+										<xforms:alert>Required</xforms:alert>
+									</xforms:input>
+								</div>
 							</div>
 						</xforms:group>
+						<hr/>
 					</xforms:group>
 					<!-- ********************************************************************** -->
 					<xforms:model id="name-creator-model" xmlns:xi="http://www.w3.org/2001/XInclude">
