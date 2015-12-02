@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<frequencies>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/ann">Annual</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/bmn">Bimonthly</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/swk">Semiweekly</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/dyl">Daily</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/bwk">Biweekly</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/san">Semiannual</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/bin">Biennial</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/ten">Triennial</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/ttw">Three times a week</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/ttm">Three times a month</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/con">Continuously updated</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/mon">Monthly</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/qrt">Quarterly</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/smn">Semimonthly</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/tty">Three times a year</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/unk">Unknown</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/wkl">Weekly</frequency>
+	<frequency uri="http://id.loc.gov/vocabulary/frequencies/oth">Other</frequency>
+</frequencies>

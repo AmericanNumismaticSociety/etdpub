@@ -1,6 +1,6 @@
 <!-- 	author: Ethan Gruber, American Numismatic Society 
 	last modified: August, 2015
-	function: MODS subject/name: Getty ULAN, Nomisma.org dynasties, persons, and organizations
+	function: MODS names for creators of the document: VIAF, xEAC, and local vocabulary
 -->
 
 <xbl:xbl xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
@@ -47,24 +47,6 @@
 									<xforms:hint value="@valueURI"/>
 									<xforms:load ev:event="DOMActivate" show="new" ref="@valueURI"/>
 								</xforms:trigger>
-							</div>
-							<div>
-								<xforms:select1 ref="mods:role/mods:roleTerm[@type='code']">
-									<xforms:label>Role</xforms:label>
-									<xforms:alert>Required</xforms:alert>
-									<xforms:item>
-										<xforms:label>Select Role...</xforms:label>
-										<xforms:value/>
-									</xforms:item>
-									<xforms:itemset nodeset="instance('relators')/relator">
-										<xforms:label ref="."/>
-										<xforms:value ref="@code"/>
-									</xforms:itemset>
-									<xforms:action ev:event="xforms-value-changed">
-										<xforms:var name="code" select="."/>
-										<xforms:setvalue ref="ancestor::mods:role/mods:roleTerm[@type='text']" value="instance('relators')/relator[@code=$code]"/>
-									</xforms:action>
-								</xforms:select1>
 							</div>
 						</xforms:group>
 						<xforms:group ref=".[not(string(mods:namePart))]">
@@ -204,39 +186,47 @@
 									</xforms:case>
 									<xforms:case id="local-search">
 										<div>
-											<xforms:input ref="mods:namePart">
+											<xforms:input ref="instance('temp')">
 												<xforms:label>Name</xforms:label>
 												<xforms:alert>Required</xforms:alert>
 											</xforms:input>
+											<xforms:trigger>
+												<xforms:label>Select</xforms:label>
+												<xforms:setvalue ev:event="DOMActivate" ref="$binding/mods:namePart" value="instance('temp')"/>
+											</xforms:trigger>
 										</div>
 									</xforms:case>
 								</xforms:switch>
-								<div>
-									<xforms:select1 ref="mods:role/mods:roleTerm[@type='code']">
-										<xforms:label>Role</xforms:label>
-										<xforms:alert>Required</xforms:alert>
-										<xforms:item>
-											<xforms:label>Select Role...</xforms:label>
-											<xforms:value/>
-										</xforms:item>
-										<xforms:itemset nodeset="instance('relators')/relator">
-											<xforms:label ref="."/>
-											<xforms:value ref="@code"/>
-										</xforms:itemset>
-										<xforms:action ev:event="xforms-value-changed">
-											<xforms:var name="code" select="."/>
-											<xforms:setvalue ref="ancestor::mods:role/mods:roleTerm[@type='text']" value="instance('relators')/relator[@code=$code]"/>
-										</xforms:action>
-									</xforms:select1>
-								</div>
-								<div>
-									<xforms:input ref="mods:affiliation">
-										<xforms:label>University</xforms:label>
-										<xforms:alert>Required</xforms:alert>
-									</xforms:input>
-								</div>
 							</div>
 						</xforms:group>
+						
+						<div>
+							<xforms:select1 ref="mods:role/mods:roleTerm[@type='code']">
+								<xforms:label>Role</xforms:label>
+								<xforms:alert>Required</xforms:alert>
+								<xforms:item>
+									<xforms:label>Select Role...</xforms:label>
+									<xforms:value/>
+								</xforms:item>
+								<xforms:itemset nodeset="instance('relators')/relator">
+									<xforms:label ref="."/>
+									<xforms:value ref="@code"/>
+								</xforms:itemset>
+								<xforms:action ev:event="xforms-value-changed">
+									<xforms:var name="code" select="."/>
+									<xforms:setvalue ref="ancestor::mods:role/mods:roleTerm[@type='text']" value="instance('relators')/relator[@code=$code]"/>
+								</xforms:action>
+							</xforms:select1>
+						</div>
+						
+						<xforms:group ref="mods:affiliation">
+							<div>
+								<xforms:input ref=".">
+									<xforms:label>University</xforms:label>
+									<xforms:alert>Required</xforms:alert>
+								</xforms:input>
+							</div>
+						</xforms:group>						
 						<hr/>
 					</xforms:group>
 					<!-- ********************************************************************** -->

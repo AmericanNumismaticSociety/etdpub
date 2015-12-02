@@ -75,47 +75,98 @@
 			</xsl:for-each>
 			
 			<xsl:apply-templates select="mods:originInfo"/>
+			
+			<xsl:apply-templates select="mods:relatedItem[@type='host']"/>
 
 			<!-- subject facets -->
-			<xsl:for-each select="mods:genre|mods:subject/*">
-				<xsl:variable name="val" select="if (local-name()='name') then normalize-space(mods:namePart) else normalize-space(.)"/>
-				
-				<field name="{local-name()}_facet" update="set">
-					<xsl:value-of select="$val"/>
-				</field>
-				<xsl:if test="string(@valueURI)">
-					<field name="{local-name()}_uri" update="set">
-						<xsl:value-of select="@valueURI"/>
-					</field>
-				</xsl:if>
-
-				<!-- Pleiades URIs -->
-				<xsl:if test="contains(@valueURI, 'pleiades.stoa.org')">
-					<field name="pleiades_uri" update="set">
-						<xsl:value-of select="@valueURI"/>
-					</field>
-				</xsl:if>
-				<xsl:if test="contains(@valueURI, 'nomisma.org')">
-					<xsl:variable name="href" select="@valueURI"/>
-					
-					<xsl:for-each select="$rdf/*[@rdf:about=$href]/skos:closeMatch[contains(@rdf:resource, 'pleiades.stoa.org')]">
-						<field name="pleiades_uri" update="set">
-							<xsl:value-of select="@rdf:resource"/>
-						</field>
-					</xsl:for-each>
-				</xsl:if>
-			</xsl:for-each>
+			<xsl:apply-templates select="mods:genre|mods:subject/*" mode="subjectTerm"/>
+			
+			<!-- fulltext -->
+			<field name="text" update="add">
+				<xsl:for-each select="descendant-or-self::text()">
+					<xsl:value-of select="."/>
+					<xsl:text> </xsl:text>
+				</xsl:for-each>
+			</field>			
 		</doc>
 	</xsl:template>
 	
-	<xsl:template match="mods:originInfo">
-		<field name="date" update="add">
-			<xsl:value-of select="mods:dateIssued"/>
+	<xsl:template match="*" mode="subjectTerm">
+		<xsl:variable name="val" select="if (local-name()='name') then normalize-space(mods:namePart) else normalize-space(.)"/>
+		
+		<field name="{local-name()}_facet" update="set">
+			<xsl:value-of select="$val"/>
 		</field>
+		<xsl:if test="string(@valueURI)">
+			<field name="{local-name()}_uri" update="set">
+				<xsl:value-of select="@valueURI"/>
+			</field>
+		</xsl:if>
+		
+		<!-- Pleiades URIs -->
+		<xsl:if test="contains(@valueURI, 'pleiades.stoa.org')">
+			<field name="pleiades_uri" update="set">
+				<xsl:value-of select="@valueURI"/>
+			</field>
+		</xsl:if>
+		<xsl:if test="contains(@valueURI, 'nomisma.org')">
+			<xsl:variable name="href" select="@valueURI"/>
+			
+			<xsl:for-each select="$rdf/*[@rdf:about=$href]/skos:closeMatch[contains(@rdf:resource, 'pleiades.stoa.org')]">
+				<field name="pleiades_uri" update="set">
+					<xsl:value-of select="@rdf:resource"/>
+				</field>
+			</xsl:for-each>
+		</xsl:if>
+	</xsl:template>
+	
+	<!-- publication information -->
+	<xsl:template match="mods:originInfo">
+		<xsl:if test="mods:dateIssued">
+			<field name="date" update="add">
+				<xsl:value-of select="mods:dateIssued"/>
+			</field>
+		</xsl:if>
+		
 		<xsl:if test="mods:publisher">
 			<field name="publisher_facet" update="add">
 				<xsl:value-of select="mods:publisher"/>
 			</field>			
 		</xsl:if>
+	</xsl:template>
+	
+	<!-- parent journal information -->
+	<xsl:template match="mods:relatedItem[@type='host']">
+		<field name="volume_id" update="add">
+			<xsl:value-of select="mods:identifier"/>
+		</field>
+		<field name="volume_title" update="add">
+			<xsl:value-of select="mods:titleInfo/mods:title"/>
+		</field>
+		<field name="date" update="add">
+			<xsl:value-of select="mods:part/mods:date"/>
+		</field>
+		<xsl:if test="mods:part/mods:detail[@type='volume']">
+			<field name="volume" update="add">
+				<xsl:value-of select="mods:part/mods:detail[@type='volume']/mods:number"/>
+			</field>
+		</xsl:if>
+		<xsl:if test="mods:part/mods:detail[@type='issue']">
+			<field name="issue" update="add">
+				<xsl:value-of select="mods:part/mods:detail[@type='issue']/mods:number"/>
+			</field>
+		</xsl:if>
+		<field name="pages" update="add">
+			<xsl:choose>
+				<xsl:when test="mods:part/mods:extent[@unit='pages']/mods:start = mods:part/mods:extent[@unit='pages']/mods:end">
+					<xsl:value-of select="mods:part/mods:extent[@unit='pages']/mods:start"/>
+				</xsl:when>	
+				<xsl:otherwise>
+					<xsl:value-of select="mods:part/mods:extent[@unit='pages']/mods:start"/>
+					<xsl:text> - </xsl:text>
+					<xsl:value-of select="mods:part/mods:extent[@unit='pages']/mods:end"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</field>
 	</xsl:template>
 </xsl:stylesheet>

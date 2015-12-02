@@ -18,7 +18,16 @@
 	* ADMIN INTERFACE *
 	***************** -->
 	<page path="/etdpub/admin/edit/" view="xforms/edit.xhtml"/>
-	<page path="/etdpub/admin/" view="xforms/admin.xhtml"/>
+	<page path="/etdpub/admin/" view="xforms/admin.xhtml" id="admin"/>
+	
+	<!-- authentication -->
+	<page path="/etdpub/login" view="xforms/login.html" id="login"/>
+	<page path="/etdpub/login-failed" view="xforms/login-failed.html"/>
+	<page path="/etdpub/admin/logout">
+		<action action="xpl/xforms/logout.xpl">
+			<result page="admin"/>
+		</action>
+	</page>
 	
 	<!-- ****************
 	* PUBLIC INTERFACE *

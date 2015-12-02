@@ -1,0 +1,402 @@
+<!-- 	author: Ethan Gruber, American Numismatic Society 
+	last modified: August, 2015
+	function: MODS subject/geographic: Geonames, Getty TGN, Pleiades Lookups, Nomisma
+-->
+
+<xbl:xbl xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+	xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:xbl="http://www.w3.org/ns/xbl" xmlns:xxbl="http://orbeon.org/oxf/xml/xbl" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" xmlns:rss="http://purl.org/rss/1.0/" xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:res="http://www.w3.org/2005/sparql-results#">
+	<xbl:binding id="etdpub-place" element="etdpub|place">
+		<xbl:template>
+			<xforms:group xbl:attr="model context ref bind" xxbl:scope="outer">
+				<xbl:content includes="xforms|label,xforms|help,xforms|hint,xforms|alert"/>
+				<xforms:group xxbl:scope="inner">
+					<xforms:var name="binding" as="node()?">
+						<xxforms:sequence select="." xxbl:scope="outer"/>
+					</xforms:var>
+					<xforms:action ev:event="xforms-enabled" ev:target="#observer">
+						<xforms:setvalue ref="instance('interface-type')">geonames</xforms:setvalue>
+					</xforms:action>
+					<xforms:group ref="$binding">
+						<xforms:group ref=".[string(mods:placeTerm)]">
+							<div>
+								<xforms:output ref=".">
+									<xforms:label>Place</xforms:label>
+								</xforms:output>								
+								<xforms:trigger appearance="minimal">
+									<xforms:label><span class="glyphicon glyphicon-new-window"/></xforms:label>
+									<xforms:hint value="mods:placeTerm/@valueURI"></xforms:hint>
+									<xforms:load ev:event="DOMActivate" show="new" ref="mods:placeTerm/@valueURI"/>
+								</xforms:trigger>
+								
+								<xforms:group ref=".[count(ancestor::mods:originInfo/mods:place) &gt; 0]">
+									<xforms:trigger appearance="minimal">
+										<xforms:action ev:event="DOMActivate">
+											<!-- delete all holdover values before removing bind, possible orbeon bug -->
+											<xforms:setvalue ref="instance('temp')"/>
+											<xforms:setvalue ref="instance('temp')/@href"/>
+											<xforms:delete context="instance('geonames')/*"/>
+											<xforms:delete context="instance('geoname-temp')/*"/>
+											<xforms:setvalue ref="instance('search-query')"/>
+											<xforms:delete nodeset="$binding"/>
+										</xforms:action>
+										<xforms:label>
+											<span class="glyphicon glyphicon-remove"/>
+										</xforms:label>
+									</xforms:trigger>
+								</xforms:group>								
+							</div>
+						</xforms:group>
+						<xforms:group ref=".[not(string(mods:placeTerm))]">
+							<div>
+								<h4>Place</h4>
+								<xforms:trigger appearance="minimal">
+									<xforms:delete ev:event="DOMActivate" nodeset="$binding/parent::node()"/>
+									<xforms:label>
+										<span class="glyphicon glyphicon-remove"/>
+									</xforms:label>
+								</xforms:trigger>
+								<div class="bg-info alert-box">
+									<span class="glyphicon glyphicon-info-sign"/>
+									<strong>Notice:</strong> Content is required.</div>
+								<div>
+									<radiogroup>
+										<xforms:select1 ref="instance('interface-type')" appearance="full">
+											<xforms:label>Interface Type</xforms:label>											
+											<xforms:item>
+												<xforms:label>Geonames</xforms:label>
+												<xforms:value>geonames</xforms:value>
+											</xforms:item>
+											<xforms:item>
+												<xforms:label>Getty TGN</xforms:label>
+												<xforms:value>tgn</xforms:value>
+											</xforms:item>
+											<xforms:action ev:event="xforms-value-changed">												
+												<xforms:action if=". = 'geonames'">
+													<!-- clear temp -->
+													<xforms:setvalue ref="instance('temp')"/>
+													<xforms:setvalue ref="instance('temp')/@href"/>
+													<!-- remove temporary values, applicable when switching back to geonames from local -->
+													<xforms:delete context="instance('geonames')/*"/>
+													<xforms:delete context="instance('feed')/*"/>
+													<xforms:setvalue ref="instance('search-query')"/>
+
+													<!-- set source if the attributes already exist -->
+													<xforms:setvalue ref="$binding/mods:placeTerm/@authority">geonames</xforms:setvalue>
+													<xforms:toggle case="geonames-search"/>
+												</xforms:action>
+												<xforms:action if=". = 'tgn'">
+													<!-- clear temp -->
+													<xforms:setvalue ref="instance('temp')"/>
+													<xforms:setvalue ref="instance('temp')/@href"/>
+													<!-- remove temporary values, applicable when switching back to geonames from local -->
+													<xforms:delete context="instance('geonames')/*"/>
+													<xforms:delete context="instance('feed')/*"/>
+													<xforms:setvalue ref="instance('search-query')"/>
+
+													<xforms:setvalue ref="$binding/mods:placeTerm/@authority">tgn</xforms:setvalue>
+													<xforms:toggle case="tgn-search"/>
+												</xforms:action>												
+											</xforms:action>
+										</xforms:select1>
+									</radiogroup>
+								</div>
+								<xforms:switch>									
+									<xforms:case id="geonames-search">
+										<div>
+											<xforms:input ref="instance('search-query')">
+												<xforms:label>Search</xforms:label>
+											</xforms:input>
+											<xforms:trigger>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:send submission="load-config" if="not(string(instance('config')/url))"/>
+													<xforms:delete context="instance('geonames')/*"/>
+													<xforms:send submission="query-geonames"/>
+												</xforms:action>
+												<xforms:label>Search</xforms:label>
+											</xforms:trigger>
+										</div>
+
+										<xforms:group ref=".[count(instance('geonames')//geoname) &gt; 0]">
+											<xforms:select1 ref="instance('temp')/@href" appearance="compact" id="geonames-list" size="10">
+												<xforms:label>Location</xforms:label>
+												<xforms:itemset nodeset="instance('geonames')//geoname">
+													<xforms:label ref="label"/>
+													<xforms:value ref="geonameId"/>
+												</xforms:itemset>
+											</xforms:select1>
+											<xforms:trigger>
+												<xforms:label>Select</xforms:label>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:var name="geonameId" select="instance('temp')/@href"/>
+													<xforms:setvalue ref="$binding/mods:placeTerm/@valueURI" value="concat('http://www.geonames.org/', instance('temp')/@href)"/>
+													<xforms:setvalue ref="$binding/mods:placeTerm" value="instance('geonames')//geoname[geonameId = $geonameId]/label"/>
+												</xforms:action>
+											</xforms:trigger>
+										</xforms:group>
+									</xforms:case>
+									<xforms:case id="tgn-search">
+										<div>
+											<xforms:input ref="instance('search-query')">
+												<xforms:label>Search</xforms:label>
+											</xforms:input>
+											<xforms:trigger>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:var name="search_query" select="string-join(tokenize(instance('search-query'), ' '), ' AND ')"/>
+													<xforms:setvalue ref="instance('sparqlQuery')" value="normalize-space(replace(instance('sparqlQueryTemplate'), 'SEARCH_QUERY', $search_query))"/>
+													<xforms:send submission="query-getty"/>
+												</xforms:action>
+												<xforms:label>Search</xforms:label>
+											</xforms:trigger>
+										</div>
+										<xforms:group ref=".[count(instance('getty-response')//res:result) &gt; 0]">
+											<xforms:select1 ref="instance('temp')/@href" appearance="compact" length="20">
+												<xforms:label>Location</xforms:label>
+												<xforms:itemset nodeset="instance('getty-response')//res:result">
+													<xforms:label ref="res:binding[@name='label']/res:literal"/>
+													<xforms:value ref="res:binding[@name='c']/res:uri"/>
+												</xforms:itemset>
+												<xforms:action ev:event="xforms-value-changed">
+													<xforms:setvalue ref="instance('control-instance')/description" value="instance('getty-response')//res:result[res:binding[@name='c']/res:uri =
+														instance('temp')/@href]/res:binding[@name='scopeNote']/res:literal"/>
+												</xforms:action>
+											</xforms:select1>
+											<xforms:trigger>
+												<xforms:label>Select</xforms:label>
+												<xforms:action ev:event="DOMActivate">
+													<xforms:setvalue ref="$binding/mods:placeTerm/@valueURI" value="instance('temp')/@href"/>
+													<xforms:setvalue ref="$binding/mods:placeTerm" value="instance('getty-response')//res:result[res:binding[@name='c']/res:uri =
+														instance('temp')/@href]/res:binding[@name='label']/res:literal"/>
+												</xforms:action>
+											</xforms:trigger>
+										</xforms:group>
+										<xforms:group ref=".[string(instance('temp')/@href)]">
+											<div>
+												<xforms:output ref="instance('control-instance')/description">
+													<xforms:label>Description</xforms:label>
+												</xforms:output>
+												<xforms:trigger appearance="minimal">
+													<xforms:label>
+														<span class="glyphicon glyphicon-new-window"/>
+													</xforms:label>
+													<xforms:load ev:event="DOMActivate" show="new" ref="instance('temp')/@href"/>
+												</xforms:trigger>
+											</div>
+										</xforms:group>
+									</xforms:case>									
+								</xforms:switch>
+								<hr/>
+							</div>
+						</xforms:group>
+					</xforms:group>
+					<!-- ********************************************************************** -->
+					<xforms:model id="place-model" xmlns:xi="http://www.w3.org/2001/XInclude">
+						<xforms:instance id="exist-config">
+							<xi:include href="../../../exist-config.xml"/>
+						</xforms:instance>
+						<xforms:instance id="config">
+							<config xmlns=""/>
+						</xforms:instance>
+						<xforms:instance id="dump">
+							<dump xmlns=""/>
+						</xforms:instance>
+
+						<xforms:instance id="control-instance">
+							<control xmlns="">
+								<description/>
+							</control>
+						</xforms:instance>
+
+						<!-- temp instance used by both interfaces to avoid inconsistent referencing to $binding -->
+						<xforms:instance id="temp">
+							<temp href="" xmlns=""/>
+						</xforms:instance>
+						<!-- instance of standard abbreviations for AACR2 Chapter 23 compliance-->
+						<xforms:instance id="abbreviations">
+							<abbreviations xmlns="">
+								<country code="US">
+									<place abbr="Ala.">Alabama</place>
+									<place abbr="Alaska">Alaska</place>
+									<place abbr="Ariz.">Arizona</place>
+									<place abbr="Ark.">Arkansas</place>
+									<place abbr="Calif.">California</place>
+									<place abbr="Colo.">Colorado</place>
+									<place abbr="Conn.">Connecticut</place>
+									<place abbr="Del.">Delaware</place>
+									<place abbr="D.C.">Washington, D.C.</place>
+									<place abbr="Fla.">Florida</place>
+									<place abbr="Ga.">Georgia</place>
+									<place abbr="Hawaii">Hawaii</place>
+									<place abbr="Idaho">Idaho</place>
+									<place abbr="Ill.">Illinois</place>
+									<place abbr="Ind.">Indiana</place>
+									<place abbr="Iowa">Iowa</place>
+									<place abbr="Kans.">Kansas</place>
+									<place abbr="Ky.">Kentucky</place>
+									<place abbr="La.">Louisiana</place>
+									<place abbr="Maine">Maine</place>
+									<place abbr="Md.">Maryland</place>
+									<place abbr="Mass.">Massachusetts</place>
+									<place abbr="Mich.">Michigan</place>
+									<place abbr="Minn.">Minnesota</place>
+									<place abbr="Miss.">Mississippi</place>
+									<place abbr="Mo.">Missouri</place>
+									<place abbr="Mont.">Montana</place>
+									<place abbr="Nebr.">Nebraska</place>
+									<place abbr="Nev.">Nevada</place>
+									<place abbr="N.H.">New Hampshire</place>
+									<place abbr="N.J.">New Jersey</place>
+									<place abbr="N.M.">New Mexico</place>
+									<place abbr="N.Y.">New York</place>
+									<place abbr="N.C.">North Carolina</place>
+									<place abbr="N.D.">North Dakota</place>
+									<place abbr="Ohio">Ohio</place>
+									<place abbr="Okla.">Oklahoma</place>
+									<place abbr="Oreg.">Oregon</place>
+									<place abbr="Pa.">Pennsylvania</place>
+									<place abbr="R.I.">Rhode Island</place>
+									<place abbr="S.C.">South Carolina</place>
+									<place abbr="S.D">South Dakota</place>
+									<place abbr="Tenn.">Tennessee</place>
+									<place abbr="Tex.">Texas</place>
+									<place abbr="Utah">Utah</place>
+									<place abbr="Vt.">Vermont</place>
+									<place abbr="Va.">Virginia</place>
+									<place abbr="Wash.">Washington</place>
+									<place abbr="W.Va.">West Virginia</place>
+									<place abbr="Wis.">Wisconsin</place>
+									<place abbr="Wyo.">Wyoming</place>
+									<place abbr="A.S.">American Samoa</place>
+									<place abbr="Guam">Guam</place>
+									<place abbr="M.P.">Northern Mariana Islands</place>
+									<place abbr="P.R.">Puerto Rico</place>
+									<place abbr="V.I.">U.S. Virgin Islands</place>
+								</country>
+								<country code="CA">
+									<place abbr="Alta.">Alberta</place>
+									<place abbr="B.C.">British Columbia</place>
+									<place abbr="Alta.">Manitoba</place>
+									<place abbr="Man.">Alberta</place>
+									<place abbr="N.B.">New Brunswick</place>
+									<place abbr="Nfld.">Newfoundland and Labrador</place>
+									<place abbr="N.W.T.">Northwest Territories</place>
+									<place abbr="N.S.">Nova Scotia</place>
+									<place abbr="NU">Nunavut</place>
+									<place abbr="Ont.">Ontario</place>
+									<place abbr="P.E.I.">Prince Edward Island</place>
+									<place abbr="Que.">Quebec</place>
+									<place abbr="Sask.">Saskatchewan</place>
+									<place abbr="Y.T.">Yukon</place>
+								</country>
+								<country code="AU">
+									<place abbr="A.C.T.">Australian Capital Territory</place>
+									<place abbr="J.B.T.">Jervis Bay Territory</place>
+									<place abbr="N.S.W.">New South Wales</place>
+									<place abbr="N.T.">Northern Territory</place>
+									<place abbr="Qld.">Queensland</place>
+									<place abbr="S.A.">South Australia</place>
+									<place abbr="Tas.">Tasmania</place>
+									<place abbr="Vic.">Victoria</place>
+									<place abbr="W.A.">Western Australia</place>
+								</country>
+							</abbreviations>
+						</xforms:instance>
+
+						<xforms:instance id="search-query">
+							<query/>
+						</xforms:instance>
+
+						<!-- geonames specific instances -->
+						<xforms:instance id="geoname-query-response">
+							<geoname/>
+						</xforms:instance>
+						<xforms:instance id="geoname-temp">
+							<geonames xmlns=""/>
+						</xforms:instance>
+						<xforms:instance id="geonameId">
+							<geonameId/>
+						</xforms:instance>
+						<xforms:instance id="geonames">
+							<geonames xmlns=""/>
+						</xforms:instance>
+						<xforms:instance id="geoname-template">
+							<geoname xmlns="">
+								<label/>
+								<geonameId/>
+							</geoname>
+						</xforms:instance>
+
+						<!-- getty TNG instances -->
+						<xforms:instance id="sparqlQueryTemplate">
+							<query><![CDATA[PREFIX gvp: <http://vocab.getty.edu/ontology#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+PREFIX luc: <http://www.ontotext.com/owlim/lucene#>
+PREFIX tgn: <http://vocab.getty.edu/tgn/>
+SELECT ?c ?label ?scopeNote WHERE {
+?c a gvp:AdminPlaceConcept; skos:inScheme tgn: ;
+gvp:prefLabelGVP/xl:literalForm ?label ;
+skos:scopeNote/rdf:value ?scopeNote ;
+luc:term "SEARCH_QUERY"} LIMIT 20]]>
+							</query>
+						</xforms:instance>
+						<xforms:instance id="sparqlQuery">
+							<query xmlns=""/>
+						</xforms:instance>
+						<xforms:instance id="getty-response">
+							<sparql xmlns="http://www.w3.org/2005/sparql-results#"/>
+						</xforms:instance>
+						<!-- mint type radio button -->
+						<xforms:instance id="interface-type">
+							<interface/>
+						</xforms:instance>
+
+						<!-- ********* SUBMISSIONS ***********-->
+						<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance" instance="config"
+							xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+							<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load config file in eXist.</xforms:message>
+						</xforms:submission>
+
+						<!-- search for matching keywords -->
+						<xforms:submission id="query-geonames" serialization="none" method="get"
+							action="http://api.geonames.org/search?q={instance('search-query')}&amp;maxRows=100&amp;lang=en&amp;username={instance('config')/geonames_api_key}&amp;style=full&amp;minChars=2"
+							instance="geoname-temp" replace="instance">
+							<xforms:action ev:event="xforms-submit-done">
+								<xforms:message if="number(instance('geoname-temp')/totalResultsCount) = 0" level="modal">No results found for query.</xforms:message>
+								<!--<xforms:insert if="number(instance('geoname-temp')/totalResultsCount) &gt; 0" context="instance('geonames')" origin="instance('geoname-temp')"/>-->
+								<xforms:action xxforms:iterate="instance('geoname-temp')//geoname">
+									<xforms:var name="countryCode" select="countryCode"/>
+									<xforms:var name="countryName" select="countryName"/>
+									<xforms:var name="name" select="name"/>
+									<xforms:var name="adminName1" select="adminName1"/>
+									<xforms:var name="geonameId" select="geonameId"/>
+									<xforms:var name="fcode" select="fcode"/>
+									<!-- set a value equivalent to AACR2 standard for US, AU, CA, and GB.  This equation deviates from AACR2 for Malaysia since standard abbreviations for territories cannot be found -->
+									<xforms:setvalue ref="instance('geoname-template')/label" value="if ($countryCode = 'US' or $countryCode = 'AU' or $countryCode = 'CA') then if ($fcode = 'ADM1')
+										then $name else concat($name, ' (', instance('abbreviations')/country[@code=$countryCode]/place[. = $adminName1]/@abbr, ')') else if ($countryCode= 'GB') then
+										if ($fcode = 'ADM1') then $name else concat($name, ' (', $adminName1, ')') else if ($fcode = 'PCLI') then $name else concat($name, ' (', $countryName, ')')"/>
+									<xforms:setvalue ref="instance('geoname-template')/geonameId" value="$geonameId"/>
+									<xforms:insert context="instance('geonames')" origin="instance('geoname-template')" nodeset="./child::node()[last()]"/>
+								</xforms:action>
+							</xforms:action>
+						</xforms:submission>
+						
+						<xforms:submission id="query-getty" action="http://vocab.getty.edu/sparql?query={encode-for-uri(instance('sparqlQuery'))}" ref="instance('getty-response')" replace="instance"
+							method="get">
+							<xforms:header>
+								<xforms:name>User-Agent</xforms:name>
+								<xforms:value>XForms/etdpub</xforms:value>
+							</xforms:header>
+							<xforms:header>
+								<xforms:name>Accept</xforms:name>
+								<xforms:value>application/sparql-results+xml</xforms:value>
+							</xforms:header>
+							<xforms:message ev:event="xforms-submit-error" level="modal">SPARQL query failed.</xforms:message>
+						</xforms:submission>
+					</xforms:model>
+				</xforms:group>
+			</xforms:group>
+		</xbl:template>
+	</xbl:binding>
+
+</xbl:xbl>
