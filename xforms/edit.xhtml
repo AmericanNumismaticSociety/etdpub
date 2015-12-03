@@ -74,6 +74,7 @@
 					<template-error>false</template-error>
 					<working>false</working>
 					<stream_url></stream_url>
+					<delete-success>true</delete-success>
 				</controls>
 			</xforms:instance>
 
@@ -275,6 +276,25 @@
 						 </report>]]></query>
 				</queries>
 			</xforms:instance>
+			
+			<!-- LOD CRUD instances -->
+			<xforms:instance id="rdf" xxforms:exclude-result-prefixes="#all">
+				<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+			</xforms:instance>
+			
+			<xforms:instance id="sparqlUpdate-template">
+				<query><![CDATA[PREFIX rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dcterms:	<http://purl.org/dc/terms/>
+DELETE {?s ?p ?o} WHERE { 
+{<URI> dcterms:temporal ?s . ?s ?p ?o }
+UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
+}]]>
+				</query>
+			</xforms:instance>
+			
+			<xforms:instance id="sparqlUpdate">
+				<query/>
+			</xforms:instance>
 
 			<!-- ************************* BINDINGS ************************** -->
 			<xforms:bind nodeset="instance('doc')/mods:mods">
@@ -322,6 +342,7 @@
 				<xforms:bind nodeset="new" type="xs:boolean"></xforms:bind>
 				<xforms:bind nodeset="working" type="xs:boolean"></xforms:bind>
 				<xforms:bind nodeset="template-error" type="xs:boolean"></xforms:bind>
+				<xforms:bind nodeset="delete-success" type="xs:boolean"></xforms:bind>
 			</xforms:bind>
 
 			<!-- ************************* SUBMISSIONS ************************** -->
@@ -350,8 +371,12 @@
 					<!-- set the document URL -->
 					<xforms:setvalue ref="instance('control-instance')/stream_url"
 						value="if (matches(instance('doc')/mods:mods/mods:location/mods:url, '^https?://')) then instance('doc')/mods:mods/mods:location/mods:url else concat(instance('config')/url, instance('doc')/mods:mods/mods:location/mods:url)"></xforms:setvalue>
+					
 					<!-- only publish to Solr if it is not a journal -->
 					<xforms:send submission="put-document" if="not(instance('control-instance')/template = 'journal')"></xforms:send>
+					
+					<!-- post to SPARQL endpoint if there is one -->
+					<xforms:send submission="get-rdf" if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)"/>
 				</xforms:action>
 			</xforms:submission>
 
@@ -395,6 +420,27 @@
 			<xforms:submission id="xquery-collection" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance" instance="xquery-result"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error querying eXist database.</xforms:message>
+			</xforms:submission>
+			
+			<!-- ************* SPARQL SUBMISSIONS **********************-->
+			<xforms:submission id="get-rdf" serialization="none" method="get" action="/etdpub/id/{instance('control-instance')/id}.rdf" replace="instance"
+				instance="rdf">
+				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to get RDF/XML serialization.</xforms:message>
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:setvalue ref="instance('sparqlUpdate')" value="replace(instance('sparqlUpdate-template'), 'URI', instance('rdf')/*/@rdf:about)"></xforms:setvalue>
+					<xforms:send submission="delete-graph"></xforms:send>					
+				</xforms:action>
+			</xforms:submission>
+			
+			<xforms:submission id="delete-graph" action="{instance('config')/sparql/update}" ref="instance('sparqlUpdate')" serialization="text/plain" replace="none" method="post"
+				mediatype="application/sparql-update">
+				<xforms:message level="modal" ev:event="xforms-submit-error">SPARQL update failed.</xforms:message>
+				<xforms:send submission="post-rdf" ev:event="xforms-submit-done"/>
+			</xforms:submission>
+			
+			<xforms:submission id="post-rdf" action="{instance('config')/sparql/store}?default" ref="instance('rdf')" replace="none" method="post" mediatype="application/rdf+xml">
+				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/status">Successfully posted to endpoint.</xforms:setvalue>
+				<xforms:message ev:event="xforms-submit-error" level="modal">Post to endpoint failed.</xforms:message>
 			</xforms:submission>
 
 			<!-- **************** XFORMS-MODEL-CONSTRUCT-DONE ********************** -->

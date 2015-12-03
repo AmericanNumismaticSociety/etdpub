@@ -82,7 +82,7 @@
 							 		<id>{ data($record//mods:recordIdentifier) }</id>
 							 		<title>{data($record//mods:mods/mods:titleInfo/mods:title) }</title>
 							 		<author>{ string-join($record//mods:mods/mods:name/mods:namePart, ',') }</author>
-							 		<date>{ data($record//mods:dateIssued)}</date>
+							 		<date>{ if ($record//mods:dateIssued) then string-join($record//mods:dateIssued, '-') else data($record//descendant::mods:part/mods:date) }</date>
 							 		<media_url>{ data($record//mods:location/mods:url) }</media_url>
 							 		<type>MODS</type>
 							 		<genre>{data($record//mods:mods/mods:genre)}</genre>
@@ -138,8 +138,27 @@
 					<query></query>
 				</delete>
 			</xforms:instance>
+			
+			<!-- LOD CRUD instances -->
+			<xforms:instance id="rdf" xxforms:exclude-result-prefixes="#all">
+				<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+			</xforms:instance>
+			
+			<xforms:instance id="sparqlUpdate-template">
+				<query><![CDATA[PREFIX rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX dcterms:	<http://purl.org/dc/terms/>
+DELETE {?s ?p ?o} WHERE { 
+{<URI> dcterms:temporal ?s . ?s ?p ?o }
+UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
+}]]>
+				</query>
+			</xforms:instance>
+			
+			<xforms:instance id="sparqlUpdate">
+				<query/>
+			</xforms:instance>
 
-			<!-- submissions -->
+			<!-- ************* SUBMISSIONS **************** -->
 			<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance" instance="config"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:action ev:event="xforms-submit-done">
@@ -179,6 +198,12 @@
 			<!-- send commit -->
 			<xforms:submission id="commit" action="{instance('config')/solr/url}update" ref="instance('sendCommit')" instance="sendCommit" replace="none" method="post">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Solr commit failed.</xforms:message>
+			</xforms:submission>
+			
+			<!-- ************* SPARQL SUBMISSIONS **********************-->
+			<xforms:submission id="delete-graph" action="{instance('config')/sparql/update}" ref="instance('sparqlUpdate')" serialization="text/plain" replace="none" method="post"
+				mediatype="application/sparql-update">
+				<xforms:message level="modal" ev:event="xforms-submit-error">SPARQL update failed.</xforms:message>				
 			</xforms:submission>
 
 			<!-- load etdpub config file on xforms construction -->
@@ -292,6 +317,13 @@
 								<xforms:send submission="delete-doc"></xforms:send>
 								<xforms:setvalue ref="instance('deleteId')/query" value="concat('id:&#x022;', instance('control-instance')/id, '&#x022;')"></xforms:setvalue>
 								<xforms:send submission="delete-solr-doc"></xforms:send>
+								
+								<!-- delete triples from triplestore, if applicable -->
+								<xforms:action if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
+									<xforms:setvalue ref="instance('sparqlUpdate')" value="replace(instance('sparqlUpdate-template'), 'URI', concat(instance('config')/url, 'id/', instance('control-instance')/id))"></xforms:setvalue>
+									<xforms:send submission="delete-graph"/>
+								</xforms:action>
+								
 								<!-- reload table -->
 								<xforms:setvalue ref="instance('eXist-xquery')/exist:text" value="instance('xqueries')/query[@id='get-objects']"></xforms:setvalue>
 								<xforms:send submission="xquery-pagination"></xforms:send>

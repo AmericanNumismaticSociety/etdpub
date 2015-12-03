@@ -40,11 +40,12 @@
 	<page path="/etdpub/results" model="xpl/models/solr/query.xpl" view="xpl/views/serializations/solr/html.xpl"/>
 	
 	<!-- ID -->
+	<page path="/etdpub/id/(.*)\.xml" view="xpl/models/mods/get-id.xpl"/>
 	<page path="/etdpub/id/(.*)\.solr" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/solr.xpl"/>
 	<page path="/etdpub/id/(.*)\.opf" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/opf.xpl"/>
 	<page path="/etdpub/id/(.*)\.ncx" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/ncx.xpl"/>
 	<page path="/etdpub/id/(.*)\.epub" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/epub.xpl"/>
-	<page path="/etdpub/id/(.*)\.xml" view="xpl/models/mods/get-id.xpl"/>
+	<page path="/etdpub/id/(.*)\.rdf" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/rdf.xpl"/>	
 	<page path="/etdpub/id/(.*)" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/html.xpl"/>
 
 	<!-- **** AJAX **** -->

@@ -233,7 +233,7 @@
 				</xsl:when>
 				<xsl:otherwise>
 					<xsl:value-of select="mods:part/mods:extent[@unit='pages']/mods:start"/>
-					<xsl:text> - </xsl:text>
+					<xsl:text>-</xsl:text>
 					<xsl:value-of select="mods:part/mods:extent[@unit='pages']/mods:end"/>
 				</xsl:otherwise>
 			</xsl:choose>
