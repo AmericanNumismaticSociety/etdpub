@@ -47,7 +47,15 @@
 			<field name="abstract" update="add">
 				<xsl:value-of select="normalize-space(mods:abstract)"/>
 			</field>
-			
+			<field name="rights" update="add">
+				<xsl:value-of select="mods:accessCondition/@xlink:href"/>
+			</field>
+			<field name="oai_id" update="add">
+				<xsl:text>oai:</xsl:text>
+				<xsl:value-of select="doc('input:request')/request/server-name"/>
+				<xsl:text>:</xsl:text>
+				<xsl:value-of select="//mods:recordIdentifier"/>
+			</field>
 			<xsl:if test="mods:location/mods:url">
 				<field name="media_url" update="add">
 					<xsl:value-of select="mods:location/mods:url"/>

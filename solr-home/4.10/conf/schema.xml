@@ -54,6 +54,8 @@
 	<field name="university" type="string" indexed="true" stored="true" />
 	<field name="media_url" type="string" indexed="true" stored="true" />
 	<field name="media_type" type="string" indexed="true" stored="true" />
+	<field name="rights" type="string" indexed="true" stored="true" />
+	<field name="oai_id" type="string" indexed="true" stored="true" />
 	<field name="language" type="string" indexed="true" stored="true" multiValued="true"/>
 	<field name="abstract" type="text_general" indexed="true" stored="true" />
 	<field name="timestamp" type="date" indexed="true" stored="true"/>
@@ -73,7 +75,7 @@
 	<dynamicField name="ignored_*" type="ignored"/>
 
 	<!-- fulltext -->
-	<field name="text" type="text_general" indexed="true" stored="true" multiValued="true"/>	
+	<field name="text" type="text_general" indexed="true" stored="false" multiValued="true"/>	
 
 	<uniqueKey>id</uniqueKey>
 	<!-- field for the QueryParser to use when an explicit fieldname is absent -->

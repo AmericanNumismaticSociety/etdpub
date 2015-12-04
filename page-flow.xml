@@ -39,6 +39,7 @@
 	<!-- Solr (index is browse home) -->
 	<page path="/etdpub/results" model="xpl/models/solr/query.xpl" view="xpl/views/serializations/solr/html.xpl"/>
 	<page path="/etdpub/feed/" model="xpl/models/solr/query.xpl" view="xpl/views/serializations/solr/atom.xpl"/>
+	<page path="/etdpub/oai/" model="xpl/models/solr/oai-pmh.xpl" view="xpl/views/serializations/solr/oai-pmh.xpl"/>
 	
 	<!-- ID -->
 	<page path="/etdpub/id/(.*)\.xml" view="xpl/models/mods/get-id.xpl"/>
