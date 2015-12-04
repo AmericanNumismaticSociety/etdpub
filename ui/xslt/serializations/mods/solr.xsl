@@ -45,11 +45,19 @@
 				<xsl:value-of select="if (contains(string(current-dateTime()), 'Z')) then current-dateTime() else concat(string(current-dateTime()), 'Z')"/>
 			</field>			
 			<field name="abstract" update="add">
-				<xsl:value-of select="//mods:abstract"/>
+				<xsl:value-of select="normalize-space(mods:abstract)"/>
 			</field>
-			<field name="media_url" update="add">
-				<xsl:value-of select="mods:location/mods:url"/>
-			</field>
+			
+			<xsl:if test="mods:location/mods:url">
+				<field name="media_url" update="add">
+					<xsl:value-of select="mods:location/mods:url"/>
+				</field>
+			</xsl:if>
+			<xsl:if test="mods:physicalDescription/mods:internetMediaType">
+				<field name="media_type" update="add">
+					<xsl:value-of select="mods:physicalDescription/mods:internetMediaType"/>
+				</field>
+			</xsl:if>			
 
 			<xsl:for-each select="mods:language">
 				<field name="language" update="set">
@@ -84,7 +92,7 @@
 			<!-- fulltext -->
 			<field name="text" update="add">
 				<xsl:for-each select="descendant-or-self::text()">
-					<xsl:value-of select="."/>
+					<xsl:value-of select="normalize-space(.)"/>
 					<xsl:text> </xsl:text>
 				</xsl:for-each>
 			</field>			

@@ -44,8 +44,8 @@
 							<table class="table-dl">
 								<tr>
 									<td>
-										<a href="http://pelagios-project.blogspot.com/">
-											<img src="{$display_path}ui/images/pelagios_icon.png"/>
+										<a href="http://pelagios-project.blogspot.com/" title="Pelagios Project">
+											<img src="{$display_path}ui/images/pelagios_icon.png" alt="Pelagios"/>
 										</a>
 									</td>
 									<td>
@@ -59,8 +59,10 @@
 							</table>
 						</div>	
 						<div class="col-md-6">
-							<h4>Atom</h4>
-							
+							<h4>Data Harvesting</h4>
+							<a href="feed/" title="Atom Feed">
+								<img src="{$display_path}ui/images/atom-large.png" alt="Atom"/>
+							</a>							
 						</div>
 					</div>	
 				</div>

@@ -23,6 +23,10 @@
 		<p:input name="data" href="#config"/>
 		<p:input name="config">
 			<xsl:stylesheet version="2.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+				<!-- pipeline variable -->
+				<xsl:variable name="pipeline" select="if (contains(doc('input:request')/request/request-uri, '/feed/')) then 'atom' else 'results'"/>
+				
+				
 				<!-- url params -->
 				<xsl:param name="q" select="doc('input:request')/request/parameters/parameter[name='q']/value"/>
 				<xsl:param name="sort">
@@ -31,14 +35,14 @@
 							<xsl:value-of select="doc('input:request')/request/parameters/parameter[name='sort']/value"/>
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:if test="contains(doc('input:request')/request/request-uri, '/feed/')">
+							<xsl:if test="$pipeline='atom'">
 								<xsl:text>timestamp desc</xsl:text>
 							</xsl:if>
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:param>
 				<xsl:param name="start" select="if (number(doc('input:request')/request/parameters/parameter[name='start']/value)) then doc('input:request')/request/parameters/parameter[name='start']/value else 0" as="xs:integer"/>
-				<xsl:param name="rows"  select="/config/solr/rows" as="xs:integer"></xsl:param>
+				<xsl:param name="rows"  select="if ($pipeline = 'atom') then 100 else /config/solr/rows" as="xs:integer"></xsl:param>
 				
 				<!-- insert other params -->
 				<xsl:variable name="other-params">
@@ -47,10 +51,20 @@
 					</xsl:for-each>
 				</xsl:variable>
 				
-				<xsl:variable name="fl">id,title,author,date,university,language</xsl:variable>
+				<xsl:variable name="fl">
+					<xsl:choose>
+						<xsl:when test="$pipeline='atom'">id,title,creator_facet,date,abstract,timestamp,media_url,media_type</xsl:when>
+						<xsl:otherwise>id,title,author,date,university,language,volume,issues,pages,volume_id,volume_title</xsl:otherwise>
+					</xsl:choose>
+					
+				</xsl:variable>
 				<xsl:variable name="facets" as="node()*">
 					<facets>
-						<facet>genre_facet</facet>
+						<!-- document metadata-->
+						<facet>creator_facet</facet>
+						<facet>genre_facet</facet>						
+						<facet>publisher_facet</facet>						
+						<!-- subjects -->
 						<facet>geographic_facet</facet>
 						<facet>name_facet</facet>
 						<facet>temporal_facet</facet>
@@ -64,10 +78,24 @@
 				<xsl:variable name="service">
 					<xsl:choose>
 						<xsl:when test="string($q)">
-							<xsl:value-of select="concat($solr-url, '?q=', encode-for-uri($q), '&amp;sort=', encode-for-uri($sort), '&amp;start=',$start, '&amp;rows=', $rows, '&amp;fl=', $fl, '&amp;hl=true&amp;hl.fl=text&amp;hl.snippets=3&amp;hl.simple.pre=%3Cstrong%3E&amp;hl.simple.post=%3C/strong%3E&amp;facet=true&amp;facet.field=', string-join($facets//facet, '&amp;facet.field='), '&amp;facet.sort=index&amp;facet.limit=-1', $other-params)"/>
+							<xsl:choose>
+								<xsl:when test="$pipeline='atom'">
+									<xsl:value-of select="concat($solr-url, '?q=', encode-for-uri($q), '&amp;sort=', encode-for-uri($sort), '&amp;start=',$start, '&amp;rows=', $rows, '&amp;fl=', $fl, $other-params)"/>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="concat($solr-url, '?q=', encode-for-uri($q), '&amp;sort=', encode-for-uri($sort), '&amp;start=',$start, '&amp;rows=', $rows, '&amp;fl=', $fl, '&amp;hl=true&amp;hl.fl=text&amp;hl.snippets=3&amp;hl.simple.pre=%3Cstrong%3E&amp;hl.simple.post=%3C/strong%3E&amp;facet=true&amp;facet.field=', string-join($facets//facet, '&amp;facet.field='), '&amp;facet.sort=index&amp;facet.limit=-1', $other-params)"/>
+								</xsl:otherwise>
+							</xsl:choose>							
 						</xsl:when>
 						<xsl:otherwise>
-							<xsl:value-of select="concat($solr-url, '?q=*:*&amp;sort=', encode-for-uri($sort), '&amp;start=',$start, '&amp;rows=', $rows, '&amp;fl=', $fl, '&amp;hl=true&amp;hl.fl=text&amp;hl.snippets=3&amp;hl.simple.pre=%3Cstrong%3E&amp;hl.simple.post=%3C/strong%3E&amp;facet=true&amp;facet.field=', string-join($facets//facet, '&amp;facet.field='), '&amp;facet.sort=index&amp;facet.limit=-1', $other-params)"/>
+							<xsl:choose>
+								<xsl:when test="$pipeline='atom'">
+									<xsl:value-of select="concat($solr-url, '?q=*:*&amp;sort=', encode-for-uri($sort), '&amp;start=',$start, '&amp;rows=', $rows, '&amp;fl=', $fl, $other-params)"/>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="concat($solr-url, '?q=*:*&amp;sort=', encode-for-uri($sort), '&amp;start=',$start, '&amp;rows=', $rows, '&amp;fl=', $fl, '&amp;hl=true&amp;hl.fl=text&amp;hl.snippets=3&amp;hl.simple.pre=%3Cstrong%3E&amp;hl.simple.post=%3C/strong%3E&amp;facet=true&amp;facet.field=', string-join($facets//facet, '&amp;facet.field='), '&amp;facet.sort=index&amp;facet.limit=-1', $other-params)"/>
+								</xsl:otherwise>
+							</xsl:choose>
 						</xsl:otherwise>
 					</xsl:choose>
 				</xsl:variable>
