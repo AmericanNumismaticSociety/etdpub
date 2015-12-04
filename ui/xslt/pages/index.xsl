@@ -61,8 +61,11 @@
 						<div class="col-md-6">
 							<h4>Data Harvesting</h4>
 							<a href="feed/" title="Atom Feed">
-								<img src="{$display_path}ui/images/atom-large.png" alt="Atom"/>
-							</a>							
+								<img src="{$display_path}ui/images/atom-large.png" alt="Atom" style="padding:5px"/>
+							</a>	
+							<a href="oai/?verb=ListRecords&amp;metadataPrefix=oai_dc" title="OAI-PMH">
+								<img src="{$display_path}ui/images/oai-pmh.png" alt="OAI-PMH" style="padding:5px"/>
+							</a>
 						</div>
 					</div>	
 				</div>
