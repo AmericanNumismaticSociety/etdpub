@@ -32,4 +32,4 @@ ETDPub is comprised of three server-side application which run in Apache Tomcat:
 
 Installation and Use
 --------------------
-Please see the wiki for installation instructions.
+Please see the [wiki](https://github.com/AmericanNumismaticSociety/etdpub/wiki) for installation instructions.
