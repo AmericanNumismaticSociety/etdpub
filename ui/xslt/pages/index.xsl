@@ -38,36 +38,40 @@
 					</div>
 					<div class="col-sm-12 col-md-8 col-md-offset-2">
 						<xsl:copy-of select="/index/content/index"/>
-						<hr/>
-						<div class="col-md-6">
-							<h4>Pelagios Annotations</h4>
-							<table class="table-dl">
-								<tr>
-									<td>
-										<a href="http://pelagios-project.blogspot.com/" title="Pelagios Project">
-											<img src="{$display_path}ui/images/pelagios_icon.png" alt="Pelagios"/>
-										</a>
-									</td>
-									<td>
-										<strong>VoID (RDF): </strong>
-										<a href="pelagios.void.rdf">XML</a>
-										<br/>
-										<strong>Dump (RDF): </strong>
-										<a href="pelagios.rdf">XML</a>
-									</td>
-								</tr>
-							</table>
-						</div>	
-						<div class="col-md-6">
-							<h4>Data Harvesting</h4>
-							<a href="feed/" title="Atom Feed">
-								<img src="{$display_path}ui/images/atom-large.png" alt="Atom" style="padding:5px"/>
-							</a>	
-							<a href="oai/?verb=ListRecords&amp;metadataPrefix=oai_dc" title="OAI-PMH">
-								<img src="{$display_path}ui/images/oai-pmh.png" alt="OAI-PMH" style="padding:5px"/>
-							</a>
-						</div>
-					</div>	
+						<hr/>						
+						<xsl:if test="/index/response[@type='pelagios'] = true()">
+							<div class="col-md-6">
+								<h4>Pelagios Annotations</h4>
+								<table class="table-dl">
+									<tr>
+										<td>
+											<a href="http://pelagios-project.blogspot.com/" title="Pelagios Project">
+												<img src="{$display_path}ui/images/pelagios_icon.png" alt="Pelagios"/>
+											</a>
+										</td>
+										<td>
+											<strong>VoID (RDF): </strong>
+											<a href="pelagios.void.rdf">XML</a>
+											<br/>
+											<strong>Dump (RDF): </strong>
+											<a href="pelagios.rdf">XML</a>
+										</td>
+									</tr>
+								</table>
+							</div>
+						</xsl:if>
+						<xsl:if test="/index/response[@type='published'] = true()">
+							<div class="col-md-{if (/index/response[@type='pelagios'] = true()) then '6' else '12'}">
+								<h4>Data Harvesting</h4>
+								<a href="feed/" title="Atom Feed">
+									<img src="{$display_path}ui/images/atom-large.png" alt="Atom" style="padding:5px"/>
+								</a>
+								<a href="oai/?verb=ListRecords&amp;metadataPrefix=oai_dc" title="OAI-PMH">
+									<img src="{$display_path}ui/images/oai-pmh.png" alt="OAI-PMH" style="padding:5px"/>
+								</a>
+							</div>
+						</xsl:if>
+					</div>
 				</div>
 			</div>
 		</div>

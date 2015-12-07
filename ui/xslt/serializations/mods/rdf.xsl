@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink"
 	xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:void="http://rdfs.org/ns/void#" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-	exclude-result-prefixes="xsl xs mods xlink xml" version="2.0">
+	xmlns:void="http://rdfs.org/ns/void#" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" exclude-result-prefixes="xsl xs mods xlink xml" version="2.0">
 
 	<xsl:variable name="url" select="/content/config/url"/>
 
@@ -10,7 +9,7 @@
 	<xsl:template match="/">
 		<rdf:RDF>
 			<xsl:apply-templates select="//mods:mods"/>
-		</rdf:RDF>		
+		</rdf:RDF>
 	</xsl:template>
 
 	<xsl:template match="mods:mods">
@@ -64,7 +63,7 @@
 	</xsl:template>
 
 	<xsl:template match="mods:url" mode="doc-link">
-		<edm:hasView rdf:resource="{concat($url, .)}"/>
+		<dcterms:isVersionOf rdf:resource="{if (matches(., '^https?://')) then . else concat($url, .)}"/>
 	</xsl:template>
 
 	<xsl:template match="mods:date|mods:dateIssued">
