@@ -19,8 +19,7 @@ In addition to making the MODS and TEI XML available for download, ETDPub provid
 * TEI->EPUB 3.0.1
 * Solr->Atom
 * Solr->Pelagios RDF/XML (for making content associated with ancient places defined by Pleiades)
-
-OAI-PMH will be implemented in the near future.
+* Solr->OAI-PMH
 
 Linked Data
 -----------
