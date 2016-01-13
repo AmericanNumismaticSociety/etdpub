@@ -6,7 +6,7 @@
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ev="http://www.w3.org/2001/xml-events"
 	xmlns:xxforms="http://orbeon.org/oxf/xml/xforms" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:xlink="http://www.w3.org/1999/xlink"
-	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:exist="http://exist.sourceforge.net/NS/exist" xmlns:mods="http://www.loc.gov/mods/v3">
+	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:exist="http://exist.sourceforge.net/NS/exist" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 	<head>
 		<title>etdpub Administration</title>
 		<link rel="stylesheet" href="/fr/style/bootstrap/css/bootstrap.css" type="text/css" />
@@ -19,17 +19,24 @@
 		<link rel="stylesheet" href="/apps/etdpub/xforms/css/style.css" />
 
 		<xforms:model>
-			<!-- exist URL is stored in an XML file -->
-			<xforms:instance id="exist-config">
-				<xi:include href="../exist-config.xml"></xi:include>
-			</xforms:instance>
-
-			<xforms:instance id="control-instance">
+			<xforms:instance id="control-instance" xxforms:exclude-result-prefixes="#all">
 				<controls xmlns="">
 					<id></id>
 					<media_url></media_url>
+					<stream_url></stream_url>
+					<type></type>
+					<template></template>
+					<action></action>
+					<working>false</working>
+					<internetMediaType></internetMediaType>
 					<interface/>
+					<status></status>
 				</controls>
+			</xforms:instance>
+			
+			<!-- exist URL is stored in an XML file -->
+			<xforms:instance id="exist-config" xxforms:exclude-result-prefixes="#all">
+				<xi:include href="../exist-config.xml"></xi:include>
 			</xforms:instance>
 
 			<xforms:instance id="config" xxforms:exclude-result-prefixes="#all">
@@ -85,12 +92,12 @@
 							 		<author>{ string-join($record//mods:mods/mods:name/mods:namePart, ',') }</author>
 							 		<date>{ if ($record//mods:dateIssued) then string-join($record//mods:dateIssued, '-') else data($record//descendant::mods:part/mods:date) }</date>
 							 		<media_url>{ data($record//mods:location/mods:url) }</media_url>
+							 		<internetMediaType>{data($record//mods:physicalDescription/mods:internetMediaType)}</internetMediaType>
 							 		<type>MODS</type>
 							 		<genre>{data($record//mods:mods/mods:genre)}</genre>
 						 		</record>
 						 	else if ($type='TEI') then
 							 	<record>
-							 		<type>{ lower-case($type) }</type>
 							 		<id>{ data($record/*[local-name()='TEI']/@xml:id) }</id>
 							 		<title>{ data($record//tei:titleStmt/tei:title)}</title>
 							 		<type>TEI</type>
@@ -148,8 +155,12 @@
 			<xforms:instance id="sparqlUpdate-template">
 				<query><![CDATA[PREFIX rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX dcterms:	<http://purl.org/dc/terms/>
+PREFIX dcmitype:	<http://purl.org/dc/dcmitype/>
+PREFIX oa:	<http://www.w3.org/ns/oa#>
 DELETE {?s ?p ?o} WHERE { 
 {<URI> dcterms:temporal ?s . ?s ?p ?o }
+UNION { ?parts dcterms:source <URI> ; rdf:type dcmitype:Text . ?s oa:hasTarget ?parts . ?s ?p ?o }
+UNION { ?s dcterms:source <URI> ; rdf:type dcmitype:Text . ?s ?p ?o }
 UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 }]]>
 				</query>
@@ -158,6 +169,11 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			<xforms:instance id="sparqlUpdate">
 				<query/>
 			</xforms:instance>
+			
+			<!-- ************* BINDINGS **************** -->
+			<xforms:bind nodeset="instance('control-instance')">
+				<xforms:bind nodeset="working" type="xs:boolean"></xforms:bind>
+			</xforms:bind>
 
 			<!-- ************* SUBMISSIONS **************** -->
 			<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance" instance="config"
@@ -185,29 +201,73 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			<!-- delete finding aid -->
 			<xforms:submission id="delete-doc" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml" method="delete" replace="none"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
-				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/status">MODS record successfully deleted.</xforms:setvalue>
+				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/status">MODS/TEI document successfully deleted.</xforms:setvalue>
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error deleting document from eXist database.</xforms:message>
 			</xforms:submission>
 
 			<!-- ************************* SOLR ************************** -->
+			<xforms:submission id="to-solr" method="get" replace="instance" instance="addIndex" serialization="none"
+				resource="/etdpub/id/{instance('control-instance')/id}.solr">
+				<xforms:message ev:event="xforms-submit-error" level="modal">Error transforming record to Solr document.</xforms:message>
+				<xforms:send ev:event="xforms-submit-done" submission="post-solr-doc"></xforms:send>
+			</xforms:submission>
+			
+			<xforms:submission id="post-solr-doc" action="{instance('config')/solr/url}update" ref="instance('addIndex')" instance="addIndex" replace="instance" method="post">
+				<xforms:message ev:event="xforms-submit-error" level="modal">Data Failed to POST to Solr. Index may be offline or URL is incorrect.</xforms:message>
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:send submission="submit-commit"></xforms:send>
+				</xforms:action>
+			</xforms:submission>
+			
+			<xforms:submission id="put-document" ref="instance('dump')" method="post" replace="none"
+				resource="{instance('config')/solr/url}update/extract?literal.id={instance('control-instance')/id}&amp;stream.url={instance('control-instance')/stream_url}&amp;fmap.content=text&amp;fmap.date=timestamp&amp;commit=true">
+				<xforms:header>
+					<xforms:name>Content-type</xforms:name>
+					<xforms:value ref="instance('control-instance')/internetMediaType"></xforms:value>
+				</xforms:header>
+				<xforms:setvalue ev:event="xforms-submit" ref="instance('control-instance')/working" value="true()"></xforms:setvalue>
+				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to index the document file.</xforms:message>
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:setvalue ref="instance('control-instance')/status">Document successfully saved to Solr.</xforms:setvalue>
+					<xforms:setvalue ref="instance('control-instance')/working" value="false()"></xforms:setvalue>
+					<xforms:send submission="to-solr"></xforms:send>
+				</xforms:action>
+			</xforms:submission>
+			
 			<!-- delete from Solr -->
 			<xforms:submission id="delete-solr-doc" action="{instance('config')/solr/url}update" ref="instance('deleteId')" instance="deleteId" replace="none" method="post">
-				<xforms:send ev:event="xforms-submit-done" submission="commit"></xforms:send>
+				<xforms:send ev:event="xforms-submit-done" submission="submit-commit"></xforms:send>
 				<xforms:message ev:event="xforms-submit-error" level="modal">Data Failed to POST to Solr.</xforms:message>
 			</xforms:submission>
 
 			<!-- send commit -->
-			<xforms:submission id="commit" action="{instance('config')/solr/url}update" ref="instance('sendCommit')" instance="sendCommit" replace="none" method="post">
+			<xforms:submission id="submit-commit" action="{instance('config')/solr/url}update" ref="instance('sendCommit')" instance="sendCommit" replace="none" method="post">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Solr commit failed.</xforms:message>
 			</xforms:submission>
 			
-			<!-- ************* SPARQL SUBMISSIONS **********************-->
+			<!--********************** SPARQL SUBMISSIONS **********************-->
+			<xforms:submission id="get-rdf" serialization="none" method="get" action="/etdpub/id/{instance('control-instance')/id}.rdf" replace="instance"
+				instance="rdf">
+				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to get RDF/XML serialization.</xforms:message>
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:setvalue ref="instance('sparqlUpdate')" value="replace(instance('sparqlUpdate-template'), 'URI', instance('rdf')/*[1]/@rdf:about)"></xforms:setvalue>
+					<xforms:send submission="delete-graph"></xforms:send>					
+				</xforms:action>
+			</xforms:submission>
+			
 			<xforms:submission id="delete-graph" action="{instance('config')/sparql/update}" ref="instance('sparqlUpdate')" serialization="text/plain" replace="none" method="post"
 				mediatype="application/sparql-update">
-				<xforms:message level="modal" ev:event="xforms-submit-error">SPARQL update failed.</xforms:message>				
+				<xforms:message level="modal" ev:event="xforms-submit-error">SPARQL update failed.</xforms:message>	
+				<!-- only post new RDF if we are refreshing the document in the triplestore -->
+				<xforms:send submission="post-rdf" ev:event="xforms-submit-done" if="instance('control-instance')/action = 'update'"/>
+			</xforms:submission>
+			
+			<xforms:submission id="post-rdf" action="{instance('config')/sparql/store}?default" ref="instance('rdf')" replace="none" method="post" mediatype="application/rdf+xml">
+				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/status">Successfully posted to endpoint.</xforms:setvalue>
+				<xforms:message ev:event="xforms-submit-error" level="modal">Post to endpoint failed.</xforms:message>
 			</xforms:submission>
 
-			<!-- load etdpub config file on xforms construction -->
+			<!-- ******************* XFORMS-MODEL-CONSTRUCT-DONE **********************-->
 			<xforms:action ev:event="xforms-model-construct-done">
 				<xforms:send submission="load-config"></xforms:send>
 			</xforms:action>
@@ -220,13 +280,20 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			<div class="row">
 				<div class="col-md-12">
 					<div id="form">
-						<xforms:group ref="instance('status')/text()">
+						<!-- progress/status boxes -->
+						<xforms:group ref=".[instance('control-instance')/working=true()]">
+							<div class="bg-info alert-box">
+								<span class="glyphicon glyphicon-info-sign"></span>
+								<strong>Working:</strong> Indexing document...</div>
+						</xforms:group>
+						<xforms:group ref=".[string-length(instance('control-instance')/status) &gt; 0]">
 							<div class="bg-info alert-box">
 								<span class="glyphicon glyphicon-info-sign"></span>
 								<strong>Status:</strong>
-								<xforms:output ref="instance('status')"></xforms:output>
+								<xforms:output ref="instance('control-instance')/status"></xforms:output>
 							</div>
 						</xforms:group>
+						
 						<h1>etdpub Administration</h1>
 						<p><a href="{instance('config')/url}" target="_blank">View Pubic Interface <span class="glyphicon glyphicon-new-window"></span></a><br/><a href="{$display_path}logout"><span
 									class="glyphicon glyphicon-log-out"></span> Logout</a></p>
@@ -254,13 +321,22 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 										<xforms:repeat nodeset="instance('pagination-result')//record">
 											<xforms:var name="id" select="id"></xforms:var>
 											<xforms:var name="media_url" select="media_url"></xforms:var>
+											<xforms:var name="genre" select="genre"/>
+											<xforms:var name="type" select="type"/>
+											<xforms:var name="internetMediaType" select="internetMediaType"/>
+											
 											<tr>
-												<td><xforms:output ref="type"></xforms:output>												</td>
+												<td><xforms:output value="$type"></xforms:output>												</td>
 												<td>
-													<h4>
-														<a href="edit/?id={$id}">
+													<h4>	
+														<xforms:group ref=".[type='MODS']">
+															<a href="edit/?id={$id}">
+																<xforms:output ref="title"></xforms:output>
+															</a>
+														</xforms:group>
+														<xforms:group ref=".[type='TEI']">
 															<xforms:output ref="title"></xforms:output>
-														</a>
+														</xforms:group>
 													</h4>
 													<div>
 														<xforms:output ref="author">
@@ -283,9 +359,22 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 												</td>
 												<td class="text-center">
 													<xforms:trigger appearance="minimal">
-														<xforms:label>
-															<span class="glyphicon glyphicon-remove"></span>
-														</xforms:label>
+														<xforms:label><span class="glyphicon glyphicon-refresh"></span></xforms:label>
+														<xforms:hint>Reindex Document</xforms:hint>
+														<xforms:action ev:event="DOMActivate">
+															<xforms:setvalue ref="instance('control-instance')/id" value="$id"></xforms:setvalue>	
+															<!-- set the document URL and other variables -->
+															<xforms:setvalue ref="instance('control-instance')/stream_url" value="if (matches($media_url, '^https?://')) then $media_url else concat(instance('config')/url, $media_url)"></xforms:setvalue>
+															<xforms:setvalue ref="instance('control-instance')/template" value="instance('templates')/template[. = $genre]/@id"/>
+															<xforms:setvalue ref="instance('control-instance')/type" value="$type"/>
+															<xforms:setvalue ref="instance('control-instance')/internetMediaType" value="$internetMediaType"/>
+															
+															<xforms:dispatch target="reindex" name="fr-show"></xforms:dispatch>
+														</xforms:action>
+													</xforms:trigger>
+													<xforms:trigger appearance="minimal">
+														<xforms:label><span class="glyphicon glyphicon-remove"></span></xforms:label>
+														<xforms:hint>Delete Document</xforms:hint>
 														<xforms:action ev:event="DOMActivate">
 															<xforms:setvalue ref="instance('control-instance')/id" value="$id"></xforms:setvalue>
 															<xforms:setvalue ref="instance('control-instance')/media_url" value="$media_url"></xforms:setvalue>
@@ -310,6 +399,9 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 						<fr:negative-choice></fr:negative-choice>
 						<fr:positive-choice>
 							<xforms:action ev:event="DOMActivate">
+								<!-- set action -->
+								<xforms:setvalue ref="instance('control-instance')/action">delete</xforms:setvalue>
+								
 								<!-- first delete the uploaded media -->
 								<xforms:setvalue ref="instance('delete-config')/delete/url" value="concat('oxf:/apps/etdpub/', instance('control-instance')/media_url)"></xforms:setvalue>
 								<xforms:insert nodeset="instance('dump')"
@@ -331,7 +423,37 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 							</xforms:action>
 						</fr:positive-choice>
 					</fr:alert-dialog>
-					<!--<fr:xforms-inspector id="orbeon-xforms-inspector"></fr:xforms-inspector>-->
+					
+					<fr:alert-dialog id="reindex">
+						<fr:label>Reindex</fr:label>
+						<fr:message>Do you want to reindex the document into Solr and (optionally) the SPARQL endpoint?</fr:message>
+						<fr:negative-choice></fr:negative-choice>
+						<fr:positive-choice>
+							<xforms:action ev:event="DOMActivate">
+								<!-- set action -->
+								<xforms:setvalue ref="instance('control-instance')/action">update</xforms:setvalue>
+								
+								<!-- only index the Document file for a MODS file that is not of the journal template -->
+								<xforms:action if="instance('control-instance')/type='MODS'">
+									<xforms:send submission="put-document" if="not(instance('control-instance')/template = 'journal')"></xforms:send>
+								</xforms:action>
+								<!-- otherwise, get the TEI-to-Solr document directly -->
+								<xforms:action if="instance('control-instance')/type = 'TEI'">
+									<xforms:send submission="to-solr"></xforms:send>
+								</xforms:action>								
+								
+								<!-- delete triples from triplestore, if applicable. Then re-post RDF document -->
+								<xforms:action if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
+									<xforms:send submission="get-rdf"/>									
+								</xforms:action>
+								
+								<!-- reload table -->
+								<xforms:setvalue ref="instance('eXist-xquery')/exist:text" value="instance('xqueries')/query[@id='get-objects']"></xforms:setvalue>
+								<xforms:send submission="xquery-pagination"></xforms:send>
+							</xforms:action>
+						</fr:positive-choice>
+					</fr:alert-dialog>
+					<fr:xforms-inspector id="orbeon-xforms-inspector"></fr:xforms-inspector>
 				</div>
 			</div>
 		</div>

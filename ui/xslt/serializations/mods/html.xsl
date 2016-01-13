@@ -204,6 +204,18 @@
 								</xsl:choose>
 							</a>
 						</div>
+						<div>
+							<h3>Export</h3>
+							<ul class="list-inline">
+								<li>
+									<a href="{$id}.xml" title="MODS/XML">MODS/XML</a>
+								</li>
+								<li>
+									<a href="{$id}.rdf" title="RDF/XML">RDF/XML</a>
+								</li>
+							</ul>
+							
+						</div>
 					</div>
 				</div>
 			</div>

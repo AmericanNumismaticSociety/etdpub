@@ -80,16 +80,31 @@
 	<!--<xsl:template match="tei:pb">
 		<span class="page-number" id="page-{@n}">Page <xsl:value-of select="@n"/></span>
 	</xsl:template>-->
+	
+	<!-- name linking -->
+	<xsl:template match="tei:name[@corresp]">
+		<xsl:variable name="id" select="substring-after(@corresp, '#')"/>
+		<xsl:variable name="entity" as="element()*">
+			<xsl:copy-of select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id=$id]"/>
+		</xsl:variable>
+		
+		<a href="{$entity//tei:idno[@type='URI']}" title="{$entity//*[contains(local-name(), 'Name')]}" class="external-link">
+			<xsl:value-of select="."/>
+		</a>		
+	</xsl:template>
 
 	<!-- figures -->
 	<xsl:template match="tei:figure"/>
 
 	<!-- tables and lists-->
 	<xsl:template match="tei:table">
-		<table class="table table-striped">
-			<tbody>
-				<xsl:apply-templates select="tei:row"/>
-			</tbody>
+		<table>
+			<xsl:if test="tei:head">
+				<caption>
+					<xsl:value-of select="tei:head"/>
+				</caption>
+			</xsl:if>
+			<xsl:apply-templates select="tei:row"/>
 		</table>
 	</xsl:template>
 
@@ -133,18 +148,6 @@
 
 	<!-- linking -->
 	<xsl:template match="tei:ref">
-		<!--<xsl:variable name="target">
-			<xsl:choose>
-				<xsl:when test="substring(@target, 1, 1) = '#'">
-					<xsl:value-of select="concat(ancestor::tei:div1/parent::node()/local-name(), '-', format-number(count(ancestor::tei:div1/preceding-sibling::tei:div1) + 1, '000'), '.xhtml', @target)"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="@target"/>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>-->
-
-
 		<a href="{@target}">
 			<xsl:apply-templates/>
 		</a>
@@ -171,4 +174,27 @@
 		<xsl:variable name="src" select="concat('images/', tokenize(@url, '/')[last()])"/>
 		<img src="{$src}" alt="figure"/>
 	</xsl:template>
+	
+	<!-- *********** TITLE PAGE *********** -->
+	<xsl:template match="tei:docTitle">
+		<h1>
+			<xsl:apply-templates/>
+		</h1>
+	</xsl:template>
+	
+	<xsl:template match="tei:byline">
+		<h2>
+			<xsl:apply-templates/>
+		</h2>
+	</xsl:template>
+	
+	<xsl:template match="tei:docImprint">
+		<xsl:apply-templates/>
+	</xsl:template>
+	
+	<xsl:template match="tei:publisher|tei:pubPlace|tei:idno">
+		<xsl:value-of select="."/>
+		<br/>
+	</xsl:template>
+	
 </xsl:stylesheet>

@@ -38,79 +38,74 @@
 			<field name="timestamp">
 				<xsl:value-of select="if (contains(string(current-dateTime()), 'Z')) then current-dateTime() else concat(string(current-dateTime()), 'Z')"/>
 			</field>
-			<!--<field name="title" update="set">
-				<xsl:value-of select="//mods:title"/>
-			</field>
-			<field name="author" update="set">
-				<xsl:value-of select="string-join(mods:name/mods:namePart, ', ')"/>
-			</field>
-			<field name="timestamp" update="set">
-				<xsl:value-of select="if (contains(string(current-dateTime()), 'Z')) then current-dateTime() else concat(string(current-dateTime()), 'Z')"/>
-			</field>
-			<field name="date" update="add">
-				<xsl:value-of select="//mods:dateCreated"/>
-			</field>
-			<field name="abstract" update="add">
-				<xsl:value-of select="//mods:abstract"/>
-			</field>
-			<field name="media_url" update="add">
-				<xsl:value-of select="mods:location/mods:url"/>
-			</field>
 
-			<xsl:for-each select="mods:language">
-				<field name="language" update="set">
-					<xsl:value-of select="mods:languageTerm"/>
-				</field>
-			</xsl:for-each>
+			<xsl:apply-templates select="tei:teiHeader/tei:fileDesc"/>
+			<xsl:apply-templates select="tei:teiHeader/tei:profileDesc"/>
+			<xsl:apply-templates select="tei:text/tei:body"/>			
 			
-			<!-\- index authors and publishers as facets -\->
-			<xsl:for-each select="mods:name">
-				<field name="author_facet" update="add">
-					<xsl:value-of select="mods:namePart"/>
-				</field>
-			</xsl:for-each>			
-			<xsl:for-each select="descendant::mods:publisher">
-				<xsl:choose>
-					<xsl:when test="ancestor::mods:mods/mods:subject/mods:genre[.='dissertations']">
-						<field name="university" update="add">
-							<xsl:value-of select="."/>
-						</field>
-					</xsl:when>
-					<xsl:otherwise>
-						<field name="publisher_facet" update="add">
-							<xsl:value-of select="."/>
-						</field>
-					</xsl:otherwise>
-				</xsl:choose>
-			</xsl:for-each>		
-
-			<!-\- subject facets -\->
-			<xsl:for-each select="mods:subject/*">
-				<field name="{local-name()}_facet" update="set">
-					<xsl:value-of select="."/>
-				</field>
-				<xsl:if test="string(@valueURI)">
-					<field name="{local-name()}_uri" update="set">
-						<xsl:value-of select="@valueURI"/>
-					</field>
-				</xsl:if>
-
-				<!-\- Pleiades URIs -\->
-				<xsl:if test="contains(@valueURI, 'pleiades.stoa.org')">
-					<field name="pleiades_uri" update="set">
-						<xsl:value-of select="@valueURI"/>
-					</field>
-				</xsl:if>
-				<xsl:if test="contains(@valueURI, 'nomisma.org')">
-					<xsl:variable name="href" select="@valueURI"/>
-					
-					<xsl:for-each select="$rdf/*[@rdf:about=$href]/skos:closeMatch[contains(@rdf:resource, 'pleiades.stoa.org')]">
-						<field name="pleiades_uri" update="set">
-							<xsl:value-of select="@rdf:resource"/>
-						</field>
-					</xsl:for-each>
-				</xsl:if>
-			</xsl:for-each>-->
+			<!-- fulltext -->
+			<field name="text">
+				<xsl:value-of select="normalize-space(.)"/>
+			</field>
 		</doc>
 	</xsl:template>
+
+	<!-- header metadata -->
+	<xsl:template match="tei:fileDesc">
+		<xsl:apply-templates select="tei:titleStmt|tei:publicationStmt"/>
+	</xsl:template>
+	
+	<!-- get names for facets -->
+	<xsl:template match="tei:profileDesc">
+		<xsl:for-each select="descendant::*[starts-with(local-name(), 'list')]/*">
+			<xsl:variable name="field" select="if (parent::node()/local-name()='listPerson' or parent::node()/local-name()='listOrg') then 'name' else 'place'"/>
+			
+			<field name="{$field}_facet">
+				<xsl:value-of select="*[contains(local-name(), 'Name')]"/>
+			</field>
+			<field name="{$field}_uri">
+				<xsl:value-of select="tei:idno[@type='URI']"/>
+			</field>
+		</xsl:for-each>
+	</xsl:template>
+
+	<xsl:template match="tei:titleStmt">
+		<field name="title">
+			<xsl:value-of select="tei:title"/>
+		</field>
+		<field name="author">
+			<xsl:value-of select="string-join(tei:author/tei:name, ', ')"/>
+		</field>
+		<xsl:for-each select="tei:author">
+			<field name="creator_facet">
+				<xsl:value-of select="tei:name"/>
+			</field>
+			<xsl:if test="tei:idno[@type='URI']">
+				<field name="creator_uri">
+					<xsl:value-of select="tei:idno[@type='URI']"/>
+				</field>
+			</xsl:if>
+		</xsl:for-each>
+	</xsl:template>
+
+	<xsl:template match="tei:publicationStmt">
+		<xsl:if test="tei:date">
+			<field name="date">
+				<xsl:value-of select="tei:date"/>
+			</field>
+		</xsl:if>
+		<xsl:for-each select="tei:publisher">
+			<field name="publisher_facet">
+				<xsl:value-of select="tei:name"/>
+			</field>
+			<xsl:if test="tei:idno[@type='URI']">
+				<field name="publisher_uri">
+					<xsl:value-of select="tei:idno[@type='URI']"/>
+				</field>
+			</xsl:if>
+		</xsl:for-each>
+	</xsl:template>
+	
+	<!-- placeholder for facets, etc -->
+	<xsl:template match="tei:body"/>
 </xsl:stylesheet>

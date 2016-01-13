@@ -26,7 +26,12 @@
 	</xsl:template>
 	
 	<xsl:template match="tei:text">
-		<xsl:apply-templates select="tei:body/tei:div1"/>
+		<xsl:if test="descendant::tei:titlePage">
+			<li>
+				<a href="titlePage.xhtml">Title Page</a>
+			</li>
+		</xsl:if>
+		<xsl:apply-templates select="descendant::tei:div1"/>
 	</xsl:template>
 	
 	<xsl:template match="tei:div1">

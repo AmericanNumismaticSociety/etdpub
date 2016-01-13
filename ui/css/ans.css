@@ -143,3 +143,6 @@ div#mapcontainer{
 .figure img {
     max-width:100%;
 }
+.section-head {
+	letter-spacing: 6px;
+}
