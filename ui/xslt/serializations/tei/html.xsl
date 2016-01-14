@@ -52,6 +52,11 @@
 				<script src="http://netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"/>
 				<script type="text/javascript" src="{$display_path}ui/javascript/display_functions.js"/>
 				<link rel="stylesheet" href="{$display_path}ui/css/{//config/style}.css"/>
+				<xsl:if test="string(//config/google_analytics)">
+					<script type="text/javascript">
+						<xsl:value-of select="//config/google_analytics"/>
+					</script>
+				</xsl:if>
 			</head>
 			<body>
 				<xsl:call-template name="header"/>
@@ -130,10 +135,18 @@
 
 					<!-- endnotes -->
 					<xsl:if test="count(tei:text/descendant::tei:note[@place]) &gt; 0">
-						<h2>End Notes</h2>
-						<ul>
-							<xsl:apply-templates select="tei:text/descendant::tei:note[@place]" mode="endnote"/>
-						</ul>
+						<div>
+							<h2>End Notes<small>
+									<a href="#" id="toggle-rearnotes" class="toggle-btn">
+										<span class="glyphicon glyphicon-triangle-right"/>
+									</a>
+								</small></h2>
+							<section epub:type="rearnotes" style="display:none" id="section-rearnotes">
+								<ul>
+									<xsl:apply-templates select="tei:text/descendant::tei:note[@place]" mode="endnote"/>
+								</ul>
+							</section>
+						</div>
 					</xsl:if>
 				</div>
 			</div>
@@ -220,39 +233,49 @@
 
 	<!-- structural elements -->
 	<xsl:template match="tei:front|tei:body|tei:back">
-		<section id="section-{local-name()}" epub:type="{local-name()}matter">
+		<div>
 			<h2 class="section-head">
 				<xsl:value-of select="upper-case(local-name())"/>
+				<xsl:if test="local-name()='front' or local-name()='back'">
+					<small>
+						<a href="#" id="toggle-{local-name()}" class="toggle-btn">
+							<span class="glyphicon glyphicon-triangle-right"/>
+						</a>
+					</small>
+				</xsl:if>
 			</h2>
-			<!-- call other content -->
-			<xsl:apply-templates/>
-		</section>
+			<section id="section-{local-name()}" epub:type="{local-name()}matter">
+				<xsl:if test="local-name()='front' or local-name()='back'">
+					<xsl:attribute name="style">display:none</xsl:attribute>
+				</xsl:if>
+				<!-- call other content -->
+				<xsl:apply-templates/>
+			</section>
+		</div>
 	</xsl:template>
 
 	<!-- *** TEMPLATES *** -->
 	<!-- table of contents -->
 	<xsl:template name="toc">
 		<xsl:if test="count(descendant::tei:div1) &gt; 1">
-			<h2>Table of Contents <small><a href="#" id="toggle-toc"><span class="glyphicon glyphicon-triangle-right"/></a></small></h2>
-			<div id="pub-toc" style="display:none">
+			<h2>Table of Contents <small><a href="#" id="toggle-toc" class="toggle-btn"><span class="glyphicon glyphicon-triangle-right"/></a></small></h2>
+			<section epub:type="toc" id="section-toc" style="display:none">
 				<xsl:for-each select="*">
 					<xsl:if test="count(tei:div1) &gt; 1">
 						<h4>
 							<xsl:value-of select="upper-case(local-name())"/>
 						</h4>
-						<section epub:type="toc">
-							<nav>
-								<ul class="toc">
-									<xsl:apply-templates select="tei:div1|tei:titlePage" mode="toc"/>
-								</ul>
-							</nav>
-						</section>
+						<nav>
+							<ul class="toc">
+								<xsl:apply-templates select="tei:div1|tei:titlePage" mode="toc"/>
+							</ul>
+						</nav>
 					</xsl:if>
 				</xsl:for-each>
-			</div>
+			</section>
 		</xsl:if>
 	</xsl:template>
-	
+
 	<!-- table of contents items -->
 	<xsl:template match="tei:titlePage|tei:div1|tei:div2" mode="toc">
 		<li>
@@ -267,7 +290,7 @@
 					</xsl:otherwise>
 				</xsl:choose>
 			</a>
-			
+
 			<xsl:if test="child::tei:div2">
 				<ul>
 					<xsl:apply-templates select="tei:div2" mode="toc"/>

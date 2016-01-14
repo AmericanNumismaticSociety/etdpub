@@ -5,7 +5,9 @@
 	<xsl:template match="*[starts-with(local-name(), 'div')]">
 		<section epub:type="{@type}" id="{if (@xml:id) then @xml:id else generate-id()}">
 			<xsl:apply-templates/>
-			<hr/>
+			<xsl:if test="self::tei:div1">
+				<hr/>
+			</xsl:if>			
 		</section>
 	</xsl:template>
 
