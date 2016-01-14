@@ -98,7 +98,7 @@
 
 	<!-- tables and lists-->
 	<xsl:template match="tei:table">
-		<table>
+		<table epub:type="table">
 			<xsl:if test="tei:head">
 				<caption>
 					<xsl:value-of select="tei:head"/>
