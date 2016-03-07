@@ -4,6 +4,7 @@
 	<xsl:output method="xml" encoding="UTF-8" indent="yes"/>
 	<xsl:variable name="url" select="/content/config/url"/>
 	<xsl:variable name="solr-url" select="concat(/content/config/solr/url, 'select/')"/>
+	<xsl:variable name="id_space" select="if (/content/config/ark/@enabled='true') then concat('ark:/', /content/config/ark/naan) else 'id'"/>
 
 	<!-- request params -->
 	<xsl:param name="verb" select="doc('input:request')/request/parameters/parameter[name='verb']/value"/>
@@ -292,18 +293,7 @@
 						<xsl:value-of select="str[@name='abstract']"/>
 					</dc:abstract>
 					<dc:identifier>
-						<xsl:variable name="objectUri">
-							<xsl:choose>
-								<xsl:when test="//config/ark[@enabled='true']">
-									<xsl:value-of select="concat($url, 'ark:/', //config/ark/naan, '/', str[@name='id'])"/>
-								</xsl:when>
-								<xsl:otherwise>
-									<xsl:value-of select="concat($url, 'id/', str[@name='id'])"/>
-								</xsl:otherwise>
-							</xsl:choose>
-						</xsl:variable>
-
-						<xsl:value-of select="$objectUri"/>
+						<xsl:value-of select="concat($url, $id_space, '/', str[@name='id'])"/>
 					</dc:identifier>
 					<dc:rights>
 						<xsl:value-of select="str[@name='right']"/>

@@ -5,7 +5,7 @@
 	<xsl:include href="../../functions.xsl"/>
 
 	<!-- variables -->
-	<xsl:variable name="display_path">../</xsl:variable>
+	<xsl:variable name="display_path" select="if (/content/config/ark/@enabled='true') then '../../' else '../'"/>
 	<xsl:variable name="url" select="/content/config/url"/>
 	<xsl:variable name="id" select="//mods:recordIdentifier"/>
 	<xsl:variable name="genre" select="//mods:mods/mods:genre"/>

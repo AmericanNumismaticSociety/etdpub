@@ -62,11 +62,11 @@
 				</xsl:template>
 			</xsl:stylesheet>
 		</p:input>
-		<p:output name="data" id="config"/>		
+		<p:output name="data" id="url-generator-config"/>		
 	</p:processor>
 	
 	<p:processor name="oxf:url-generator">
-		<p:input name="config" href="#config"/>
+		<p:input name="config" href="#url-generator-config"/>
 		<p:output name="data" ref="data"/>
 	</p:processor>
 </p:config>

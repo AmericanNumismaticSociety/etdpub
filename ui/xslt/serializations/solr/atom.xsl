@@ -4,6 +4,7 @@
 	
 	<!-- config variable -->
 	<xsl:variable name="url" select="/content/config/url"/>
+	<xsl:variable name="id_space" select="if (/content/config/ark/@enabled='true') then concat('ark:/', /content/config/ark/naan) else 'id'"/>
 	
 	<!-- request params -->
 	<xsl:param name="q" select="doc('input:params')/request/parameters/parameter[name='q']/value"/>	
@@ -50,16 +51,8 @@
 	</xsl:template>
 
 	<xsl:template match="doc">
-		<xsl:variable name="objectUri">
-			<xsl:choose>
-				<xsl:when test="//config/ark[@enabled='true']">
-					<xsl:value-of select="concat($url, 'ark:/', //config/ark/naan, '/', str[@name='id'])"/>
-				</xsl:when>
-				<xsl:otherwise>
-					<xsl:value-of select="concat($url, 'id/', str[@name='id'])"/>
-				</xsl:otherwise>
-			</xsl:choose>
-		</xsl:variable>
+		<xsl:variable name="objectUri" select="concat($url, $id_space, '/', str[@name='id'])"/>
+		
 		<entry>
 			<title>
 				<xsl:value-of select="str[@name='title']"/>

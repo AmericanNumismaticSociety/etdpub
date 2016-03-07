@@ -4,6 +4,7 @@
 	xmlns:dcterms="http://purl.org/dc/terms/" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:nm="http://nomisma.org/id/" version="2.0">
 
 	<xsl:variable name="url" select="/content/config/url"/>
+	<xsl:variable name="id_space" select="if (/content/config/ark/@enabled='true') then concat('ark:/', /content/config/ark/naan) else 'id'"/>
 
 	<xsl:template match="/">
 		<rdf:RDF>
@@ -23,7 +24,7 @@
 			<dcterms:title>
 				<xsl:value-of select="str[@name='title']"/>
 			</dcterms:title>
-			<foaf:homepage rdf:resource="{$url}id/{$id}"/>
+			<foaf:homepage rdf:resource="{concat($url, $id_space, '/', $id)}"/>
 			<xsl:for-each select="distinct-values(arr[@name='genre_uri']/str)">
 				<dcterms:type rdf:resource="{.}"/>
 			</xsl:for-each>

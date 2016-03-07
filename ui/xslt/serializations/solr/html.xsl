@@ -16,6 +16,7 @@
 	<xsl:variable name="numFound" select="//result[@name='response']/@numFound" as="xs:integer"/>
 	<xsl:variable name="display_path"/>
 	<xsl:variable name="url" select="/content/config/url"/>
+	<xsl:variable name="id_space" select="if (/content/config/ark/@enabled='true') then concat('ark:/', /content/config/ark/naan) else 'id'"/>
 
 	<!-- language normalization -->
 	<xsl:variable name="languages" as="node()*">
@@ -95,11 +96,11 @@
 	</xsl:template>
 
 	<xsl:template match="doc">
-		<xsl:variable name="id" select="str[@name='id']"/>
+		<xsl:variable name="id" select="str[@name='id']"/>		
 
 		<div class="result-doc row">
 			<h4>
-				<a href="id/{$id}">
+				<a href="{concat($url, $id_space, '/', $id)}">
 					<xsl:value-of select="str[@name='title']"/>
 				</a>
 			</h4>

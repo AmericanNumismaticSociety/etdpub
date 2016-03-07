@@ -50,6 +50,15 @@
 	<page path="/etdpub/id/(.*)\.rdf" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/rdf.xpl"/>	
 	<page path="/etdpub/id/(.*)" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/html.xpl"/>
 
+	<!-- ARK -->
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.xml" view="xpl/models/mods/get-id.xpl"/>	
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.solr" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/solr.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.opf" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/opf.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.ncx" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/ncx.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.epub" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/epub.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.rdf" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/rdf.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/html.xpl"/>
+
 	<!-- **** AJAX **** -->
 	<!-- facet results -->
 	<page path-info="/etdpub/get_facets/" model="xpl/models/solr/get_facets.xpl" view="xpl/views/ajax/get_facets.xpl"/>

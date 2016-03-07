@@ -57,6 +57,9 @@
 						<query></query>
 						<store></store>
 					</sparql>
+					<ark enabled="false">
+						<naan></naan>
+					</ark>
 					<logo></logo>
 					<style>default</style>
 					<geonames_api_key></geonames_api_key>
@@ -371,8 +374,8 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 																value="if (matches($media_url, '^https?://')) then $media_url else concat(instance('config')/url, $media_url)"></xforms:setvalue>
 															<xforms:setvalue ref="instance('control-instance')/template" value="instance('templates')/template[. = $genre]/@id"></xforms:setvalue>
 															<xforms:setvalue ref="instance('control-instance')/type" value="$type"></xforms:setvalue>
-															<xforms:setvalue ref="instance('control-instance')/internetMediaType" value="$internetMediaType"></xforms:setvalue> <xforms:dispatch
-																target="reindex" name="fr-show"></xforms:dispatch>
+															<xforms:setvalue ref="instance('control-instance')/internetMediaType" value="$internetMediaType"></xforms:setvalue>
+															<xforms:dispatch target="reindex" name="fr-show"></xforms:dispatch>
 														</xforms:action>
 													</xforms:trigger>
 													<xforms:trigger appearance="minimal">
