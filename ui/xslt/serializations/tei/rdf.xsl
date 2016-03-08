@@ -10,7 +10,7 @@
 	<xsl:variable name="uri_space">
 		<xsl:choose>
 			<xsl:when test="/content/config/ark/@enabled='true'">
-				<xsl:value-of select="/content/config/ark/naan"/>
+				<xsl:value-of select="concat(/content/config/url, 'ark:/', /content/config/ark/naan, '/')"/>
 			</xsl:when>
 			<xsl:otherwise>
 				<xsl:value-of select="concat(/content/config/url, 'id/')"/>
