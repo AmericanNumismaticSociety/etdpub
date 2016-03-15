@@ -11,7 +11,7 @@
 			xmlns:nmo="http://nomisma.org/ontology#">
 
 			<xsl:variable name="id-param">
-				<xsl:for-each select="distinct-values(descendant::*[contains(@valueURI, 'nomisma.org')]/@valueURI)">
+				<xsl:for-each select="distinct-values(descendant::*[contains(@target, 'nomisma.org')]/@target|descendant::idno[@type='URI'][contains(., 'nomisma.org')])">
 					<xsl:value-of select="substring-after(., 'id/')"/>
 					<xsl:if test="not(position()=last())">
 						<xsl:text>|</xsl:text>
@@ -66,6 +66,12 @@
 			<field name="{$field}_uri">
 				<xsl:value-of select="tei:idno[@type='URI']"/>
 			</field>
+			
+			<xsl:if test="contains(tei:idno[@type='URI'], 'pleiades.stoa.org')">
+				<field name="pleiades_uri">
+					<xsl:value-of select="tei:idno[@type='URI']"/>
+				</field>
+			</xsl:if>
 		</xsl:for-each>
 	</xsl:template>
 

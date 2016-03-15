@@ -146,3 +146,6 @@ div#mapcontainer{
 .section-head {
 	letter-spacing: 6px;
 }
+.small{
+	font-variant:small-caps;
+}

@@ -144,14 +144,17 @@
 
 		<xsl:for-each select="distinct-values(descendant::tei:ref[matches(@target, 'https?://')][ancestor::*[starts-with(local-name(), 'div')][1][@xml:id=$div_id]]/@target|descendant::tei:name[@corresp][ancestor::*[starts-with(local-name(), 'div')][1][@xml:id=$div_id]]/@corresp)">
 			<xsl:variable name="val" select="."/>
-			<xsl:variable name="uri" select="if (matches($val, 'https?')) then $val else $entities//*[@xml:id = substring-after($val, '#')]/tei:idno[@type='URI']"/>
+			<xsl:variable name="uri" select="if (matches($val, 'https?://')) then $val else $entities//*[@xml:id = substring-after($val, '#')]/tei:idno[@type='URI']"/>
 
-			<xsl:element name="oa:Annotation" namespace="http://www.w3.org/ns/oa#">
-				<xsl:attribute name="rdf:about" select="concat($uri_space, $id, '.rdf#', $div_id, '/annotations/', format-number(position(), '0000'))"/>
-
-				<oa:hasBody rdf:resource="{$uri}"/>
-				<oa:hasTarget rdf:resource="{concat($uri_space, $id, '#', $div_id)}"/>
-			</xsl:element>
+			<!-- only create annotations for corresps that link to valid URIs -->
+			<xsl:if test="string($uri)">
+				<xsl:element name="oa:Annotation" namespace="http://www.w3.org/ns/oa#">
+					<xsl:attribute name="rdf:about" select="concat($uri_space, $id, '.rdf#', $div_id, '/annotations/', format-number(position(), '0000'))"/>
+					
+					<oa:hasBody rdf:resource="{$uri}"/>
+					<oa:hasTarget rdf:resource="{concat($uri_space, $id, '#', $div_id)}"/>
+				</xsl:element>
+			</xsl:if>			
 		</xsl:for-each>
 		<xsl:apply-templates select="*[starts-with(local-name(), 'div')]" mode="annotation"/>
 	</xsl:template>

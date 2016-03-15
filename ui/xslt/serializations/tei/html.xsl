@@ -163,7 +163,7 @@
 		<dl class="dl-horizontal">
 			<xsl:apply-templates select="tei:fileDesc/tei:titleStmt"/>
 			<xsl:apply-templates select="tei:fileDesc/tei:publicationStmt"/>
-			<xsl:apply-templates select="tei:fileDesc/tei:sourceDesc/tei:bibl"/>
+			<xsl:apply-templates select="tei:fileDesc/tei:sourceDesc/tei:bibl" mode="header"/>
 		</dl>
 	</xsl:template>
 
@@ -213,7 +213,7 @@
 		</dd>
 	</xsl:template>
 
-	<xsl:template match="tei:bibl">
+	<xsl:template match="tei:bibl" mode="header">
 		<dt>Source</dt>
 		<dd>
 			<xsl:value-of select="tei:seg"/>
@@ -257,11 +257,11 @@
 	<!-- *** TEMPLATES *** -->
 	<!-- table of contents -->
 	<xsl:template name="toc">
-		<xsl:if test="count(descendant::tei:div1) &gt; 1">
+		<xsl:if test="count(descendant::tei:div1) &gt; 0">
 			<h2>Table of Contents <small><a href="#" id="toggle-toc" class="toggle-btn"><span class="glyphicon glyphicon-triangle-right"/></a></small></h2>
 			<section epub:type="toc" id="section-toc" style="display:none">
 				<xsl:for-each select="*">
-					<xsl:if test="count(tei:div1) &gt; 1">
+					<xsl:if test="count(tei:div1) &gt; 0">
 						<h4>
 							<xsl:value-of select="upper-case(local-name())"/>
 						</h4>
