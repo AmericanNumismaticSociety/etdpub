@@ -35,6 +35,9 @@
 
 	<xsl:template match="tei:p">
 		<p>
+			<xsl:if test="@rend">
+				<xsl:attribute name="class" select="concat('rend-', @rend)"/>
+			</xsl:if>
 			<!-- suppress figures from within the paragraph, put them afterwards -->
 			<xsl:apply-templates select="node()[not(local-name()='figure')]"/>
 		</p>
@@ -44,51 +47,37 @@
 	<xsl:template match="tei:lb">
 		<br/>
 	</xsl:template>
-	
+
+	<xsl:template match="tei:listBibl">
+		<xsl:apply-templates/>
+	</xsl:template>
+
 	<xsl:template match="tei:bibl">
-		<div>
-			<xsl:apply-templates select="node()[not(tei:idno[@type='URI'])]"/>
-			<xsl:if test="tei:idno[@type='URI']">
-				<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link">
-					<img src="{$display_path}ui/images/external.png" alt="External Link"/>
-				</a>
-			</xsl:if>
-		</div>
+		<xsl:choose>
+			<xsl:when test="parent::tei:listBibl">
+				<div class="bibl">
+					<xsl:call-template name="bibl"/>
+				</div>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="bibl"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+
+	<xsl:template name="bibl">
+		<xsl:apply-templates select="node()[not(tei:idno[@type='URI'])]"/>
+		<xsl:if test="tei:idno[@type='URI']">
+			<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link">
+				<img src="{$display_path}ui/images/external.png" alt="External Link"/>
+			</a>
+		</xsl:if>
 	</xsl:template>
 
 	<xsl:template match="tei:hi[not(parent::tei:head)]">
-		<xsl:choose>
-			<xsl:when test="@rend='bold'">
-				<strong>
-					<xsl:apply-templates/>
-				</strong>
-			</xsl:when>
-			<xsl:when test="@rend='italic'">
-				<i>
-					<xsl:apply-templates/>
-				</i>
-			</xsl:when>
-			<xsl:when test="@rend='sup'">
-				<sup>
-					<xsl:apply-templates/>
-				</sup>
-			</xsl:when>
-			<xsl:when test="@rend='sub'">
-				<sub>
-					<xsl:apply-templates/>
-				</sub>
-			</xsl:when>
-			<xsl:when test="@rend='smallcaps'">
-				<span class="small">
-					<xsl:apply-templates/>
-				</span>
-			</xsl:when>
-			<xsl:otherwise>
-				<span>
-					<xsl:apply-templates/>
-				</span>
-			</xsl:otherwise>
-		</xsl:choose>
+		<span class="rend-{@rend}">
+			<xsl:apply-templates/>
+		</span>
 	</xsl:template>
 
 	<!--<xsl:template match="tei:pb">
@@ -132,6 +121,9 @@
 
 	<xsl:template match="tei:item">
 		<li>
+			<xsl:if test="@rend">
+				<xsl:attribute name="class" select="concat('rend-', @rend)"/>
+			</xsl:if>
 			<xsl:apply-templates/>
 		</li>
 	</xsl:template>
@@ -202,7 +194,7 @@
 				<xsl:value-of select="."/>
 			</xsl:otherwise>
 		</xsl:choose>
-		
+
 	</xsl:template>
 
 	<!-- figure images -->
@@ -211,12 +203,39 @@
 			<xsl:apply-templates/>
 		</div>
 	</xsl:template>
+	
+	<xsl:template match="tei:figDesc|tei:caption">
+		<div class="text-center text-muted">
+			<xsl:apply-templates/>
+		</div>
+	</xsl:template>
 
 	<xsl:template match="tei:graphic">
-		<xsl:variable name="src"
-			select="if(matches(@url, 'https?://')) then @url else concat($display_path, 'media/', $id, '/', @url)"/>
+		<xsl:variable name="title">
+			<xsl:choose>
+				<xsl:when test="parent::tei:figure/tei:figureDesc">
+					<xsl:value-of select="normalize-space(parent::tei:figure/tei:figureDesc)"/>
+				</xsl:when>
+				<xsl:when test="parent::tei:figure/tei:p">
+					<xsl:value-of select="normalize-space(parent::tei:figure/tei:p[1])"/>
+				</xsl:when>
+				<xsl:when test="parent::tei:figure/@n">
+					<xsl:value-of select="parent::tei:figure/@n"/>
+				</xsl:when>
+			</xsl:choose>
+		</xsl:variable>
+
+		<xsl:choose>
+			<xsl:when test="matches(@url, 'https?://')">
+				<img src="{@url}" alt="figure" class="img-rounded" title="{$title}"/>
+			</xsl:when>
+			<xsl:otherwise>				
+				<a class="thumbImage" rel="gallery" href="{concat($display_path, 'media/', $id, '/archive/', @url)}" title="{$title}">
+					<img src="{concat($display_path, 'media/', $id, '/reference/', @url)}" class="img-rounded" alt="figure"/>
+				</a>
+			</xsl:otherwise>
+		</xsl:choose>
 		
-		<img src="{$src}" alt="figure" class="img-rounded"/>
 	</xsl:template>
 
 	<!-- *********** TITLE PAGE *********** -->

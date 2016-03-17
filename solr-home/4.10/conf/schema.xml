@@ -66,6 +66,10 @@
 	<field name="pages" type="string" indexed="true" stored="true"/>
 	<field name="volume_id" type="string" indexed="true" stored="true"/>
 	<field name="volume_title" type="string" indexed="true" stored="true"/>
+	
+	<!-- boolean field to determine whether the Solr document is a full record or section of EBook; field for parent div -->
+	<field name="primary" type="boolean" indexed="true" stored="true"/>
+	<field name="isPartOf" type="string" indexed="true" stored="true"/>
 
 	<!-- dynamic fields -->
 	<dynamicField name="*_uri"  type="string"  indexed="true"  stored="true" multiValued="true"/>

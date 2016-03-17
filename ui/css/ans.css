@@ -3,10 +3,10 @@
   GLOBAL
   ****************************************
  */
- html{
- 	background-image:url("http://numismatics.org/authorities/ui/images/pattern.gif");
+html{
+	background-image:url("http://numismatics.org/authorities/ui/images/pattern.gif");
 	background-color:#F8F8F8;
-	background-attachment:scroll;	
+	background-attachment:scroll;
 	background-position:center top;
 	background-repeat:repeat;
 }
@@ -137,15 +137,41 @@ div#mapcontainer{
 .external-link{
 	margin:0px 5px;
 }
-.figure {
-    text-align:center;
+.figure{
+	text-align:center;
 }
-.figure img {
-    max-width:100%;
+.figure img{
+	max-width:100%;
 }
-.section-head {
-	letter-spacing: 6px;
+.section-head{
+	letter-spacing:6px;
 }
-.small{
+.bibl{
+	margin:0 0 10px 1em;
+}
+
+/*REND*/
+.rend-smallcaps{
 	font-variant:small-caps;
+}
+.rend-hang{
+	padding-left:2em;
+	text-indent:-2em;
+}
+.rend-ul{
+	text-decoration:underline;
+}
+.rend-bold{
+	font-weight:bold;
+}
+.rend-italic{
+	font-style:italic;
+}
+.rend-sup{
+	vertical-align:super;
+	font-size:smaller;
+}
+.rend-sub{
+	vertical-align:sub;
+	font-size:smaller;
 }

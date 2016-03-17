@@ -77,7 +77,7 @@
 				</head>
 				<body>
 					<section epub:type="titlepage" id="{if (@xml:id) then @xml:id else generate-id()}" style="text-align:center">
-						<xsl:apply-templates/>
+						<xsl:apply-templates mode="titlePage"/>
 					</section>
 				</body>
 			</html>

@@ -402,8 +402,11 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 					<fr:alert-dialog id="delete">
 						<fr:label>Delete</fr:label>
 						<fr:message>Are you sure you want to delete this object?</fr:message>
-						<fr:negative-choice></fr:negative-choice>
+						<fr:negative-choice>
+							<fr:label>No</fr:label>
+						</fr:negative-choice>
 						<fr:positive-choice>
+							<fr:label>Yes</fr:label>
 							<xforms:action ev:event="DOMActivate">
 								<!-- set action -->
 								<xforms:setvalue ref="instance('control-instance')/action">delete</xforms:setvalue>
@@ -430,8 +433,11 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 					<fr:alert-dialog id="reindex">
 						<fr:label>Reindex</fr:label>
 						<fr:message>Do you want to reindex the document into Solr and (optionally) the SPARQL endpoint?</fr:message>
-						<fr:negative-choice></fr:negative-choice>
+						<fr:negative-choice>
+							<fr:label>No</fr:label>
+						</fr:negative-choice>
 						<fr:positive-choice>
+							<fr:label>Yes</fr:label>
 							<xforms:action ev:event="DOMActivate">
 								<!-- set action -->
 								<xforms:setvalue ref="instance('control-instance')/action">update</xforms:setvalue>

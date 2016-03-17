@@ -13,14 +13,16 @@
 					<xsl:value-of select="/content/config/publisher"/>
 				</foaf:name>
 			</foaf:Organization>
-			<xsl:apply-templates select="//doc"/>
+			<xsl:apply-templates select="//doc[not(arr[@name='genre_uri']/str = 'http://vocab.getty.edu/aat/300265554')]"/>
 		</rdf:RDF>
 	</xsl:template>
 
 	<xsl:template match="doc">
 		<xsl:variable name="id" select="str[@name='id']"/>
+		<xsl:variable name="annotation" select="if (contains($id, '#')) then replace($id, '#', '/') else $id"/>
+		
 		<xsl:variable name="timestamp" select="date[@name='timestamp']"/>
-		<pelagios:AnnotatedThing rdf:about="{$url}pelagios.rdf#{$id}">
+		<pelagios:AnnotatedThing rdf:about="{$url}pelagios.rdf#{$annotation}">
 			<dcterms:title>
 				<xsl:value-of select="str[@name='title']"/>
 			</dcterms:title>
@@ -28,11 +30,14 @@
 			<xsl:for-each select="distinct-values(arr[@name='genre_uri']/str)">
 				<dcterms:type rdf:resource="{.}"/>
 			</xsl:for-each>
+			<xsl:apply-templates select="str[@name='isPartOf']">
+				<xsl:with-param name="doc" select="substring-before($id, '#')"/>
+			</xsl:apply-templates>
 		</pelagios:AnnotatedThing>
 		<xsl:for-each select="distinct-values(arr[@name='pleiades_uri']/str)">
-			<oa:Annotation rdf:about="{$url}pelagios.rdf#{$id}/annotations/{format-number(position(), '000')}">
+			<oa:Annotation rdf:about="{$url}pelagios.rdf#{$annotation}/annotations/{format-number(position(), '000')}">
 				<oa:hasBody rdf:resource="{.}#this"/>
-				<oa:hasTarget rdf:resource="{$url}pelagios.rdf#{$id}"/>
+				<oa:hasTarget rdf:resource="{$url}pelagios.rdf#{$annotation}"/>
 				<pelagios:relation rdf:resource="http://pelagios.github.io/vocab/relations#attestsTo"/>
 				<oa:annotatedBy rdf:resource="{$url}pelagios.rdf#agents/me"/>
 				<oa:annotatedAt rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">
@@ -40,5 +45,22 @@
 				</oa:annotatedAt>
 			</oa:Annotation>
 		</xsl:for-each>
+	</xsl:template>
+	
+	<xsl:template match="str[@name='isPartOf']">
+		<xsl:param name="doc"/>
+		
+		<dcterms:isPartOf>
+			<xsl:attribute name="rdf:resource">
+				<xsl:choose>
+					<xsl:when test="contains(., '#')">
+						<xsl:value-of select="concat($url, $id_space, '/', $doc, .)"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="concat($url, $id_space, '/', $doc)"/>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:attribute>
+		</dcterms:isPartOf>
 	</xsl:template>
 </xsl:stylesheet>

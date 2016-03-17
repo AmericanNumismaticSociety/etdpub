@@ -50,6 +50,7 @@
 			<field name="rights" update="add">
 				<xsl:value-of select="mods:accessCondition/@xlink:href"/>
 			</field>
+			<field name="primary" update="add">true</field>
 			<field name="oai_id" update="add">
 				<xsl:text>oai:</xsl:text>
 				<xsl:value-of select="doc('input:request')/request/server-name"/>

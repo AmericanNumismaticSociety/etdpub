@@ -53,48 +53,37 @@
 	</xsl:template>
 
 	<xsl:template match="tei:hi[not(parent::tei:head)]">
-		<xsl:choose>
-			<xsl:when test="@rend='bold'">
-				<strong>
-					<xsl:apply-templates/>
-				</strong>
-			</xsl:when>
-			<xsl:when test="@rend='italic'">
-				<i>
-					<xsl:apply-templates/>
-				</i>
-			</xsl:when>
-			<xsl:when test="@rend='sup'">
-				<sup>
-					<xsl:apply-templates/>
-				</sup>
-			</xsl:when>
-			<xsl:when test="@rend='sub'">
-				<sub>
-					<xsl:apply-templates/>
-				</sub>
-			</xsl:when>
-		</xsl:choose>
+		<span class="rend-{@rend}">
+			<xsl:apply-templates/>
+		</span>
 	</xsl:template>
 
 	<!--<xsl:template match="tei:pb">
 		<span class="page-number" id="page-{@n}">Page <xsl:value-of select="@n"/></span>
 	</xsl:template>-->
-	
+
 	<!-- name linking -->
 	<xsl:template match="tei:name[@corresp]">
 		<xsl:variable name="id" select="substring-after(@corresp, '#')"/>
 		<xsl:variable name="entity" as="element()*">
-			<xsl:copy-of select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id=$id]"/>
+			<xsl:copy-of
+				select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id=$id]"
+			/>
 		</xsl:variable>
-		
-		<a href="{$entity//tei:idno[@type='URI']}" title="{$entity//*[contains(local-name(), 'Name')]}" class="external-link">
-			<xsl:value-of select="."/>
-		</a>		
-	</xsl:template>
 
-	<!-- figures -->
-	<xsl:template match="tei:figure"/>
+		<xsl:choose>
+			<xsl:when test="string-length($entity//tei:idno[@type='URI']) &gt; 0">
+				<a href="{$entity//tei:idno[@type='URI']}"
+					title="{$entity//*[contains(local-name(), 'Name')]}" class="external-link">
+					<xsl:value-of select="."/>
+				</a>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="."/>
+			</xsl:otherwise>
+		</xsl:choose>
+		
+	</xsl:template>
 
 	<!-- tables and lists-->
 	<xsl:template match="tei:table">
@@ -170,31 +159,65 @@
 		</div>
 	</xsl:template>
 
+	<xsl:template match="tei:caption|tei:figDesc">
+		<div>
+			<xsl:apply-templates/>
+		</div>
+	</xsl:template>
+
 	<xsl:template match="tei:graphic">
 		<xsl:variable name="src" select="concat('images/', tokenize(@url, '/')[last()])"/>
 		<img src="{$src}" alt="figure"/>
 	</xsl:template>
-	
+
 	<!-- *********** TITLE PAGE *********** -->
-	<xsl:template match="tei:docTitle">
+	<xsl:template match="tei:docTitle" mode="titlePage">
 		<h1>
 			<xsl:apply-templates/>
 		</h1>
 	</xsl:template>
-	
-	<xsl:template match="tei:byline">
+
+	<xsl:template match="tei:byline" mode="titlePage">
 		<h2>
 			<xsl:apply-templates/>
 		</h2>
 	</xsl:template>
-	
-	<xsl:template match="tei:docImprint">
+
+	<xsl:template match="tei:docImprint" mode="titlePage">
 		<xsl:apply-templates/>
 	</xsl:template>
-	
-	<xsl:template match="tei:publisher|tei:pubPlace|tei:idno">
+
+	<xsl:template match="tei:publisher|tei:pubPlace|tei:idno" mode="titlePage">
 		<xsl:value-of select="."/>
 		<br/>
 	</xsl:template>
 	
+	<!-- bibl -->
+	<xsl:template match="tei:listBibl">
+		<xsl:apply-templates/>
+	</xsl:template>
+	
+	<xsl:template match="tei:bibl">
+		<xsl:choose>
+			<xsl:when test="parent::tei:listBibl">
+				<div class="bibl">
+					<xsl:call-template name="bibl"/>
+				</div>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:call-template name="bibl"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:template>
+	
+	<xsl:template name="bibl">
+		<xsl:apply-templates select="node()[not(tei:idno[@type='URI'])]"/>
+		<xsl:if test="tei:idno[@type='URI']">
+			<xsl:text> - </xsl:text>
+			<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}">
+				<xsl:value-of select="tei:idno[@type='URI']"/>
+			</a>
+		</xsl:if>
+	</xsl:template>
+
 </xsl:stylesheet>

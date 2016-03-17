@@ -109,7 +109,8 @@
 				<xsl:template match="/">
 					<config>
 						<base-directory>
-							<xsl:value-of select="concat('oxf:/apps/etdpub/media/', $basename)"/>
+							<!--<xsl:value-of select="concat('oxf:/apps/etdpub/media/reference/', $basename)"/>-->
+							<xsl:value-of select="concat('file:///usr/local/projects/etdpub/media/', $basename, '/reference')"/>
 						</base-directory>
 						<include>*.jpg</include>
 						<include>*.png</include>
@@ -165,7 +166,8 @@
 							<xsl:value-of select="concat('file:///tmp/', $basename, '.opf')"/>
 						</file>
 						<!-- CSS -->
-						<file name="OEBPS/css/style.css">oxf:/apps/etdpub/ui/css/epub.css</file>
+						<!--<file name="OEBPS/css/style.css">oxf:/apps/etdpub/ui/css/epub.css</file>-->
+						<file name="OEBPS/css/style.css">file:///usr/local/projects/etdpub/ui/css/epub.css</file>
 						<!-- directory-scan to include images -->
 						<xsl:for-each select="doc('input:scan')//file">
 							<file name="OEBPS/images/{@name}">

@@ -123,6 +123,31 @@ div#mapcontainer{
 .section-head{
 	letter-spacing:6px;
 }
-.small{
+.bibl {
+	margin:0 0 10px 10px;
+}
+/*REND*/
+.rend-smallcaps{
 	font-variant:small-caps;
+}
+.rend-hang{
+	padding-left:2em;
+	text-indent:-2em;
+}
+.rend-ul{
+	text-decoration:underline;
+}
+.rend-bold{
+	font-weight:bold;
+}
+.rend-italic{
+	font-style:italic;
+}
+.rend-sup{
+	vertical-align:super;
+	font-size:smaller;
+}
+.rend-sub{
+	vertical-align:sub;
+	font-size:smaller;
 }

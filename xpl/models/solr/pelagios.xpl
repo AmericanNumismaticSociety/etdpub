@@ -16,15 +16,13 @@
 				<!-- url params -->
 				<xsl:param name="q">pleiades_uri:*</xsl:param>
 				<xsl:param name="sort">timestamp desc</xsl:param>
-				<xsl:param name="start">0</xsl:param>
-				<xsl:param name="rows" as="xs:integer">100000</xsl:param>
-				<xsl:param name="fl">id,title,author,date,university,language,pleiades_uri,genre_uri,timestamp</xsl:param>
+				<xsl:param name="fl">id,title,author,date,university,language,pleiades_uri,genre_uri,isPartOf,timestamp</xsl:param>
 				
 				<!-- config variables -->
-				<xsl:variable name="solr-url" select="concat(/config/solr/url, 'select/')"/>
+				<xsl:variable name="solr-url" select="concat(/config/solr/url, 'pelagios/')"/>
 				
 				<xsl:variable name="service">
-					<xsl:value-of select="concat($solr-url, '?q=', encode-for-uri($q), '&amp;sort=', encode-for-uri($sort), '&amp;start=', $start, '&amp;rows=', $rows, '&amp;fl=', $fl)"/>
+					<xsl:value-of select="concat($solr-url, '?q=', encode-for-uri($q), '&amp;sort=', encode-for-uri($sort), '&amp;start=0&amp;fl=', $fl)"/>
 				</xsl:variable>
 				
 				<xsl:template match="/">
