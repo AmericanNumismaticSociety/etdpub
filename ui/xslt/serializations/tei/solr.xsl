@@ -67,6 +67,9 @@
 
 			<xsl:apply-templates select="tei:teiHeader/tei:fileDesc"/>
 			<xsl:apply-templates select="tei:teiHeader/tei:profileDesc"/>
+			
+			<!-- cover images, if applicable -->
+			<xsl:apply-templates select="descendant::tei:graphic[@url][1]"/>
 
 			<!-- fulltext -->
 			<field name="text">
@@ -149,6 +152,16 @@
 				</field>
 			</xsl:if>
 		</xsl:for-each>
+	</xsl:template>
+	
+	<!-- images -->
+	<xsl:template match="tei:graphic">		
+		<field name="thumbnail_image">
+			<xsl:value-of select="concat('media/', $docId, '/thumbnail/', @url)"/>
+		</field>
+		<field name="reference_image">
+			<xsl:value-of select="concat('media/', $docId, '/reference/', @url)"/>
+		</field>
 	</xsl:template>
 
 	<xsl:template match="tei:*[starts-with(local-name(), 'div')]">

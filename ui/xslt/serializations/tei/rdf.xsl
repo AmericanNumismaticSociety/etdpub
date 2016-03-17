@@ -35,7 +35,10 @@
 
 	<xsl:template match="tei:TEI">
 		<schema:Book rdf:about="{concat($uri_space, $id)}">
-			<xsl:apply-templates select="tei:teiHeader/tei:fileDesc"/>			
+			<xsl:apply-templates select="tei:teiHeader/tei:fileDesc"/>	
+			
+			<!-- insert images, if applicable -->
+			<xsl:apply-templates select="descendant::tei:graphic[@url][1]"/>
 		</schema:Book>
 
 		<!-- apply templates for each div -->
@@ -109,6 +112,12 @@
 	
 	<xsl:template match="tei:bibl[tei:idno[@type='URI']]">
 		<dcterms:source rdf:resource="{tei:idno[@type='URI']}"/>
+	</xsl:template>
+	
+	<!-- images -->
+	<xsl:template match="tei:graphic">
+		<foaf:thumbnail rdf:resource="{concat(/content/config/url, 'media/', $id, '/thumbnail/', @url)}"/>
+		<foaf:depiction rdf:resource="{concat(/content/config/url, 'media/', $id, '/reference/', @url)}"/>
 	</xsl:template>
 
 	<!-- child sections -->
