@@ -89,8 +89,12 @@
 	<!-- get names for facets -->
 	<xsl:template match="tei:profileDesc">
 		<xsl:for-each select="descendant::*[starts-with(local-name(), 'list')]/*">
-			<xsl:variable name="field"
-				select="if (parent::node()/local-name()='listPerson' or parent::node()/local-name()='listOrg') then 'name' else 'geographic'"/>
+			<xsl:variable name="field">
+				<xsl:choose>
+					<xsl:when test="parent::node()/local-name()='listPerson' or parent::node()/local-name()='listOrg'">name</xsl:when>
+					<xsl:when test="parent::node()/local-name()='listPlace'">geographic</xsl:when>
+				</xsl:choose>
+			</xsl:variable>
 
 			<field name="{$field}_facet">
 				<xsl:value-of select="*[contains(local-name(), 'Name')]"/>
@@ -115,6 +119,21 @@
 				</xsl:for-each>
 			</xsl:if>
 		</xsl:for-each>
+		
+		<xsl:apply-templates select="descendant::tei:term"/>
+	</xsl:template>
+
+	<xsl:template match="tei:term">
+		<xsl:variable name="field">field_of_numismatics</xsl:variable>
+		
+		<field name="{$field}_facet">
+			<xsl:value-of select="."/>
+		</field>
+		<xsl:if test="@ref">
+			<field name="{$field}_uri">
+				<xsl:value-of select="@ref"/>
+			</field>
+		</xsl:if>
 	</xsl:template>
 
 	<xsl:template match="tei:titleStmt">

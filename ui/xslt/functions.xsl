@@ -6,20 +6,18 @@
 	<xsl:function name="etdpub:normalize_fields">
 		<xsl:param name="field"/>
 		<xsl:choose>
-			<xsl:when test="$field = 'timestamp'">Date Record Modified</xsl:when>
-			<xsl:when test="$field = 'fulltext'">Keyword</xsl:when>
 			<xsl:when test="contains($field, '_uri')">
 				<xsl:variable name="name" select="substring-before($field, '_uri')"/>
-				<xsl:value-of select="concat(upper-case(substring($name, 1, 1)), substring($name, 2))"/>
+				<xsl:value-of select="etdpub:field_to_text($name)"/>
 				<xsl:text> URI</xsl:text>
 			</xsl:when>
 			<xsl:when test="contains($field, '_facet')">
 				<xsl:variable name="name" select="substring-before($field, '_facet')"/>
-				<xsl:value-of select="concat(upper-case(substring($name, 1, 1)), substring($name, 2))"/>
+				<xsl:value-of select="etdpub:field_to_text($name)"/>
 			</xsl:when>
 			<xsl:when test="contains($field, '_text')">
 				<xsl:variable name="name" select="substring-before($field, '_text')"/>
-				<xsl:value-of select="concat(upper-case(substring($name, 1, 1)), substring($name, 2))"/>
+				<xsl:value-of select="etdpub:field_to_text($name)"/>
 			</xsl:when>
 			<xsl:when test="contains($field, '_min') or contains($field, '_max')">
 				<xsl:variable name="name" select="substring-before($field, '_m')"/>
@@ -27,12 +25,24 @@
 			</xsl:when>
 			<xsl:when test="contains($field, '_display')">
 				<xsl:variable name="name" select="substring-before($field, '_display')"/>
-				<xsl:value-of select="concat(upper-case(substring($name, 1, 1)), substring($name, 2))"/>
+				<xsl:value-of select="etdpub:field_to_text($name)"/>
 			</xsl:when>
-			<xsl:when test="not(contains($field, '_'))">
+			<xsl:otherwise>
+				<xsl:value-of select="etdpub:field_to_text($field)"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:function>
+
+	<xsl:function name="etdpub:field_to_text">
+		<xsl:param name="field"/>
+
+		<xsl:choose>
+			<xsl:when test="$field = 'field_of_numismatics'">Field of Numismatics</xsl:when>
+			<xsl:when test="$field = 'timestamp'">Date Record Modified</xsl:when>
+			<xsl:when test="$field = 'fulltext'">Keyword</xsl:when>
+			<xsl:otherwise>
 				<xsl:value-of select="concat(upper-case(substring($field, 1, 1)), substring($field, 2))"/>
-			</xsl:when>
-			<xsl:otherwise>Undefined Category</xsl:otherwise>
+			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:function>
 

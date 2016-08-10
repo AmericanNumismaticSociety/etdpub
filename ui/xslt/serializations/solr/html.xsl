@@ -160,6 +160,7 @@
 				<facet type="doc">publisher_facet</facet>
 				<facet type="doc">series_facet</facet>
 				<!-- subjects -->
+				<facet type="subject">field_of_numismatics_facet</facet>
 				<facet type="subject">geographic_facet</facet>
 				<facet type="subject">name_facet</facet>
 				<facet type="subject">temporal_facet</facet>
