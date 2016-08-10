@@ -83,7 +83,7 @@
 
 	<!-- header metadata -->
 	<xsl:template match="tei:fileDesc">
-		<xsl:apply-templates select="tei:titleStmt|tei:publicationStmt"/>
+		<xsl:apply-templates select="tei:titleStmt|tei:seriesStmt|tei:publicationStmt"/>
 	</xsl:template>
 
 	<!-- get names for facets -->
@@ -121,10 +121,18 @@
 		<field name="title">
 			<xsl:value-of select="tei:title"/>
 		</field>
-		<field name="author">
-			<xsl:value-of select="string-join(tei:author/tei:name, ', ')"/>
-		</field>
-		<xsl:for-each select="tei:author">
+		<xsl:if test="tei:author">
+			<field name="author">
+				<xsl:value-of select="string-join(tei:author/tei:name, ', ')"/>
+			</field>
+		</xsl:if>
+		<xsl:if test="tei:editor">
+			<field name="editor">
+				<xsl:value-of select="string-join(tei:editor/tei:name, ', ')"/>
+			</field>
+		</xsl:if>
+		
+		<xsl:for-each select="tei:author|tei:editor">
 			<field name="creator_facet">
 				<xsl:value-of select="tei:name"/>
 			</field>
@@ -134,6 +142,25 @@
 				</field>
 			</xsl:if>
 		</xsl:for-each>
+	</xsl:template>
+
+	<xsl:template match="tei:seriesStmt">
+		<field name="series_facet">
+			<xsl:value-of select="tei:title"/>
+		</field>
+		<xsl:if test="tei:idno[@type='URI']">
+			<field name="series_uri">
+				<xsl:value-of select="tei:idno[@type='URI']"/>
+			</field>
+		</xsl:if>
+		
+		<xsl:apply-templates select="tei:biblScope"/>
+	</xsl:template>
+	
+	<xsl:template match="tei:biblScope">
+		<field name="{@unit}">
+			<xsl:value-of select="."/>
+		</field>
 	</xsl:template>
 
 	<xsl:template match="tei:publicationStmt">

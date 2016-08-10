@@ -51,7 +51,7 @@
 
 	<!-- header metadata about the whole document -->
 	<xsl:template match="tei:fileDesc">
-		<xsl:apply-templates select="tei:titleStmt|tei:publicationStmt|tei:sourceDesc"/>		
+		<xsl:apply-templates select="tei:titleStmt|tei:publicationStmt|tei:seriesStmt|tei:sourceDesc"/>		
 	</xsl:template>
 
 	<xsl:template match="tei:titleStmt">
@@ -70,6 +70,18 @@
 				</xsl:choose>
 			</dcterms:creator>
 		</xsl:for-each>
+		<xsl:for-each select="tei:editor">
+			<dcterms:contributor>
+				<xsl:choose>
+					<xsl:when test="tei:idno[@type='URI']">
+						<xsl:attribute name="rdf:resource" select="tei:idno[@type='URI']"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:value-of select="tei:name"/>
+					</xsl:otherwise>
+				</xsl:choose>
+			</dcterms:contributor>
+		</xsl:for-each>
 	</xsl:template>
 
 	<xsl:template match="tei:publicationStmt">
@@ -86,6 +98,19 @@
 				</xsl:choose>
 			</dcterms:publisher>
 		</xsl:for-each>
+	</xsl:template>
+	
+	<xsl:template match="tei:seriesStmt">
+		<dcterms:isPartOf>
+			<xsl:choose>
+				<xsl:when test="tei:idno[@type='URI']">
+					<xsl:attribute name="rdf:resource" select="tei:idno[@type='URI']"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:value-of select="tei:title"/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</dcterms:isPartOf>
 	</xsl:template>
 
 	<xsl:template match="tei:date">

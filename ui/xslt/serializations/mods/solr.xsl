@@ -160,6 +160,9 @@
 		<field name="volume_title" update="add">
 			<xsl:value-of select="mods:titleInfo/mods:title"/>
 		</field>
+		<field name="series_facet" update="add">
+			<xsl:value-of select="mods:titleInfo/mods:title"/>
+		</field>
 		<field name="date" update="add">
 			<xsl:value-of select="mods:part/mods:date"/>
 		</field>

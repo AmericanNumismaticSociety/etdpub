@@ -158,6 +158,7 @@
 				<facet type="doc">creator_facet</facet>
 				<facet type="doc">genre_facet</facet>
 				<facet type="doc">publisher_facet</facet>
+				<facet type="doc">series_facet</facet>
 				<!-- subjects -->
 				<facet type="subject">geographic_facet</facet>
 				<facet type="subject">name_facet</facet>
@@ -222,10 +223,18 @@
 
 	<xsl:template name="metadata">
 		<dl class="dl-horizontal">
-			<dt>Author</dt>
-			<dd>
-				<xsl:value-of select="str[@name='author']"/>
-			</dd>
+			<xsl:if test="str[@name='author']">
+				<dt>Author</dt>
+				<dd>
+					<xsl:value-of select="str[@name='author']"/>
+				</dd>
+			</xsl:if>
+			<xsl:if test="str[@name='editor']">
+				<dt>Editor</dt>
+				<dd>
+					<xsl:value-of select="str[@name='editor']"/>
+				</dd>
+			</xsl:if>
 			<dt>Date</dt>
 			<dd>
 				<xsl:value-of select="str[@name='date']"/>

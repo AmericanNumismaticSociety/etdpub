@@ -50,6 +50,7 @@
 	<field name="id" type="string" indexed="true" required="true" stored="true" multiValued="false"/>
 	<field name="title" type="string" indexed="true" stored="true"/>
 	<field name="author" type="string" indexed="true" stored="true" />
+	<field name="editor" type="string" indexed="true" stored="true" />
 	<field name="date" type="string" indexed="true" stored="true" />
 	<field name="university" type="string" indexed="true" stored="true" />
 	<field name="media_url" type="string" indexed="true" stored="true" />

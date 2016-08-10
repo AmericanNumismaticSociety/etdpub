@@ -63,7 +63,8 @@
 						<!-- document metadata-->
 						<facet>creator_facet</facet>
 						<facet>genre_facet</facet>						
-						<facet>publisher_facet</facet>						
+						<facet>publisher_facet</facet>
+						<facet>series_facet</facet>						
 						<!-- subjects -->
 						<facet>geographic_facet</facet>
 						<facet>name_facet</facet>
