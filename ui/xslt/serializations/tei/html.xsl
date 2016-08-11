@@ -237,7 +237,7 @@
 	<xsl:template match="tei:bibl" mode="header">
 		<dt>Source</dt>
 		<dd>
-			<xsl:value-of select="tei:seg"/>
+			<xsl:value-of select="tei:title"/>
 			<xsl:if test="tei:idno[@type='URI']">
 				<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="sameAs">
 					<span class="glyphicon glyphicon-new-window"/>
