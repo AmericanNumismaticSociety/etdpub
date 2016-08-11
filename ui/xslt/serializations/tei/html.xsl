@@ -260,13 +260,13 @@
 				<xsl:if test="local-name()='front' or local-name()='back'">
 					<small>
 						<a href="#" id="toggle-{local-name()}" class="toggle-btn">
-							<span class="glyphicon glyphicon-triangle-right"/>
+							<span class="glyphicon glyphicon-triangle-{if (local-name()='front') then 'right' else 'bottom'}"/>
 						</a>
 					</small>
 				</xsl:if>
 			</h2>
 			<section id="section-{local-name()}" epub:type="{local-name()}matter">
-				<xsl:if test="local-name()='front' or local-name()='back'">
+				<xsl:if test="local-name()='front'">
 					<xsl:attribute name="style">display:none</xsl:attribute>
 				</xsl:if>
 				<!-- call other content -->

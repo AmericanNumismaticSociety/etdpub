@@ -37,6 +37,11 @@
 						<xsl:apply-templates/>
 					</xsl:element>
 				</xsl:when>
+				<xsl:when test="parent::tei:figure">
+					<xsl:element name="h{number(substring(ancestor::*[starts-with(local-name(), 'div')][1]/local-name(), 4, 1)) + 1}">						
+						<xsl:apply-templates/>
+					</xsl:element>
+				</xsl:when>
 				<xsl:otherwise>
 					<span class="otherHead">
 						<xsl:apply-templates/>
