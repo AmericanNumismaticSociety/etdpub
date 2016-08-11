@@ -1,13 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:epub="http://www.idpf.org/2007/ops"
-	xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
 	exclude-result-prefixes="#all" version="2.0">
 
 	<xsl:template match="*[starts-with(local-name(), 'div')]">
 		<section epub:type="{@type}" id="{if (@xml:id) then @xml:id else generate-id()}">
-			<xsl:apply-templates/>
+			<!-- apply templates for all but notes -->
+			<xsl:apply-templates select="*[not(local-name()='note')]"/>
+
+			<xsl:if test="count(tei:note[@place]) &gt; 0">
+				<div>
+					<xsl:element name="h{number(substring-after(local-name(), 'div')) + 2}">
+						<xsl:text>End Notes</xsl:text>
+					</xsl:element>
+					<section epub:type="rearnotes" id="{@xml:id}-rearnotes">
+						<table class="table table-striped">
+							<tbody>
+								<xsl:apply-templates select="tei:note[@place]"/>
+							</tbody>
+						</table>
+					</section>
+				</div>
+			</xsl:if>
 			<xsl:if test="self::tei:div1">
 				<hr/>
 			</xsl:if>
@@ -19,8 +33,7 @@
 		<header>
 			<xsl:choose>
 				<xsl:when test="starts-with(parent::node()/local-name(), 'div')">
-					<xsl:element
-						name="h{number(substring-after(parent::node()/local-name(), 'div')) + 1}">
+					<xsl:element name="h{number(substring-after(parent::node()/local-name(), 'div')) + 1}">
 						<xsl:apply-templates/>
 					</xsl:element>
 				</xsl:when>
@@ -31,6 +44,15 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</header>
+	</xsl:template>
+
+	<xsl:template match="tei:note/tei:p">
+		<xsl:if test="@rend">
+			<xsl:attribute name="class" select="concat('rend-', @rend)"/>
+		</xsl:if>
+		<seg>
+			<xsl:apply-templates/>
+		</seg>
 	</xsl:template>
 
 	<xsl:template match="tei:p">
@@ -69,7 +91,7 @@
 		<xsl:apply-templates select="node()[not(tei:idno[@type='URI'])]"/>
 		<xsl:if test="tei:idno[@type='URI']">
 			<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link">
-				<img src="{$display_path}ui/images/external.png" alt="External Link"/>
+				<span class="glyphicon glyphicon-new-window"/>
 			</a>
 		</xsl:if>
 	</xsl:template>
@@ -156,27 +178,37 @@
 	<!-- linking -->
 	<xsl:template match="tei:ref">
 		<a href="{@target}">
+			<!-- superscript note links -->
+			<xsl:if test="contains(@target, '#')">
+				<xsl:attribute name="class">rend-sup</xsl:attribute>
+			</xsl:if>
 			<xsl:apply-templates/>
 		</a>
 	</xsl:template>
 
-	<!-- suppress footnotes from the body -->
-	<xsl:template match="tei:note[@place]"/>
+	<xsl:template match="tei:note[@place]">
+		<tr id="{@xml:id}">
+			<td>
+				<xsl:apply-templates select="tei:seg[@type='note-symbol']"/>
+			</td>
+			<td>
+				<xsl:apply-templates select="*[not(self::tei:seg)]"/>
+			</td>
 
-	<xsl:template match="tei:note[@place]" mode="endnote">
-		<li>
-			<a id="{@xml:id}"/>
+		</tr>
+	</xsl:template>
+	
+	<xsl:template match="tei:seg[@type='note-symbol']">
+		<span class="rend-sup">
 			<xsl:apply-templates/>
-		</li>
+		</span>
 	</xsl:template>
 
 	<!-- name linking -->
 	<xsl:template match="tei:name[@corresp]">
 		<xsl:variable name="id" select="substring-after(@corresp, '#')"/>
 		<xsl:variable name="entity" as="element()*">
-			<xsl:copy-of
-				select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id=$id]"
-			/>
+			<xsl:copy-of select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id=$id]"/>
 		</xsl:variable>
 
 		<xsl:choose>
@@ -185,9 +217,8 @@
 					href="{$display_path}results?q={if (@type='pname' or @type='cname') then 'name' else if (@type='period') then 'period' else 'place'}_facet:&#x022;{$entity//tei:*[contains(local-name(), 'Name')]}&#x022;">
 					<xsl:value-of select="."/>
 				</a>
-				<a href="{$entity//tei:idno[@type='URI']}"
-					title="{$entity//*[contains(local-name(), 'Name')]}" class="external-link">
-					<img src="{$display_path}ui/images/external.png" alt="External Link"/>
+				<a href="{$entity//tei:idno[@type='URI']}" title="{$entity//*[contains(local-name(), 'Name')]}" class="external-link">
+					<span class="glyphicon glyphicon-new-window"/>
 				</a>
 			</xsl:when>
 			<xsl:otherwise>
@@ -203,7 +234,7 @@
 			<xsl:apply-templates/>
 		</div>
 	</xsl:template>
-	
+
 	<xsl:template match="tei:figDesc|tei:caption">
 		<div class="text-center text-muted">
 			<xsl:apply-templates/>
@@ -229,19 +260,18 @@
 			<xsl:when test="matches(@url, 'https?://')">
 				<img src="{@url}" alt="figure" class="img-rounded" title="{$title}"/>
 			</xsl:when>
-			<xsl:otherwise>				
+			<xsl:otherwise>
 				<a class="thumbImage" rel="gallery" href="{concat($display_path, 'media/', $id, '/archive/', @url)}" title="{$title}">
 					<img src="{concat($display_path, 'media/', $id, '/reference/', @url)}" class="img-rounded" alt="figure"/>
 				</a>
 			</xsl:otherwise>
 		</xsl:choose>
-		
+
 	</xsl:template>
 
 	<!-- *********** TITLE PAGE *********** -->
 	<xsl:template match="tei:titlePage">
-		<section epub:type="titlepage" id="{if (@xml:id) then @xml:id else generate-id()}"
-			class="text-center">
+		<section epub:type="titlepage" id="{if (@xml:id) then @xml:id else generate-id()}" class="text-center">
 			<xsl:apply-templates mode="titlePage"/>
 			<hr/>
 		</section>

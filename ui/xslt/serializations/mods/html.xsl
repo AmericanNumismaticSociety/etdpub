@@ -98,7 +98,7 @@
 								<xsl:value-of select="mods:namePart"/>
 								<xsl:if test="@valueURI">
 									<a href="{@valueURI}" title="{@valueURI}" class="external-link">
-										<img src="{$display_path}ui/images/external.png" alt="External Link"/>
+										<span class="glyphicon glyphicon-new-window"/>
 									</a>
 								</xsl:if>
 							</dd>
@@ -277,7 +277,7 @@
 							<xsl:attribute name="itemprop">about</xsl:attribute>
 						</xsl:otherwise>
 					</xsl:choose>
-					<img src="{$display_path}ui/images/external.png" alt="External Link"/>
+					<span class="glyphicon glyphicon-new-window"/>
 				</a>
 			</xsl:if>
 		</li>

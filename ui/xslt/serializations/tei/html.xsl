@@ -134,22 +134,6 @@
 			<div class="row">
 				<div class="col-md-12">
 					<xsl:apply-templates select="tei:text"/>
-
-					<!-- endnotes -->
-					<xsl:if test="count(tei:text/descendant::tei:note[@place]) &gt; 0">
-						<div>
-							<h2>End Notes<small>
-									<a href="#" id="toggle-rearnotes" class="toggle-btn">
-										<span class="glyphicon glyphicon-triangle-right"/>
-									</a>
-								</small></h2>
-							<section epub:type="rearnotes" style="display:none" id="section-rearnotes">
-								<ul>
-									<xsl:apply-templates select="tei:text/descendant::tei:note[@place]" mode="endnote"/>
-								</ul>
-							</section>
-						</div>
-					</xsl:if>
 				</div>
 			</div>
 		</div>
@@ -164,27 +148,62 @@
 	<xsl:template match="tei:teiHeader">
 		<dl class="dl-horizontal">
 			<xsl:apply-templates select="tei:fileDesc/tei:titleStmt"/>
+			<xsl:apply-templates select="tei:fileDesc/tei:seriesStmt"/>
 			<xsl:apply-templates select="tei:fileDesc/tei:publicationStmt"/>
 			<xsl:apply-templates select="tei:fileDesc/tei:sourceDesc/tei:bibl" mode="header"/>
 		</dl>
 	</xsl:template>
 
 	<xsl:template match="tei:titleStmt">
-		<dt>Author</dt>
-		<dd>
-			<xsl:for-each select="tei:author">
-				<a href="{$display_path}results?q=creator_facet:&#x022;{tei:name}&#x022;">
-					<xsl:value-of select="tei:name"/>
-				</a>
-				<xsl:if test="tei:idno[@type='URI']">
-					<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="author">
-						<img src="{$display_path}ui/images/external.png" alt="External Link"/>
+		<xsl:if test="tei:author">
+			<dt>Author</dt>
+			<dd>
+				<xsl:for-each select="tei:author">
+					<a href="{$display_path}results?q=creator_facet:&#x022;{tei:name}&#x022;">
+						<xsl:value-of select="tei:name"/>
 					</a>
-				</xsl:if>
-				<xsl:if test="not(position()=last())">
-					<xsl:text>, </xsl:text>
-				</xsl:if>
-			</xsl:for-each>
+					<xsl:if test="tei:idno[@type='URI']">
+						<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="author">
+							<span class="glyphicon glyphicon-new-window"/>
+						</a>
+					</xsl:if>
+					<xsl:if test="not(position()=last())">
+						<xsl:text>, </xsl:text>
+					</xsl:if>
+				</xsl:for-each>
+			</dd>
+		</xsl:if>
+		<xsl:if test="tei:editor">
+			<dt>Editor</dt>
+			<dd>
+				<xsl:for-each select="tei:editor">
+					<a href="{$display_path}results?q=creator_facet:&#x022;{tei:name}&#x022;">
+						<xsl:value-of select="tei:name"/>
+					</a>
+					<xsl:if test="tei:idno[@type='URI']">
+						<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="author">
+							<span class="glyphicon glyphicon-new-window"/>
+						</a>
+					</xsl:if>
+					<xsl:if test="not(position()=last())">
+						<xsl:text>, </xsl:text>
+					</xsl:if>
+				</xsl:for-each>
+			</dd>
+		</xsl:if>
+	</xsl:template>
+	
+	<xsl:template match="tei:seriesStmt">
+		<dt>Series</dt>
+		<dd>			
+			<a href="{$display_path}results?q=series_facet:&#x022;{tei:title}&#x022;">
+				<xsl:value-of select="tei:title"/>
+			</a>
+			<xsl:if test="tei:idno[@type='URI']">
+				<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="isPartOf">
+					<span class="glyphicon glyphicon-new-window"/>
+				</a>
+			</xsl:if>
 		</dd>
 	</xsl:template>
 
@@ -197,7 +216,7 @@
 				</a>
 				<xsl:if test="tei:idno[@type='URI']">
 					<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="publisher">
-						<img src="{$display_path}ui/images/external.png" alt="External Link"/>
+						<span class="glyphicon glyphicon-new-window"/>
 					</a>
 				</xsl:if>
 				<xsl:if test="not(position()=last())">
@@ -221,7 +240,7 @@
 			<xsl:value-of select="tei:seg"/>
 			<xsl:if test="tei:idno[@type='URI']">
 				<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="sameAs">
-					<img src="{$display_path}ui/images/external.png" alt="External Link"/>
+					<span class="glyphicon glyphicon-new-window"/>
 				</a>
 			</xsl:if>
 		</dd>
