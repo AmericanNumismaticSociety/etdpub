@@ -3,6 +3,7 @@
   GLOBAL
   ****************************************
  */
+  @import url(//fonts.googleapis.com/css?family=Cuprum&#038;subset=latin);
 html{
 	background-image:url("http://numismatics.org/authorities/ui/images/pattern.gif");
 	background-color:#F8F8F8;
@@ -13,7 +14,7 @@ html{
 body{
 	color:#535e70;
 	background-image:url("http://numismatics.org/authorities/ui/images/pattern.gif");
-	font-family:Georgia, "Times New Roman", Times, serif;
+	font-family: Arial,Helvetica,sans-serif;
 	font-size:14px;
 	line-height:18px;
 }
@@ -39,6 +40,18 @@ body{
 }
 .table-dl td{
 	padding:5px;
+}
+h1, h2, h3, h4, h5, h6 {
+	color: #434343;	
+	font-family: Cuprum, sans-serif;
+}
+a {
+	color: #e64100;
+	text-decoration:none;
+}
+a:hover, a:focus {
+	color: #535e70;
+	text-decoration:underline
 }
 /*
   ***************************************
