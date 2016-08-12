@@ -58,7 +58,7 @@
 	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.ncx" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/tei/ncx.xpl"/>
 	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.epub" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/tei/epub.xpl"/>
 	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.rdf" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/object/rdf.xpl"/>
-	<page path="/etdpub/ark:/([0-9]{5})/(.*)/pdf" view="xpl/models/object/get-id.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)/pdf" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/tei/pdf.xpl"/>
 	<page path="/etdpub/ark:/([0-9]{5})/(.*)" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/object/html.xpl"/>
 
 	<!-- **** AJAX **** -->
