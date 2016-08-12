@@ -42,22 +42,24 @@
 	<page path="/etdpub/oai/" model="xpl/models/solr/oai-pmh.xpl" view="xpl/views/serializations/solr/oai-pmh.xpl"/>
 	
 	<!-- ID -->
-	<page path="/etdpub/id/(.*)\.xml" view="xpl/models/mods/get-id.xpl"/>
-	<page path="/etdpub/id/(.*)\.solr" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/solr.xpl"/>
-	<page path="/etdpub/id/(.*)\.opf" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/opf.xpl"/>
-	<page path="/etdpub/id/(.*)\.ncx" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/ncx.xpl"/>
-	<page path="/etdpub/id/(.*)\.epub" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/epub.xpl"/>
-	<page path="/etdpub/id/(.*)\.rdf" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/rdf.xpl"/>	
-	<page path="/etdpub/id/(.*)" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/html.xpl"/>
+	<page path="/etdpub/id/(.*)\.xml" view="xpl/models/object/get-id.xpl"/>
+	<page path="/etdpub/id/(.*)\.solr" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/object/solr.xpl"/>
+	<page path="/etdpub/id/(.*)\.opf" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/tei/opf.xpl"/>
+	<page path="/etdpub/id/(.*)\.ncx" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/tei/ncx.xpl"/>
+	<page path="/etdpub/id/(.*)\.epub" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/tei/epub.xpl"/>
+	<page path="/etdpub/id/(.*)/pdf" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/tei/pdf.xpl"/>
+	<page path="/etdpub/id/(.*)\.rdf" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/object/rdf.xpl"/>	
+	<page path="/etdpub/id/(.*)" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/object/html.xpl"/>
 
 	<!-- ARK -->
-	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.xml" view="xpl/models/mods/get-id.xpl"/>	
-	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.solr" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/solr.xpl"/>
-	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.opf" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/opf.xpl"/>
-	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.ncx" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/ncx.xpl"/>
-	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.epub" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/tei/epub.xpl"/>
-	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.rdf" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/rdf.xpl"/>
-	<page path="/etdpub/ark:/([0-9]{5})/(.*)" model="xpl/models/mods/get-id.xpl" view="xpl/views/serializations/object/html.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.xml" view="xpl/models/object/get-id.xpl"/>	
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.solr" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/object/solr.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.opf" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/tei/opf.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.ncx" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/tei/ncx.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.epub" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/tei/epub.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)\.rdf" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/object/rdf.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)/pdf" view="xpl/models/object/get-id.xpl"/>
+	<page path="/etdpub/ark:/([0-9]{5})/(.*)" model="xpl/models/object/get-id.xpl" view="xpl/views/serializations/object/html.xpl"/>
 
 	<!-- **** AJAX **** -->
 	<!-- facet results -->

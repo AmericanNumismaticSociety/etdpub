@@ -55,9 +55,9 @@
 		<xsl:if test="@rend">
 			<xsl:attribute name="class" select="concat('rend-', @rend)"/>
 		</xsl:if>
-		<seg>
+		<span>
 			<xsl:apply-templates/>
-		</seg>
+		</span>
 	</xsl:template>
 
 	<xsl:template match="tei:p">
@@ -110,9 +110,6 @@
 	<!--<xsl:template match="tei:pb">
 		<span class="page-number" id="page-{@n}">Page <xsl:value-of select="@n"/></span>
 	</xsl:template>-->
-
-	<!-- figures -->
-	<xsl:template match="tei:figure"/>
 
 	<!-- tables and lists-->
 	<xsl:template match="tei:table">
