@@ -162,7 +162,9 @@ div#mapcontainer{
 .bibl{
 	margin:0 0 10px 1em;
 }
-
+blockquote {
+	font-size:smaller;
+}
 /*REND*/
 .rend-smallcaps{
 	font-variant:small-caps;

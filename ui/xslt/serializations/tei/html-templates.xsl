@@ -270,6 +270,32 @@
 		</xsl:choose>
 
 	</xsl:template>
+	
+	<!-- *********** QUOTED LETTERS *********** -->
+	<xsl:template match="tei:floatingText">
+		<blockquote>
+			<xsl:apply-templates select="descendant::tei:div"/>
+		</blockquote>
+	</xsl:template>
+	
+	<xsl:template match="tei:opener|tei:closer">
+		<p>
+			<xsl:if test="self::tei:closer">
+				<xsl:attribute name="class">text-right</xsl:attribute>
+			</xsl:if>
+			<xsl:apply-templates/>
+		</p>
+	</xsl:template>
+	
+	<xsl:template match="tei:dateline|tei:salute|tei:signed">
+		<xsl:apply-templates/>
+		<br/>
+	</xsl:template>
+	
+	<xsl:template match="tei:dateline/tei:date">
+		<br/>
+		<xsl:apply-templates/>
+	</xsl:template>
 
 	<!-- *********** TITLE PAGE *********** -->
 	<xsl:template match="tei:titlePage">

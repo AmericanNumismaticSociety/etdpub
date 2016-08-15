@@ -16,15 +16,14 @@
 	</xsl:variable>
 	<xsl:variable name="id" select="/content/tei:TEI/@xml:id"/>
 
-
 	<xsl:template match="/">
 		<xsl:apply-templates select="//tei:TEI"/>
 	</xsl:template>
 
 	<xsl:template match="tei:TEI">
-		<fo:root font-size="12px" font-family="'times new roman', times, serif">
+		<fo:root xsl:use-attribute-sets="doc-font">
 			<fo:layout-master-set>
-				<fo:simple-page-master margin-right="1in" margin-left="1in" margin-bottom="1in" margin-top="1in" page-width="8in" page-height="11in" master-name="content">
+				<fo:simple-page-master xsl:use-attribute-sets="layout" master-name="content">
 					<fo:region-body region-name="body" margin-bottom=".5in"/>
 					<fo:region-after region-name="footer" extent=".5in"/>
 				</fo:simple-page-master>
@@ -34,7 +33,7 @@
 					<xsl:value-of select="//tei:titleStmt/tei:title"/>
 				</fo:title>
 				<fo:static-content flow-name="footer">
-					<fo:block font-size="85%" text-align="center">
+					<fo:block font-size="smaller" text-align="center">
 						<fo:page-number/>
 					</fo:block>
 				</fo:static-content>
@@ -56,7 +55,10 @@
 
 
 	<xsl:template match="*[starts-with(local-name(), 'div')]">
-		<fo:block margin-bottom="10px;">
+		<fo:block>
+			<xsl:if test="self::tei:div1">
+				<xsl:attribute name="page-break-after">always</xsl:attribute>
+			</xsl:if>
 			<xsl:choose>
 				<xsl:when test="(parent::tei:front and following::tei:titlePage) or self::tei:titlePage">
 					<xsl:attribute name="text-align">center</xsl:attribute>
@@ -66,11 +68,12 @@
 					<xsl:attribute name="text-align">justify</xsl:attribute>
 				</xsl:otherwise>
 			</xsl:choose>
+
+			<xsl:apply-templates select="*[not(local-name()='note')]"/>
 			
-			<xsl:apply-templates/>
-			<xsl:if test="self::tei:div1">
+			<!--<xsl:if test="self::tei:div1">
 				<fo:block page-break-before="always"/>
-			</xsl:if>
+			</xsl:if>-->
 		</fo:block>
 	</xsl:template>
 
@@ -79,27 +82,11 @@
 			<xsl:choose>
 				<xsl:when test="starts-with(parent::node()/local-name(), 'div')">
 					<xsl:variable name="level" select="number(substring-after(parent::node()/local-name(), 'div'))"/>
-
-					<xsl:choose>
-						<xsl:when test="$level=1">32</xsl:when>
-						<xsl:when test="$level=2">28</xsl:when>
-						<xsl:when test="$level=3">24</xsl:when>
-						<xsl:when test="$level=4">20</xsl:when>
-						<xsl:when test="$level=5">16</xsl:when>
-						<xsl:when test="$level=6">14</xsl:when>
-					</xsl:choose>
+					<xsl:value-of select="etdpub:font-size($level)"/>
 				</xsl:when>
 				<xsl:when test="parent::tei:figure">
 					<xsl:variable name="level" select="number(substring(ancestor::*[starts-with(local-name(), 'div')][1]/local-name(), 4, 1))"/>
-
-					<xsl:choose>
-						<xsl:when test="$level=1">32</xsl:when>
-						<xsl:when test="$level=2">28</xsl:when>
-						<xsl:when test="$level=3">24</xsl:when>
-						<xsl:when test="$level=4">20</xsl:when>
-						<xsl:when test="$level=5">16</xsl:when>
-						<xsl:when test="$level=6">14</xsl:when>
-					</xsl:choose>
+					<xsl:value-of select="etdpub:font-size($level)"/>
 				</xsl:when>
 				<xsl:otherwise>16</xsl:otherwise>
 			</xsl:choose>
@@ -114,14 +101,14 @@
 	</xsl:template>
 
 	<xsl:template match="tei:byline">
-		<fo:block text-align="center" margin-bottom="10px">
+		<fo:block text-align="center" xsl:use-attribute-sets="p">
 			<xsl:apply-templates/>
 		</fo:block>
 	</xsl:template>
 
 	<xsl:template match="tei:p">
-		<fo:block margin-bottom="10px">
-			<xsl:apply-templates select="node()|@*"/>
+		<fo:block xsl:use-attribute-sets="p">
+			<xsl:apply-templates select="node()|@rend"/>
 		</fo:block>
 	</xsl:template>
 
@@ -137,7 +124,7 @@
 
 	<!--  quotes -->
 	<xsl:template match="tei:quote">
-		<fo:block space-before="6pt" space-after="6pt" margin-left="2em" margin-right="2em" margin-bottom="10px">
+		<fo:block xsl:use-attribute-sets="blockquote">
 			<xsl:apply-templates select="node()[not(local-name()='figure')]"/>
 			<xsl:apply-templates select="tei:figure"/>
 		</fo:block>
@@ -152,7 +139,7 @@
 
 	<!-- address -->
 	<xsl:template match="tei:address">
-		<fo:block margin-bottom="10px">
+		<fo:block xsl:use-attribute-sets="p">
 			<xsl:for-each select="tei:addrLine">
 				<xsl:value-of select="."/>
 				<fo:block/>
@@ -164,7 +151,7 @@
 	<xsl:template match="tei:table">
 		<xsl:choose>
 			<xsl:when test="tei:head">
-				<fo:table-and-caption>
+				<fo:table-and-caption xsl:use-attribute-sets="p">
 					<fo:table-caption>
 						<xsl:apply-templates select="tei:head"/>
 					</fo:table-caption>
@@ -176,7 +163,7 @@
 				</fo:table-and-caption>
 			</xsl:when>
 			<xsl:otherwise>
-				<fo:table margin-bottom="10px">
+				<fo:table xsl:use-attribute-sets="p" table-layout="">
 					<fo:table-body>
 						<xsl:apply-templates select="tei:row"/>
 					</fo:table-body>
@@ -194,25 +181,32 @@
 	<xsl:template match="tei:cell">
 		<fo:table-cell>
 			<fo:block>
-				<xsl:apply-templates/>
+				<xsl:apply-templates select="node()|@rend"/>
 			</fo:block>
 		</fo:table-cell>
 	</xsl:template>
 
 	<xsl:template match="tei:list">
-		<fo:list-block>
+		<fo:list-block xsl:use-attribute-sets="p">
 			<xsl:apply-templates/>
 		</fo:list-block>
 	</xsl:template>
 
 	<xsl:template match="tei:item">
-		<fo:list-item>
-			<fo:list-item-label end-indent="label-end()">
-				<fo:block>•</fo:block>
-			</fo:list-item-label>
-			<fo:list-item-body>
+		<fo:list-item space-after="0.5ex">
+			<fo:list-item-label start-indent="1em">
 				<fo:block>
-					<xsl:apply-templates select="node()|@*"/>
+					<xsl:choose>
+						<xsl:when test="@n">
+							<xsl:value-of select="@n"/>
+						</xsl:when>
+						<xsl:otherwise>•</xsl:otherwise>
+					</xsl:choose>
+				</fo:block>
+			</fo:list-item-label>
+			<fo:list-item-body start-indent="2em">
+				<fo:block>
+					<xsl:apply-templates select="node()|@rend"/>
 				</fo:block>
 			</fo:list-item-body>
 		</fo:list-item>
@@ -238,38 +232,48 @@
 	</xsl:template>
 
 	<xsl:template match="tei:ref">
-		<fo:basic-link color="blue" text-decoration="underline">
-			<xsl:choose>
-				<xsl:when test="contains(@target, '#')">
-					<xsl:attribute name="internal-destination" select="substring-after(@target, '#')"/>
-
-
-				</xsl:when>
-				<xsl:otherwise>
+		<xsl:choose>
+			<xsl:when test="contains(@target, '#')">
+				<xsl:variable name="noteId" select="substring-after(@target, '#')"/>
+				
+				<xsl:apply-templates select="//tei:note[@xml:id=$noteId]" mode="footnote"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<fo:basic-link color="blue" text-decoration="underline">
 					<xsl:attribute name="external-destination">
 						<xsl:value-of select="concat('url(', @target, ')')"/>
 					</xsl:attribute>
-				</xsl:otherwise>
-			</xsl:choose>
-		</fo:basic-link>
+					<xsl:value-of select="."/>
+				</fo:basic-link>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 
 	<!-- footnote -->
-	<xsl:template match="tei:note[@place='foot']">
+	<xsl:template match="tei:note" mode="footnote">
 		<fo:footnote>
-			<fo:inline font-size="75%" baseline-shift="super">
-				<xsl:value-of select="tei:seg[@type='note-symbol']"/>
+			<fo:inline>
+				<xsl:attribute name="baseline-shift">sup</xsl:attribute>
+				<xsl:attribute name="font-size">10px</xsl:attribute>
+				<xsl:value-of select="."/>
 			</fo:inline>
-			<fo:footnote-body font-size="75%" font-weight="normal" font-style="normal" text-align="justify" margin-left="0pc">
-				<fo:block>
-					<fo:inline font-size="75%" baseline-shift="super">
-						<xsl:value-of select="tei:seg[@type='note-symbol']"/>
+			<fo:footnote-body>
+				<fo:block xsl:use-attribute-sets="smaller">
+					<fo:inline>
+						<xsl:attribute name="baseline-shift">super</xsl:attribute>							
+						<xsl:apply-templates select="tei:seg[@type='note-symbol']"/>
 					</fo:inline>
-					<xsl:apply-templates select="*[not(self::tei:seg[@type='note-symbol'])]"/>
-				</fo:block>
+					<xsl:apply-templates select="tei:p" mode="footnote"/>
+				</fo:block>		
 			</fo:footnote-body>
 		</fo:footnote>
 	</xsl:template>
+	
+	<xsl:template match="tei:p" mode="footnote">
+		<xsl:apply-templates/>
+	</xsl:template>
+	
+	
 
 	<!-- figure images -->
 	<xsl:template match="tei:figure">
@@ -278,26 +282,13 @@
 		</fo:block>
 	</xsl:template>
 
-	<xsl:template match="tei:figDesc|tei:caption">
-		<fo:block color="gray">
+	<xsl:template match="tei:figDesc|tei:caption|tei:figure/tei:p">
+		<fo:block xsl:use-attribute-sets="smaller">
 			<xsl:apply-templates/>
 		</fo:block>
 	</xsl:template>
 
 	<xsl:template match="tei:graphic">
-		<xsl:variable name="title">
-			<xsl:choose>
-				<xsl:when test="parent::tei:figure/tei:figureDesc">
-					<xsl:value-of select="normalize-space(parent::tei:figure/tei:figureDesc)"/>
-				</xsl:when>
-				<xsl:when test="parent::tei:figure/tei:p">
-					<xsl:value-of select="normalize-space(parent::tei:figure/tei:p[1])"/>
-				</xsl:when>
-				<xsl:when test="parent::tei:figure/@n">
-					<xsl:value-of select="parent::tei:figure/@n"/>
-				</xsl:when>
-			</xsl:choose>
-		</xsl:variable>
 
 		<xsl:choose>
 			<xsl:when test="matches(@url, 'https?://')">
@@ -310,6 +301,33 @@
 
 	</xsl:template>
 
+	<!-- *********** QUOTED LETTERS *********** -->
+	<xsl:template match="tei:floatingText">
+		<fo:block xsl:use-attribute-sets="blockquote">
+			<xsl:apply-templates select="descendant::tei:div"/>
+		</fo:block>
+	</xsl:template>
+
+	<xsl:template match="tei:opener|tei:closer">
+		<fo:block xsl:use-attribute-sets="p">
+			<xsl:if test="self::tei:closer">
+				<xsl:attribute name="text-align">right</xsl:attribute>
+			</xsl:if>
+			<xsl:apply-templates/>
+		</fo:block>
+	</xsl:template>
+
+	<xsl:template match="tei:dateline|tei:salute|tei:signed">
+		<xsl:apply-templates/>
+		<fo:block/>
+	</xsl:template>
+
+	<xsl:template match="tei:dateline/tei:date">
+		<fo:block/>
+		<xsl:apply-templates/>
+	</xsl:template>
+
+	<!-- GENERIC RENDERING -->
 	<xsl:template match="@rend">
 		<xsl:choose>
 			<xsl:when test=". = 'hang'">
@@ -329,12 +347,12 @@
 				<xsl:attribute name="font-style">italic</xsl:attribute>
 			</xsl:when>
 			<xsl:when test=". = 'sup'">
-				<xsl:attribute name="vertical-align">sup</xsl:attribute>
-				<xsl:attribute name="font-size">smaller</xsl:attribute>
+				<xsl:attribute name="baseline-shift">super</xsl:attribute>
+				<xsl:attribute name="font-size">10px</xsl:attribute>
 			</xsl:when>
 			<xsl:when test=". = 'sub'">
-				<xsl:attribute name="vertical-align">sub</xsl:attribute>
-				<xsl:attribute name="font-size">smaller</xsl:attribute>
+				<xsl:attribute name="baseline-shift">sub</xsl:attribute>
+				<xsl:attribute name="font-size">10px</xsl:attribute>
 			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
@@ -348,13 +366,13 @@
 	</xsl:template>
 
 	<xsl:template match="tei:docTitle" mode="titlePage">
-		<fo:block font-size="32" font-weight="bold">
+		<fo:block font-size="28" font-weight="bold">
 			<xsl:apply-templates/>
 		</fo:block>
 	</xsl:template>
 
 	<xsl:template match="tei:byline" mode="titlePage">
-		<fo:block font-size="28" font-weight="bold">
+		<fo:block font-size="24" font-weight="bold">
 			<xsl:apply-templates/>
 		</fo:block>
 	</xsl:template>
@@ -371,4 +389,41 @@
 	<!-- suppress cover -->
 	<xsl:template match="tei:div1[@type='cover']"/>
 
+	<!-- ************* FUNCTIONS ************** -->
+	<xsl:function name="etdpub:font-size">
+		<xsl:param name="level"/>
+
+		<xsl:choose>
+			<xsl:when test="$level=1">28</xsl:when>
+			<xsl:when test="$level=2">24</xsl:when>
+			<xsl:when test="$level=3">20</xsl:when>
+			<xsl:when test="$level=4">16</xsl:when>
+			<xsl:when test="$level=5">14</xsl:when>
+			<xsl:when test="$level=6">12</xsl:when>
+		</xsl:choose>
+	</xsl:function>
+
+	<!-- ************* ATTRIBUTE SETS ************** -->
+	<xsl:attribute-set name="doc-font">
+		<xsl:attribute name="font-family">Times, "Times New Roman", Georgia, serif;</xsl:attribute>
+		<xsl:attribute name="font-size">11px</xsl:attribute>
+	</xsl:attribute-set>
+	<xsl:attribute-set name="layout">
+		<xsl:attribute name="margin">1in</xsl:attribute>
+		<xsl:attribute name="page-width">8.5in</xsl:attribute>
+		<xsl:attribute name="page-height">11in</xsl:attribute>
+	</xsl:attribute-set>
+	<xsl:attribute-set name="p">
+		<xsl:attribute name="margin-bottom">10px</xsl:attribute>
+	</xsl:attribute-set>
+	<xsl:attribute-set name="blockquote">
+		<xsl:attribute name="space-before">10px</xsl:attribute>
+		<xsl:attribute name="space-after">10px</xsl:attribute>
+		<xsl:attribute name="margin-left">2em</xsl:attribute>
+		<xsl:attribute name="margin-right">2em</xsl:attribute>
+		<xsl:attribute name="font-size">smaller</xsl:attribute>
+	</xsl:attribute-set>
+	<xsl:attribute-set name="smaller">
+		<xsl:attribute name="font-size">10px</xsl:attribute>
+	</xsl:attribute-set>
 </xsl:stylesheet>
