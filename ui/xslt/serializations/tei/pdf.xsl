@@ -23,22 +23,79 @@
 	<xsl:template match="tei:TEI">
 		<fo:root xsl:use-attribute-sets="doc-font">
 			<fo:layout-master-set>
+				<fo:simple-page-master xsl:use-attribute-sets="layout" master-name="metadata">
+					<fo:region-body region-name="xsl-region-body" margin-bottom=".5in"/>
+				</fo:simple-page-master>
+				<fo:simple-page-master xsl:use-attribute-sets="layout" master-name="frontmatter">
+					<fo:region-body region-name="xsl-region-body" margin-bottom=".5in"/>
+					<fo:region-after region-name="footer"/>
+				</fo:simple-page-master>
 				<fo:simple-page-master xsl:use-attribute-sets="layout" master-name="content">
-					<fo:region-body region-name="body" margin-bottom=".5in"/>
-					<fo:region-after region-name="footer" extent=".5in"/>
+					<fo:region-body region-name="xsl-region-body" margin-bottom=".5in"/>
+					<fo:region-after region-name="footer"/>
 				</fo:simple-page-master>
 			</fo:layout-master-set>
-			<fo:page-sequence master-reference="content">
+
+			<!-- metadata -->
+			<fo:declarations>
+				<x:xmpmeta xmlns:x="adobe:ns:meta/" xmlns:xmp="http://ns.adobe.com/xap/1.0/">
+					<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+						<rdf:Description rdf:about="{concat($uri_space, $id)}" xmlns:dc="http://purl.org/dc/elements/1.1/">
+							<!-- Dublin Core properties go here -->
+							<dc:title>
+								<xsl:value-of select="//tei:titleStmt/tei:title"/>
+							</dc:title>
+							<dc:publisher>
+								<xsl:value-of select="//tei:publicationStmt/tei:publisher/tei:name"/>
+							</dc:publisher>
+							<xsl:for-each select="//tei:titleStmt/tei:author">
+								<dc:creator>
+									<xsl:value-of select="tei:name"/>
+								</dc:creator>
+							</xsl:for-each>
+							<xsl:for-each select="//tei:titleStmt/tei:editor">
+								<dc:contributor>
+									<xsl:value-of select="tei:name"/>
+								</dc:contributor>
+							</xsl:for-each>
+							<xmp:CreationDate>
+								<xsl:value-of select="current-dateTime()"/>
+							</xmp:CreationDate>
+						</rdf:Description>
+					</rdf:RDF>
+				</x:xmpmeta>
+			</fo:declarations>
+
+			<!-- pages -->
+			<fo:page-sequence master-reference="metadata">
+				<fo:title>Metadata</fo:title>
+				<fo:flow flow-name="xsl-region-body">
+					<!-- teiHeader generated title page -->
+					<xsl:apply-templates select="tei:teiHeader"/>
+				</fo:flow>
+			</fo:page-sequence>
+			<fo:page-sequence master-reference="frontmatter" format="i" initial-page-number="1">
+				<fo:title>Frontmatter</fo:title>
+				<fo:static-content flow-name="footer">
+					<fo:block xsl:use-attribute-sets="smaller" text-align="center">
+						<fo:page-number/>
+					</fo:block>
+				</fo:static-content>
+				<fo:flow flow-name="xsl-region-body">
+					<xsl:apply-templates select="tei:text/tei:front"/>
+				</fo:flow>
+			</fo:page-sequence>
+			<fo:page-sequence master-reference="content" initial-page-number="1">
 				<fo:title>
 					<xsl:value-of select="//tei:titleStmt/tei:title"/>
 				</fo:title>
 				<fo:static-content flow-name="footer">
-					<fo:block font-size="smaller" text-align="center">
+					<fo:block xsl:use-attribute-sets="smaller" text-align="center">
 						<fo:page-number/>
 					</fo:block>
 				</fo:static-content>
-				<fo:flow flow-name="body">
-					<xsl:apply-templates select="tei:text"/>
+				<fo:flow flow-name="xsl-region-body">
+					<xsl:apply-templates select="tei:text/tei:body|tei:text/tei:back"/>
 				</fo:flow>
 			</fo:page-sequence>
 		</fo:root>
@@ -51,8 +108,6 @@
 	<xsl:template match="tei:front|tei:body|tei:back">
 		<xsl:apply-templates/>
 	</xsl:template>
-
-
 
 	<xsl:template match="*[starts-with(local-name(), 'div')]">
 		<fo:block>
@@ -70,12 +125,15 @@
 			</xsl:choose>
 
 			<xsl:apply-templates select="*[not(local-name()='note')]"/>
-			
+
 			<!--<xsl:if test="self::tei:div1">
 				<fo:block page-break-before="always"/>
 			</xsl:if>-->
 		</fo:block>
 	</xsl:template>
+
+	<!-- suppress cover -->
+	<xsl:template match="tei:div1[@type='cover']"/>
 
 	<xsl:template match="tei:head">
 		<xsl:variable name="size">
@@ -235,7 +293,7 @@
 		<xsl:choose>
 			<xsl:when test="contains(@target, '#')">
 				<xsl:variable name="noteId" select="substring-after(@target, '#')"/>
-				
+
 				<xsl:apply-templates select="//tei:note[@xml:id=$noteId]" mode="footnote"/>
 			</xsl:when>
 			<xsl:otherwise>
@@ -260,20 +318,20 @@
 			<fo:footnote-body>
 				<fo:block xsl:use-attribute-sets="smaller">
 					<fo:inline>
-						<xsl:attribute name="baseline-shift">super</xsl:attribute>							
+						<xsl:attribute name="baseline-shift">super</xsl:attribute>
 						<xsl:apply-templates select="tei:seg[@type='note-symbol']"/>
 					</fo:inline>
 					<xsl:apply-templates select="tei:p" mode="footnote"/>
-				</fo:block>		
+				</fo:block>
 			</fo:footnote-body>
 		</fo:footnote>
 	</xsl:template>
-	
+
 	<xsl:template match="tei:p" mode="footnote">
 		<xsl:apply-templates/>
 	</xsl:template>
-	
-	
+
+
 
 	<!-- figure images -->
 	<xsl:template match="tei:figure">
@@ -359,7 +417,8 @@
 
 	<!-- *********** TITLE PAGE *********** -->
 	<xsl:template match="tei:titlePage">
-		<fo:block id="{if (@xml:id) then @xml:id else generate-id()}" text-align="center" margin-top="33%">
+		<fo:block id="{if (@xml:id) then @xml:id else generate-id()}" xsl:use-attribute-sets="frontmatter">
+			<xsl:attribute name="page-break-after">always</xsl:attribute>
 			<xsl:apply-templates mode="titlePage"/>
 			<fo:block/>
 		</fo:block>
@@ -378,7 +437,9 @@
 	</xsl:template>
 
 	<xsl:template match="tei:docImprint" mode="titlePage">
-		<xsl:apply-templates/>
+		<fo:block margin-bottom=".5in" margin-top=".5in">
+			<xsl:apply-templates mode="titlePage"/>
+		</fo:block>
 	</xsl:template>
 
 	<xsl:template match="tei:publisher|tei:pubPlace|tei:idno" mode="titlePage">
@@ -386,8 +447,108 @@
 		<fo:block/>
 	</xsl:template>
 
-	<!-- suppress cover -->
-	<xsl:template match="tei:div1[@type='cover']"/>
+	<!-- *********** TITLE PAGE *********** -->
+	<xsl:template match="tei:teiHeader">
+		<fo:block xsl:use-attribute-sets="frontmatter">
+			<xsl:attribute name="page-break-after">always</xsl:attribute>
+
+			<xsl:apply-templates select="tei:fileDesc"/>
+		</fo:block>
+	</xsl:template>
+
+	<xsl:template match="tei:fileDesc">
+		<xsl:apply-templates select="tei:titleStmt|tei:seriesStmt"/>
+		<xsl:apply-templates select="tei:publicationStmt"/>
+	</xsl:template>
+
+	<xsl:template match="tei:titleStmt">
+		<fo:block font-size="24" font-weight="bold">
+			<xsl:value-of select="tei:title"/>
+		</fo:block>
+		<xsl:for-each select="tei:author">
+			<fo:block font-size="16">
+				<xsl:value-of select="tei:name"/>
+			</fo:block>
+		</xsl:for-each>
+		<xsl:if test="tei:editor">
+			<fo:block font-size="16">
+				<xsl:choose>
+					<xsl:when test="count(tei:editor) = 1">
+						<xsl:value-of select="tei:editor/tei:name"/>
+						<xsl:text>, Ed.</xsl:text>
+					</xsl:when>
+					<xsl:when test="count(tei:editor) = 2">
+						<xsl:value-of select="string-join(tei:editor/tei:name, ' and ')"/>
+						<xsl:text>, Eds.</xsl:text>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:for-each select="tei:editor">
+							<xsl:value-of select="tei:name"/>
+							<xsl:text>, </xsl:text>
+							<xsl:if test="position()=last()">
+								<xsl:text>and </xsl:text>
+							</xsl:if>
+						</xsl:for-each>
+						<xsl:text>, Eds.</xsl:text>
+					</xsl:otherwise>
+				</xsl:choose>
+			</fo:block>
+		</xsl:if>
+	</xsl:template>
+
+	<xsl:template match="tei:seriesStmt">
+		<fo:block margin-top=".5in" margin-bottom=".5in">
+			<fo:block>
+				<xsl:value-of select="tei:title"/>
+			</fo:block>
+			<xsl:apply-templates select="tei:biblScope"/>
+		</fo:block>
+	</xsl:template>
+
+	<xsl:template match="tei:biblScope">
+		<fo:block>
+			<xsl:value-of select="concat(upper-case(substring(@unit, 1, 1)), substring(@unit, 2))"/>
+			<xsl:text> </xsl:text>
+			<xsl:value-of select="."/>
+		</fo:block>
+	</xsl:template>
+
+	<xsl:template match="tei:publicationStmt">
+		<fo:block margin-top=".5in" margin-bottom=".5in">
+			<fo:block>
+				<xsl:value-of select="tei:publisher/tei:name"/>
+			</fo:block>
+			<xsl:if test="tei:pubPlace">
+				<fo:block>
+					<xsl:value-of select="tei:pubPlace"/>
+				</fo:block>
+			</xsl:if>
+			<xsl:if test="tei:date">
+				<fo:block>
+					<xsl:value-of select="tei:date"/>
+				</fo:block>
+			</xsl:if>
+
+			<xsl:apply-templates select="tei:available/tei:license"/>
+		</fo:block>
+	</xsl:template>
+
+	<xsl:template match="tei:license">
+		<xsl:variable name="url">
+			<xsl:choose>
+				<xsl:when test="contains(@target, 'http://creativecommons.org/licenses/by/')">http://i.creativecommons.org/l/by/3.0/88x31.png</xsl:when>
+				<xsl:when test="contains(@target, 'http://creativecommons.org/licenses/by-nd/')">http://i.creativecommons.org/l/by-nd/3.0/88x31.png</xsl:when>
+				<xsl:when test="contains(@target, 'http://creativecommons.org/licenses/by-nc-sa/')">http://i.creativecommons.org/l/by-nc-sa/3.0/88x31.png</xsl:when>
+				<xsl:when test="contains(@target, 'http://creativecommons.org/licenses/by-sa/')">http://i.creativecommons.org/l/by-sa/3.0/88x31.png</xsl:when>
+				<xsl:when test="contains(@target, 'http://creativecommons.org/licenses/by-nc/')">http://i.creativecommons.org/l/by-nc/3.0/88x31.png</xsl:when>
+				<xsl:when test="contains(@target, 'http://creativecommons.org/licenses/by-nc-nd/')">http://i.creativecommons.org/l/by-nc-nd/3.0/88x31.png</xsl:when>
+			</xsl:choose>
+		</xsl:variable>
+
+		<fo:block>
+			<fo:external-graphic src="url({$url})"/>
+		</fo:block>
+	</xsl:template>
 
 	<!-- ************* FUNCTIONS ************** -->
 	<xsl:function name="etdpub:font-size">
@@ -425,5 +586,9 @@
 	</xsl:attribute-set>
 	<xsl:attribute-set name="smaller">
 		<xsl:attribute name="font-size">10px</xsl:attribute>
+	</xsl:attribute-set>
+	<xsl:attribute-set name="frontmatter">
+		<xsl:attribute name="text-align">center</xsl:attribute>
+		<xsl:attribute name="margin-top">33%</xsl:attribute>
 	</xsl:attribute-set>
 </xsl:stylesheet>
