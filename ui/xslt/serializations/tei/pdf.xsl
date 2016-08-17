@@ -120,9 +120,15 @@
 
 	<xsl:template match="*[starts-with(local-name(), 'div')]">
 		<fo:block id="{generate-id()}">
-			<xsl:if test="self::tei:div1">
-				<xsl:attribute name="page-break-after">always</xsl:attribute>
-			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="self::tei:div1">
+					<xsl:attribute name="page-break-after">always</xsl:attribute>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:attribute name="margin-top">2em</xsl:attribute>
+				</xsl:otherwise>
+			</xsl:choose>
+			
 			<xsl:choose>
 				<xsl:when test="(parent::tei:front and following::tei:titlePage) or self::tei:titlePage">
 					<xsl:attribute name="text-align">center</xsl:attribute>
@@ -183,6 +189,26 @@
 
 	<xsl:template match="tei:lb">
 		<fo:block/>
+	</xsl:template>
+	
+	<!-- bibliography -->
+	<xsl:template match="tei:listBibl">
+		<xsl:apply-templates/>
+	</xsl:template>
+	
+	<xsl:template match="tei:listBibl/tei:bibl">
+		<fo:block xsl:use-attribute-sets="bibref">
+			<xsl:choose>
+				<xsl:when test="tei:idno[@type='URI']">
+					<fo:basic-link external-destination="{tei:idno[@type='URI']}" xsl:use-attribute-sets="hyperlink">
+						<xsl:apply-templates select="node()[not(tei:idno[@type='URI'])]"/>
+					</fo:basic-link>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:apply-templates/>
+				</xsl:otherwise>
+			</xsl:choose>
+		</fo:block>
 	</xsl:template>
 
 	<!--  quotes -->
@@ -269,7 +295,8 @@
 			</fo:list-item-label>
 			<fo:list-item-body start-indent="3em">
 				<fo:block>
-					<xsl:apply-templates select="node()|@rend"/>
+					<!-- ignore @rend on the item -->
+					<xsl:apply-templates/>
 				</fo:block>
 			</fo:list-item-body>
 		</fo:list-item>
@@ -343,8 +370,10 @@
 
 	<!-- figure images -->
 	<xsl:template match="tei:figure">
-		<fo:block text-align="center">
-			<xsl:apply-templates/>
+		<fo:block text-align="center" margin-bottom="1em">
+			<!-- always ensure the capture is below the graphic -->
+			<xsl:apply-templates select="tei:graphic"/>
+			<xsl:apply-templates select="*[not(local-name()='graphic')]"/>
 		</fo:block>
 	</xsl:template>
 
@@ -412,11 +441,11 @@
 			</xsl:when>
 			<xsl:when test=". = 'sup'">
 				<xsl:attribute name="baseline-shift">super</xsl:attribute>
-				<xsl:attribute name="font-size">10px</xsl:attribute>
+				<xsl:attribute name="font-size">1em</xsl:attribute>
 			</xsl:when>
 			<xsl:when test=". = 'sub'">
 				<xsl:attribute name="baseline-shift">sub</xsl:attribute>
-				<xsl:attribute name="font-size">10px</xsl:attribute>
+				<xsl:attribute name="font-size">1em</xsl:attribute>
 			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
@@ -463,19 +492,14 @@
 		<fo:block xsl:use-attribute-sets="frontmatter">
 			<xsl:attribute name="page-break-after">always</xsl:attribute>
 
-			<fo:block font-size="20" margin-bottom="10px">About this Digital Edition</fo:block>
+			<fo:block font-size="20" margin-bottom="1em">About this Digital Edition</fo:block>
 			<fo:block xsl:use-attribute-sets="p" text-align="justify">
 				<xsl:text>Since the dimensions, font, and other stylistic attributes of this document may differ 
 					from the original printed work, the page numbers may not correspond precisely to the original.
 					As a result, when citing this resource, be sure to state that you are citing the Digital Edition, with the date of access, and URI.</xsl:text>
 			</fo:block>
-			<fo:block font-size="16" margin-bottom="10px">Example</fo:block>
-			<fo:block>
-				<xsl:attribute name="text-align">left</xsl:attribute>
-				<xsl:attribute name="start-indent">2em</xsl:attribute>
-				<xsl:attribute name="text-indent">-2em</xsl:attribute>
-				<xsl:apply-templates select="tei:fileDesc" mode="citation"/>
-			</fo:block>
+			<fo:block font-size="16" margin-bottom="1em">Example</fo:block>
+			<xsl:apply-templates select="tei:fileDesc" mode="citation"/>			
 		</fo:block>
 	</xsl:template>
 
@@ -596,13 +620,16 @@
 
 	<!-- construct a citation -->
 	<xsl:template match="tei:fileDesc" mode="citation">
-		<xsl:apply-templates select="tei:titleStmt|tei:seriesStmt" mode="citation"/>
+		<fo:block xsl:use-attribute-sets="bibref">
+			<xsl:apply-templates select="tei:titleStmt|tei:seriesStmt" mode="citation"/>
 		<xsl:apply-templates select="tei:publicationStmt" mode="citation"/>
 		<xsl:text> </xsl:text>
 		<xsl:value-of select="concat($uri_space, $id)"/>
 		<xsl:text> (accessed </xsl:text>
 		<xsl:value-of select="format-date(current-date(), '[MNn] [D], [Y0001]')"/>
-		<xsl:text>).</xsl:text>
+		<xsl:text>).</xsl:text>			
+		</fo:block>
+		
 	</xsl:template>
 
 	<xsl:template match="tei:titleStmt" mode="citation">
@@ -715,7 +742,7 @@
 			<fo:list-item>
 				<fo:list-item-label>
 					<fo:block>
-						<xsl:if test="ancestor::tei:body">
+						<!--<xsl:if test="ancestor::tei:body">
 							<xsl:choose>
 								<xsl:when test="parent::tei:body">
 									<xsl:value-of select="position()"/>
@@ -724,10 +751,10 @@
 									<xsl:value-of select="concat(count(parent::node()/preceding-sibling::tei:div1) + 1, '.', position())"/>
 								</xsl:otherwise>
 							</xsl:choose>
-						</xsl:if>
+						</xsl:if>-->
 					</fo:block>
 				</fo:list-item-label>
-				<fo:list-item-body margin-left="2em">
+				<fo:list-item-body >
 					<fo:block text-align="justify" text-align-last="justify">
 						<fo:basic-link internal-destination="{generate-id(.)}">
 							<xsl:choose>
@@ -735,9 +762,7 @@
 									<xsl:value-of select="tei:head"/>
 								</xsl:when>
 								<xsl:when test="self::tei:titlePage">Title Page</xsl:when>
-								<xsl:otherwise>
-									<i>[No title]</i>
-								</xsl:otherwise>
+								<xsl:otherwise>[No title]</xsl:otherwise>
 							</xsl:choose>
 							<fo:leader leader-pattern="dots"/>
 							<fo:page-number-citation ref-id="{generate-id(.)}"/>
@@ -792,17 +817,17 @@
 		<xsl:attribute name="page-height">11in</xsl:attribute>
 	</xsl:attribute-set>
 	<xsl:attribute-set name="p">
-		<xsl:attribute name="margin-bottom">10px</xsl:attribute>
+		<xsl:attribute name="margin-bottom">1em</xsl:attribute>
 	</xsl:attribute-set>
 	<xsl:attribute-set name="blockquote">
-		<xsl:attribute name="space-before">10px</xsl:attribute>
-		<xsl:attribute name="space-after">10px</xsl:attribute>
+		<xsl:attribute name="space-before">1em</xsl:attribute>
+		<xsl:attribute name="space-after">1em</xsl:attribute>
 		<xsl:attribute name="margin-left">2em</xsl:attribute>
 		<xsl:attribute name="margin-right">2em</xsl:attribute>
 		<xsl:attribute name="font-size">smaller</xsl:attribute>
 	</xsl:attribute-set>
 	<xsl:attribute-set name="smaller">
-		<xsl:attribute name="font-size">10px</xsl:attribute>
+		<xsl:attribute name="font-size">1em</xsl:attribute>
 	</xsl:attribute-set>
 	<xsl:attribute-set name="frontmatter">
 		<xsl:attribute name="text-align">center</xsl:attribute>
@@ -815,5 +840,11 @@
 	<xsl:attribute-set name="footnote">
 		<xsl:attribute name="baseline-shift">super</xsl:attribute>
 		<xsl:attribute name="font-size">9px</xsl:attribute>
+	</xsl:attribute-set>
+	<xsl:attribute-set name="bibref">
+		<xsl:attribute name="text-align">justify</xsl:attribute>
+		<xsl:attribute name="start-indent">2em</xsl:attribute>
+		<xsl:attribute name="text-indent">-2em</xsl:attribute>
+		<xsl:attribute name="margin-bottom">1em</xsl:attribute>
 	</xsl:attribute-set>
 </xsl:stylesheet>
