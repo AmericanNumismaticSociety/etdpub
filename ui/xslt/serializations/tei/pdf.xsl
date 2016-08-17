@@ -24,8 +24,13 @@
 		<fo:root xsl:use-attribute-sets="doc-font">
 			<fo:layout-master-set>
 				<fo:simple-page-master xsl:use-attribute-sets="layout" master-name="metadata">
-					<fo:region-body region-name="xsl-region-body" margin-bottom=".5in"/>
+					<fo:region-body region-name="xsl-region-body"/>
 				</fo:simple-page-master>
+				<xsl:if test="count(descendant::tei:div1) &gt; 0">
+					<fo:simple-page-master xsl:use-attribute-sets="layout" master-name="toc">
+						<fo:region-body region-name="xsl-region-body"/>
+					</fo:simple-page-master>
+				</xsl:if>
 				<fo:simple-page-master xsl:use-attribute-sets="layout" master-name="frontmatter">
 					<fo:region-body region-name="xsl-region-body" margin-bottom=".5in"/>
 					<fo:region-after region-name="footer"/>
@@ -74,6 +79,14 @@
 					<xsl:apply-templates select="tei:teiHeader"/>
 				</fo:flow>
 			</fo:page-sequence>
+			<xsl:if test="count(descendant::tei:div1) &gt; 0">
+				<fo:page-sequence master-reference="toc" initial-page-number="1">
+					<fo:title>Table of Contents</fo:title>
+					<fo:flow flow-name="xsl-region-body">
+						<xsl:call-template name="toc"/>
+					</fo:flow>
+				</fo:page-sequence>
+			</xsl:if>
 			<fo:page-sequence master-reference="frontmatter" format="i" initial-page-number="1">
 				<fo:title>Frontmatter</fo:title>
 				<fo:static-content flow-name="footer">
@@ -101,16 +114,12 @@
 		</fo:root>
 	</xsl:template>
 
-	<xsl:template match="tei:text">
-		<xsl:apply-templates/>
-	</xsl:template>
-
 	<xsl:template match="tei:front|tei:body|tei:back">
 		<xsl:apply-templates/>
 	</xsl:template>
 
 	<xsl:template match="*[starts-with(local-name(), 'div')]">
-		<fo:block>
+		<fo:block id="{generate-id()}">
 			<xsl:if test="self::tei:div1">
 				<xsl:attribute name="page-break-after">always</xsl:attribute>
 			</xsl:if>
@@ -125,10 +134,6 @@
 			</xsl:choose>
 
 			<xsl:apply-templates select="*[not(local-name()='note')]"/>
-
-			<!--<xsl:if test="self::tei:div1">
-				<fo:block page-break-before="always"/>
-			</xsl:if>-->
 		</fo:block>
 	</xsl:template>
 
@@ -252,7 +257,7 @@
 
 	<xsl:template match="tei:item">
 		<fo:list-item space-after="0.5ex">
-			<fo:list-item-label start-indent="1em">
+			<fo:list-item-label start-indent="2em">
 				<fo:block>
 					<xsl:choose>
 						<xsl:when test="@n">
@@ -262,7 +267,7 @@
 					</xsl:choose>
 				</fo:block>
 			</fo:list-item-label>
-			<fo:list-item-body start-indent="2em">
+			<fo:list-item-body start-indent="3em">
 				<fo:block>
 					<xsl:apply-templates select="node()|@rend"/>
 				</fo:block>
@@ -279,7 +284,7 @@
 
 		<xsl:choose>
 			<xsl:when test="$entity//tei:idno[@type='URI']">
-				<fo:basic-link external-destination="url({$entity//tei:idno[@type='URI']})" color="blue" text-decoration="underline">
+				<fo:basic-link external-destination="url({$entity//tei:idno[@type='URI']})" xsl:use-attribute-sets="hyperlink">
 					<xsl:value-of select="."/>
 				</fo:basic-link>
 			</xsl:when>
@@ -294,10 +299,12 @@
 			<xsl:when test="contains(@target, '#')">
 				<xsl:variable name="noteId" select="substring-after(@target, '#')"/>
 
-				<xsl:apply-templates select="//tei:note[@xml:id=$noteId]" mode="footnote"/>
+				<xsl:apply-templates select="//tei:note[@xml:id=$noteId]" mode="footnote">
+					<xsl:with-param name="val" select="."/>
+				</xsl:apply-templates>
 			</xsl:when>
 			<xsl:otherwise>
-				<fo:basic-link color="blue" text-decoration="underline">
+				<fo:basic-link xsl:use-attribute-sets="hyperlink">
 					<xsl:attribute name="external-destination">
 						<xsl:value-of select="concat('url(', @target, ')')"/>
 					</xsl:attribute>
@@ -309,16 +316,15 @@
 
 	<!-- footnote -->
 	<xsl:template match="tei:note" mode="footnote">
-		<fo:footnote>
-			<fo:inline>
-				<xsl:attribute name="baseline-shift">sup</xsl:attribute>
-				<xsl:attribute name="font-size">10px</xsl:attribute>
-				<xsl:value-of select="."/>
+		<xsl:param name="val"/>
+
+		<fo:footnote margin-left="2em">
+			<fo:inline xsl:use-attribute-sets="footnote">
+				<xsl:value-of select="etdpub:clean-note-symbol($val)"/>
 			</fo:inline>
 			<fo:footnote-body>
 				<fo:block xsl:use-attribute-sets="smaller">
-					<fo:inline>
-						<xsl:attribute name="baseline-shift">super</xsl:attribute>
+					<fo:inline xsl:use-attribute-sets="footnote">
 						<xsl:apply-templates select="tei:seg[@type='note-symbol']"/>
 					</fo:inline>
 					<xsl:apply-templates select="tei:p" mode="footnote"/>
@@ -331,7 +337,9 @@
 		<xsl:apply-templates/>
 	</xsl:template>
 
-
+	<xsl:template match="tei:seg[@type='note-symbol']">
+		<xsl:value-of select="etdpub:clean-note-symbol(.)"/>
+	</xsl:template>
 
 	<!-- figure images -->
 	<xsl:template match="tei:figure">
@@ -347,16 +355,14 @@
 	</xsl:template>
 
 	<xsl:template match="tei:graphic">
-
 		<xsl:choose>
 			<xsl:when test="matches(@url, 'https?://')">
-				<fo:external-graphic src="url({@url})"/>
+				<fo:external-graphic src="url({@url})" content-width="scale-to-fit" scaling="uniform" max-width="50%"/>
 			</xsl:when>
 			<xsl:otherwise>
 				<fo:external-graphic src="url({concat($url, 'media/', $id, '/archive/', @url)})" content-width="scale-to-fit" scaling="uniform" max-width="50%"/>
 			</xsl:otherwise>
 		</xsl:choose>
-
 	</xsl:template>
 
 	<!-- *********** QUOTED LETTERS *********** -->
@@ -389,7 +395,7 @@
 	<xsl:template match="@rend">
 		<xsl:choose>
 			<xsl:when test=". = 'hang'">
-				<xsl:attribute name="padding-left">2em</xsl:attribute>
+				<xsl:attribute name="start-indent">2em</xsl:attribute>
 				<xsl:attribute name="text-indent">-2em</xsl:attribute>
 			</xsl:when>
 			<xsl:when test=". = 'smallcaps'">
@@ -417,7 +423,7 @@
 
 	<!-- *********** TITLE PAGE *********** -->
 	<xsl:template match="tei:titlePage">
-		<fo:block id="{if (@xml:id) then @xml:id else generate-id()}" xsl:use-attribute-sets="frontmatter">
+		<fo:block id="{generate-id()}" xsl:use-attribute-sets="frontmatter">
 			<xsl:attribute name="page-break-after">always</xsl:attribute>
 			<xsl:apply-templates mode="titlePage"/>
 			<fo:block/>
@@ -453,6 +459,23 @@
 			<xsl:attribute name="page-break-after">always</xsl:attribute>
 
 			<xsl:apply-templates select="tei:fileDesc"/>
+		</fo:block>
+		<fo:block xsl:use-attribute-sets="frontmatter">
+			<xsl:attribute name="page-break-after">always</xsl:attribute>
+
+			<fo:block font-size="20" margin-bottom="10px">About this Digital Edition</fo:block>
+			<fo:block xsl:use-attribute-sets="p" text-align="justify">
+				<xsl:text>Since the dimensions, font, and other stylistic attributes of this document may differ 
+					from the original printed work, the page numbers may not correspond precisely to the original.
+					As a result, when citing this resource, be sure to state that you are citing the Digital Edition, with the date of access, and URI.</xsl:text>
+			</fo:block>
+			<fo:block font-size="16" margin-bottom="10px">Example</fo:block>
+			<fo:block>
+				<xsl:attribute name="text-align">left</xsl:attribute>
+				<xsl:attribute name="start-indent">2em</xsl:attribute>
+				<xsl:attribute name="text-indent">-2em</xsl:attribute>
+				<xsl:apply-templates select="tei:fileDesc" mode="citation"/>
+			</fo:block>
 		</fo:block>
 	</xsl:template>
 
@@ -514,7 +537,10 @@
 	</xsl:template>
 
 	<xsl:template match="tei:publicationStmt">
-		<fo:block margin-top=".5in" margin-bottom=".5in">
+		<fo:block>
+			<fo:block>
+				<fo:external-graphic src="url('http://numismatics.org/digitallibrary/ui/images/ans-logo.png')" content-width="scale-to-fit" scaling="uniform" width="1.5in"/>
+			</fo:block>
 			<fo:block>
 				<xsl:value-of select="tei:publisher/tei:name"/>
 			</fo:block>
@@ -524,17 +550,34 @@
 				</fo:block>
 			</xsl:if>
 			<xsl:if test="tei:date">
-				<fo:block>
-					<xsl:value-of select="tei:date"/>
+				<fo:block margin-top=".25in">
+					<fo:block font-weight="bold">Original Publication:</fo:block>
+					<fo:block>
+						<xsl:value-of select="tei:date"/>
+					</fo:block>
 				</fo:block>
 			</xsl:if>
 
-			<xsl:apply-templates select="tei:available/tei:license"/>
+			<!-- digital Edition -->
+			<fo:block margin-top=".25in">
+				<fo:block font-weight="bold">Digital Edition:</fo:block>
+				<fo:block>
+					<fo:basic-link external-destination="{concat($uri_space, $id)}" xsl:use-attribute-sets="hyperlink">
+						<xsl:value-of select="concat($uri_space, $id)"/>
+					</fo:basic-link>
+				</fo:block>
+				<fo:block>
+					<xsl:value-of select="format-date(ancestor::tei:teiHeader/tei:revisionDesc/tei:change[last()]/@when, '[D] [MNn] [Y0001]')"/>
+				</fo:block>
+
+				<xsl:apply-templates select="tei:availability/tei:license"/>
+			</fo:block>
+
 		</fo:block>
 	</xsl:template>
 
 	<xsl:template match="tei:license">
-		<xsl:variable name="url">
+		<xsl:variable name="imageUrl">
 			<xsl:choose>
 				<xsl:when test="contains(@target, 'http://creativecommons.org/licenses/by/')">http://i.creativecommons.org/l/by/3.0/88x31.png</xsl:when>
 				<xsl:when test="contains(@target, 'http://creativecommons.org/licenses/by-nd/')">http://i.creativecommons.org/l/by-nd/3.0/88x31.png</xsl:when>
@@ -546,8 +589,169 @@
 		</xsl:variable>
 
 		<fo:block>
-			<fo:external-graphic src="url({$url})"/>
+			<xsl:value-of select="$imageUrl"/>
+			<!--<fo:external-graphic src="url({$imageUrl})" content-width="scale-to-fit" scaling="uniform" width="1in"/>-->
 		</fo:block>
+	</xsl:template>
+
+	<!-- construct a citation -->
+	<xsl:template match="tei:fileDesc" mode="citation">
+		<xsl:apply-templates select="tei:titleStmt|tei:seriesStmt" mode="citation"/>
+		<xsl:apply-templates select="tei:publicationStmt" mode="citation"/>
+		<xsl:text> </xsl:text>
+		<xsl:value-of select="concat($uri_space, $id)"/>
+		<xsl:text> (accessed </xsl:text>
+		<xsl:value-of select="format-date(current-date(), '[MNn] [D], [Y0001]')"/>
+		<xsl:text>).</xsl:text>
+	</xsl:template>
+
+	<xsl:template match="tei:titleStmt" mode="citation">
+		<!-- author or editor -->
+		<xsl:choose>
+			<xsl:when test="tei:author">
+				<xsl:choose>
+					<xsl:when test="count(tei:author) = 1">
+						<xsl:value-of select="tei:author/tei:name"/>
+					</xsl:when>
+					<xsl:when test="count(tei:author) = 2">
+						<xsl:value-of select="string-join(tei:author/tei:name, ' and ')"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:for-each select="tei:author">
+							<xsl:value-of select="tei:name"/>
+							<xsl:text>, </xsl:text>
+							<xsl:if test="position()=last()">
+								<xsl:text>and </xsl:text>
+							</xsl:if>
+						</xsl:for-each>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:when>
+			<xsl:when test="tei:editor">
+				<xsl:choose>
+					<xsl:when test="count(tei:editor) = 1">
+						<xsl:value-of select="tei:editor/tei:name"/>
+						<xsl:text>, Ed.</xsl:text>
+					</xsl:when>
+					<xsl:when test="count(tei:editor) = 2">
+						<xsl:value-of select="string-join(tei:editor/tei:name, ' and ')"/>
+						<xsl:text>, Eds.</xsl:text>
+					</xsl:when>
+					<xsl:otherwise>
+						<xsl:for-each select="tei:editor">
+							<xsl:value-of select="tei:name"/>
+							<xsl:text>, </xsl:text>
+							<xsl:if test="position()=last()">
+								<xsl:text>and </xsl:text>
+							</xsl:if>
+						</xsl:for-each>
+						<xsl:text>, Eds.</xsl:text>
+					</xsl:otherwise>
+				</xsl:choose>
+			</xsl:when>
+		</xsl:choose>
+
+		<xsl:if test="tei:author or tei:editor">
+			<xsl:text>, </xsl:text>
+		</xsl:if>
+
+		<!-- title -->
+		<fo:inline>
+			<xsl:attribute name="font-style">italic</xsl:attribute>
+			<xsl:value-of select="tei:title"/>
+		</fo:inline>
+		<xsl:text> (Digital Edition), </xsl:text>
+	</xsl:template>
+
+	<xsl:template match="tei:seriesStmt" mode="citation">
+		<xsl:value-of select="tei:title"/>
+		<xsl:text> </xsl:text>
+		<xsl:if test="tei:biblScope[@unit='volume']">
+			<xsl:text>vol. </xsl:text>
+			<xsl:value-of select="tei:biblScope[@unit='volume']"/>
+			<xsl:text>, </xsl:text>
+		</xsl:if>
+		<xsl:if test="tei:biblScope[@unit='issue']">
+			<xsl:value-of select="tei:biblScope[@unit='issue']"/>
+		</xsl:if>
+		<xsl:text>, </xsl:text>
+	</xsl:template>
+
+	<xsl:template match="tei:publicationStmt" mode="citation">
+		<xsl:text>(</xsl:text>
+		<xsl:value-of select="tei:pubPlace"/>
+		<xsl:text>: </xsl:text>
+		<xsl:value-of select="tei:publisher/tei:name"/>
+		<xsl:text>, </xsl:text>
+		<xsl:value-of select="tei:date"/>
+		<xsl:text>).</xsl:text>
+	</xsl:template>
+
+	<!-- Table of Contents -->
+	<xsl:template name="toc">
+		<xsl:apply-templates select="tei:text" mode="toc"/>
+	</xsl:template>
+
+	<xsl:template match="tei:text" mode="toc">
+		<xsl:if test="count(descendant::tei:div1) &gt; 0">
+			<fo:block>
+				<fo:block font-size="24px" font-weight="bold" text-align="center">Table of Contents</fo:block>
+				<xsl:for-each select="*">
+					<xsl:if test="count(tei:div1) &gt; 0">
+						<fo:block font-size="16px" font-weight="bold">
+							<xsl:value-of select="upper-case(local-name())"/>
+						</fo:block>
+						<fo:list-block>
+							<xsl:apply-templates select="tei:div1|tei:titlePage" mode="toc"/>
+						</fo:list-block>
+					</xsl:if>
+				</xsl:for-each>
+			</fo:block>
+		</xsl:if>
+	</xsl:template>
+
+	<xsl:template match="tei:titlePage|tei:div1|tei:div2" mode="toc">
+		<xsl:if test="not(@type='cover')">
+			<fo:list-item>
+				<fo:list-item-label>
+					<fo:block>
+						<xsl:if test="ancestor::tei:body">
+							<xsl:choose>
+								<xsl:when test="parent::tei:body">
+									<xsl:value-of select="position()"/>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:value-of select="concat(count(parent::node()/preceding-sibling::tei:div1) + 1, '.', position())"/>
+								</xsl:otherwise>
+							</xsl:choose>
+						</xsl:if>
+					</fo:block>
+				</fo:list-item-label>
+				<fo:list-item-body margin-left="2em">
+					<fo:block text-align="justify" text-align-last="justify">
+						<fo:basic-link internal-destination="{generate-id(.)}">
+							<xsl:choose>
+								<xsl:when test="tei:head">
+									<xsl:value-of select="tei:head"/>
+								</xsl:when>
+								<xsl:when test="self::tei:titlePage">Title Page</xsl:when>
+								<xsl:otherwise>
+									<i>[No title]</i>
+								</xsl:otherwise>
+							</xsl:choose>
+							<fo:leader leader-pattern="dots"/>
+							<fo:page-number-citation ref-id="{generate-id(.)}"/>
+						</fo:basic-link>
+						<xsl:if test="child::tei:div2">
+							<fo:list-block margin-left="2em">
+								<xsl:apply-templates select="tei:div2" mode="toc"/>
+							</fo:list-block>
+						</xsl:if>
+					</fo:block>
+				</fo:list-item-body>
+			</fo:list-item>
+		</xsl:if>
+
 	</xsl:template>
 
 	<!-- ************* FUNCTIONS ************** -->
@@ -561,6 +765,19 @@
 			<xsl:when test="$level=4">16</xsl:when>
 			<xsl:when test="$level=5">14</xsl:when>
 			<xsl:when test="$level=6">12</xsl:when>
+		</xsl:choose>
+	</xsl:function>
+
+	<xsl:function name="etdpub:clean-note-symbol">
+		<xsl:param name="symbol"/>
+
+		<xsl:choose>
+			<xsl:when test="substring($symbol, string-length($symbol), 1) = '.'">
+				<xsl:value-of select="substring($symbol, 1, string-length($symbol) - 1)"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="$symbol"/>
+			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:function>
 
@@ -590,5 +807,13 @@
 	<xsl:attribute-set name="frontmatter">
 		<xsl:attribute name="text-align">center</xsl:attribute>
 		<xsl:attribute name="margin-top">33%</xsl:attribute>
+	</xsl:attribute-set>
+	<xsl:attribute-set name="hyperlink">
+		<xsl:attribute name="color">black</xsl:attribute>
+		<xsl:attribute name="text-decoration">underline</xsl:attribute>
+	</xsl:attribute-set>
+	<xsl:attribute-set name="footnote">
+		<xsl:attribute name="baseline-shift">super</xsl:attribute>
+		<xsl:attribute name="font-size">9px</xsl:attribute>
 	</xsl:attribute-set>
 </xsl:stylesheet>
