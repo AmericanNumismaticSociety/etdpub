@@ -315,7 +315,7 @@
 					</xsl:choose>
 				</fo:block>
 			</fo:list-item-label>
-			<fo:list-item-body start-indent="3em">
+			<fo:list-item-body start-indent="4em">
 				<fo:block>
 					<!-- ignore @rend on the item -->
 					<xsl:apply-templates/>
