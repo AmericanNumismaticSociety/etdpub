@@ -152,8 +152,8 @@
 				<xsl:when test="starts-with(parent::node()/local-name(), 'div')">
 					<xsl:variable name="level" select="number(substring-after(parent::node()/local-name(), 'div'))"/>
 					<xsl:value-of select="etdpub:font-size($level)"/>
-				</xsl:when>
-				<xsl:when test="parent::tei:figure">
+				</xsl:when>				
+				<xsl:when test="parent::tei:figure or parent::tei:table">
 					<xsl:variable name="level" select="number(substring(ancestor::*[starts-with(local-name(), 'div')][1]/local-name(), 4, 1))"/>
 					<xsl:value-of select="etdpub:font-size($level)"/>
 				</xsl:when>
@@ -175,7 +175,7 @@
 		</fo:block>
 	</xsl:template>
 
-	<xsl:template match="tei:p">
+	<xsl:template match="tei:p[not(parent::tei:figure)]">
 		<fo:block xsl:use-attribute-sets="p">
 			<xsl:apply-templates select="node()|@rend"/>
 		</fo:block>
@@ -238,27 +238,57 @@
 
 	<!-- tables and lists-->
 	<xsl:template match="tei:table">
-		<xsl:choose>
-			<xsl:when test="tei:head">
-				<fo:table-and-caption xsl:use-attribute-sets="p">
-					<fo:table-caption>
-						<xsl:apply-templates select="tei:head"/>
-					</fo:table-caption>
-					<fo:table>
-						<fo:table-body>
-							<xsl:apply-templates select="tei:row"/>
-						</fo:table-body>
-					</fo:table>
-				</fo:table-and-caption>
-			</xsl:when>
-			<xsl:otherwise>
-				<fo:table xsl:use-attribute-sets="p" table-layout="">
-					<fo:table-body>
-						<xsl:apply-templates select="tei:row"/>
-					</fo:table-body>
-				</fo:table>
-			</xsl:otherwise>
-		</xsl:choose>
+		<xsl:variable name="columnLengths" as="element()*">
+			<xsl:variable name="maxCells">
+				<xsl:for-each select="tei:row">
+					<xsl:sort select="count(tei:cell)" order="descending"/>
+					<xsl:if test="position() = 1">
+						<xsl:value-of select="count(tei:cell)"/>
+					</xsl:if>
+				</xsl:for-each>
+			</xsl:variable>
+			
+			<xsl:variable name="table" as="element()*">
+				<xsl:copy-of select="."/>
+			</xsl:variable>
+			
+			<cols>
+				<xsl:for-each select="1 to $maxCells">
+					<xsl:variable name="position" select="."/>
+					<col>
+						<xsl:for-each select="$table//tei:row">
+							<xsl:sort select="string-length(normalize-space(string(tei:cell[$position])))" order="descending"/>
+							<xsl:if test="position() = 1">
+								<xsl:value-of select="string-length(normalize-space(string(tei:cell[$position])))"/>
+							</xsl:if>
+						</xsl:for-each>
+					</col>
+				</xsl:for-each>
+			</cols>
+		</xsl:variable>
+		
+		<xsl:variable name="stringMax" select="sum($columnLengths//col)"/>
+		
+		<xsl:if test="tei:head">
+			<fo:block>
+				<xsl:apply-templates select="tei:head"/>
+			</fo:block>
+		</xsl:if>
+		<fo:table xsl:use-attribute-sets="p" border-collapse="separate" border-separation="2pt">
+			<xsl:for-each select="$columnLengths//col">
+				<fo:table-column>
+					<xsl:attribute name="column-number" select="position()"/>
+					<xsl:attribute name="column-width">
+						<xsl:value-of select="round((. div $stringMax) * 100)"/>
+						<xsl:text>%</xsl:text>
+					</xsl:attribute>
+				</fo:table-column>
+			</xsl:for-each>
+
+			<fo:table-body>
+				<xsl:apply-templates select="tei:row"/>
+			</fo:table-body>
+		</fo:table>		
 	</xsl:template>
 
 	<xsl:template match="tei:row">
@@ -441,11 +471,11 @@
 			</xsl:when>
 			<xsl:when test=". = 'sup'">
 				<xsl:attribute name="baseline-shift">super</xsl:attribute>
-				<xsl:attribute name="font-size">1em</xsl:attribute>
+				<xsl:attribute name="font-size">9px</xsl:attribute>
 			</xsl:when>
 			<xsl:when test=". = 'sub'">
 				<xsl:attribute name="baseline-shift">sub</xsl:attribute>
-				<xsl:attribute name="font-size">1em</xsl:attribute>
+				<xsl:attribute name="font-size">9px</xsl:attribute>
 			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
@@ -827,7 +857,7 @@
 		<xsl:attribute name="font-size">smaller</xsl:attribute>
 	</xsl:attribute-set>
 	<xsl:attribute-set name="smaller">
-		<xsl:attribute name="font-size">1em</xsl:attribute>
+		<xsl:attribute name="font-size">10px</xsl:attribute>
 	</xsl:attribute-set>
 	<xsl:attribute-set name="frontmatter">
 		<xsl:attribute name="text-align">center</xsl:attribute>
