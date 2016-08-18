@@ -25,12 +25,7 @@
 			<fo:layout-master-set>
 				<fo:simple-page-master xsl:use-attribute-sets="layout" master-name="metadata">
 					<fo:region-body region-name="xsl-region-body"/>
-				</fo:simple-page-master>
-				<xsl:if test="count(descendant::tei:div1) &gt; 0">
-					<fo:simple-page-master xsl:use-attribute-sets="layout" master-name="toc">
-						<fo:region-body region-name="xsl-region-body"/>
-					</fo:simple-page-master>
-				</xsl:if>
+				</fo:simple-page-master>				
 				<fo:simple-page-master xsl:use-attribute-sets="layout" master-name="frontmatter">
 					<fo:region-body region-name="xsl-region-body" margin-bottom=".5in"/>
 					<fo:region-after region-name="footer"/>
@@ -78,15 +73,7 @@
 					<!-- teiHeader generated title page -->
 					<xsl:apply-templates select="tei:teiHeader"/>
 				</fo:flow>
-			</fo:page-sequence>
-			<xsl:if test="count(descendant::tei:div1) &gt; 0">
-				<fo:page-sequence master-reference="toc" initial-page-number="1">
-					<fo:title>Table of Contents</fo:title>
-					<fo:flow flow-name="xsl-region-body">
-						<xsl:call-template name="toc"/>
-					</fo:flow>
-				</fo:page-sequence>
-			</xsl:if>
+			</fo:page-sequence>			
 			<fo:page-sequence master-reference="frontmatter" format="i" initial-page-number="1">
 				<fo:title>Frontmatter</fo:title>
 				<fo:static-content flow-name="footer">
@@ -145,6 +132,11 @@
 
 	<!-- suppress cover -->
 	<xsl:template match="tei:div1[@type='cover']"/>
+	
+	<!-- replace transcribed toc with programmatically generated one -->
+	<xsl:template match="tei:div1[@type='toc' or @type='contents']">
+		<xsl:call-template name="toc"/>
+	</xsl:template>
 
 	<xsl:template match="tei:head">
 		<xsl:variable name="size">
@@ -487,6 +479,11 @@
 			<xsl:apply-templates mode="titlePage"/>
 			<fo:block/>
 		</fo:block>
+		
+		<!-- if there is not a TOC in the front matter, insert one -->
+		<!--<xsl:if test="not(parent::tei:front/tei:div1[@type='contents' or @type='toc'])">
+			<xsl:call-template name="toc"/>
+		</xsl:if>-->
 	</xsl:template>
 
 	<xsl:template match="tei:docTitle" mode="titlePage">
@@ -746,12 +743,13 @@
 
 	<!-- Table of Contents -->
 	<xsl:template name="toc">
-		<xsl:apply-templates select="tei:text" mode="toc"/>
+		<xsl:apply-templates select="/content/tei:TEI/tei:text" mode="toc"/>
 	</xsl:template>
 
 	<xsl:template match="tei:text" mode="toc">
 		<xsl:if test="count(descendant::tei:div1) &gt; 0">
 			<fo:block>
+				<xsl:attribute name="page-break-after">always</xsl:attribute>
 				<fo:block font-size="24px" font-weight="bold" text-align="center">Table of Contents</fo:block>
 				<xsl:for-each select="*">
 					<xsl:if test="count(tei:div1) &gt; 0">
@@ -759,7 +757,15 @@
 							<xsl:value-of select="upper-case(local-name())"/>
 						</fo:block>
 						<fo:list-block>
-							<xsl:apply-templates select="tei:div1|tei:titlePage" mode="toc"/>
+							<xsl:choose>
+								<xsl:when test="self::tei:front">	
+									<!--<xsl:apply-templates select="tei:div1" mode="toc"/>-->
+									<xsl:apply-templates select="tei:div1[preceding::tei:titlePage][not(@type='cover') and not(@type='toc') and not(@type='contents')]" mode="toc"/>
+								</xsl:when>
+								<xsl:otherwise>
+									<xsl:apply-templates select="tei:div1" mode="toc"/>
+								</xsl:otherwise>
+							</xsl:choose>
 						</fo:list-block>
 					</xsl:if>
 				</xsl:for-each>
@@ -767,46 +773,32 @@
 		</xsl:if>
 	</xsl:template>
 
-	<xsl:template match="tei:titlePage|tei:div1|tei:div2" mode="toc">
-		<xsl:if test="not(@type='cover')">
-			<fo:list-item>
-				<fo:list-item-label>
-					<fo:block>
-						<!--<xsl:if test="ancestor::tei:body">
-							<xsl:choose>
-								<xsl:when test="parent::tei:body">
-									<xsl:value-of select="position()"/>
-								</xsl:when>
-								<xsl:otherwise>
-									<xsl:value-of select="concat(count(parent::node()/preceding-sibling::tei:div1) + 1, '.', position())"/>
-								</xsl:otherwise>
-							</xsl:choose>
-						</xsl:if>-->
-					</fo:block>
-				</fo:list-item-label>
-				<fo:list-item-body >
-					<fo:block text-align="justify" text-align-last="justify">
-						<fo:basic-link internal-destination="{generate-id(.)}">
-							<xsl:choose>
-								<xsl:when test="tei:head">
-									<xsl:value-of select="tei:head"/>
-								</xsl:when>
-								<xsl:when test="self::tei:titlePage">Title Page</xsl:when>
-								<xsl:otherwise>[No title]</xsl:otherwise>
-							</xsl:choose>
-							<fo:leader leader-pattern="dots"/>
-							<fo:page-number-citation ref-id="{generate-id(.)}"/>
-						</fo:basic-link>
-						<xsl:if test="child::tei:div2">
-							<fo:list-block margin-left="2em">
-								<xsl:apply-templates select="tei:div2" mode="toc"/>
-							</fo:list-block>
-						</xsl:if>
-					</fo:block>
-				</fo:list-item-body>
-			</fo:list-item>
-		</xsl:if>
-
+	<xsl:template match="tei:div1|tei:div2" mode="toc">
+		<fo:list-item>
+			<fo:list-item-label>
+				<fo:block/>
+			</fo:list-item-label>
+			<fo:list-item-body >
+				<fo:block text-align="justify" text-align-last="justify">
+					<fo:basic-link internal-destination="{generate-id(.)}">
+						<xsl:choose>
+							<xsl:when test="tei:head">
+								<xsl:value-of select="tei:head"/>
+							</xsl:when>
+							<!--<xsl:when test="self::tei:titlePage">Title Page</xsl:when>-->
+							<xsl:otherwise>[No title]</xsl:otherwise>
+						</xsl:choose>
+						<fo:leader leader-pattern="dots"/>
+						<fo:page-number-citation ref-id="{generate-id(.)}"/>
+					</fo:basic-link>
+					<xsl:if test="child::tei:div2">
+						<fo:list-block margin-left="2em">
+							<xsl:apply-templates select="tei:div2" mode="toc"/>
+						</fo:list-block>
+					</xsl:if>
+				</fo:block>
+			</fo:list-item-body>
+		</fo:list-item>
 	</xsl:template>
 
 	<!-- ************* FUNCTIONS ************** -->
