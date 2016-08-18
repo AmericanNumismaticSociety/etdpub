@@ -523,7 +523,8 @@
 			<fo:block xsl:use-attribute-sets="p" text-align="justify">
 				<xsl:text>Since the dimensions, font, and other stylistic attributes of this document may differ 
 					from the original printed work, the page numbers may not correspond precisely to the original.
-					As a result, when citing this resource, be sure to state that you are citing the Digital Edition, with the date of access, and URI.</xsl:text>
+					As a result, when citing this resource, be sure to state that you are citing the Digital Edition, with the date of access, and URI. The Table of Contents page
+				in this document is a programmatically-generated replacement for the printed original.</xsl:text>
 			</fo:block>
 			<fo:block font-size="16" margin-bottom="1em">Example</fo:block>
 			<xsl:apply-templates select="tei:fileDesc" mode="citation"/>			
