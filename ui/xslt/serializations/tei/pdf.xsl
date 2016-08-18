@@ -348,9 +348,19 @@
 			<xsl:when test="contains(@target, '#')">
 				<xsl:variable name="noteId" select="substring-after(@target, '#')"/>
 
-				<xsl:apply-templates select="//tei:note[@xml:id=$noteId]" mode="footnote">
-					<xsl:with-param name="val" select="."/>
-				</xsl:apply-templates>
+				<xsl:choose>
+					<xsl:when test="//tei:note[@xml:id=$noteId]">
+						<xsl:apply-templates select="//tei:note[@xml:id=$noteId]" mode="footnote">
+							<xsl:with-param name="val" select="."/>
+						</xsl:apply-templates>
+					</xsl:when>
+					<xsl:otherwise>
+						<fo:basic-link xsl:use-attribute-sets="hyperlink">
+							<xsl:attribute name="internal-destination" select="$noteId"/>
+							<xsl:value-of select="."/>
+						</fo:basic-link>
+					</xsl:otherwise>
+				</xsl:choose>				
 			</xsl:when>
 			<xsl:otherwise>
 				<fo:basic-link xsl:use-attribute-sets="hyperlink">
@@ -393,6 +403,9 @@
 	<!-- figure images -->
 	<xsl:template match="tei:figure">
 		<fo:block text-align="center" margin-bottom="1em">
+			<xsl:if test="@xml:id">
+				<xsl:attribute name="id" select="@xml:id"/>
+			</xsl:if>
 			<!-- always ensure the capture is below the graphic -->
 			<xsl:apply-templates select="tei:graphic"/>
 			<xsl:apply-templates select="*[not(local-name()='graphic')]"/>
