@@ -154,9 +154,7 @@
 		</xsl:variable>
 
 		<fo:block font-size="{$size}px" font-weight="bold">
-			<xsl:if test="parent::tei:div1">
-				<xsl:attribute name="text-align">center</xsl:attribute>
-			</xsl:if>
+			<xsl:attribute name="text-align" select="if (parent::tei:div1) then 'center' else 'left'"/>			
 			<xsl:apply-templates/>
 		</fo:block>
 	</xsl:template>
