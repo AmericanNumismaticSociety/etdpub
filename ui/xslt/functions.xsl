@@ -37,7 +37,7 @@
 		<xsl:param name="field"/>
 
 		<xsl:choose>
-			<xsl:when test="$field = 'field_of_numismatics'">Field of Numismatics</xsl:when>
+			<xsl:when test="$field = 'field_of_numismatics'">Department</xsl:when>
 			<xsl:when test="$field = 'timestamp'">Date Record Modified</xsl:when>
 			<xsl:when test="$field = 'fulltext'">Keyword</xsl:when>
 			<xsl:otherwise>
