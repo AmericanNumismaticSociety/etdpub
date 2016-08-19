@@ -9,18 +9,16 @@
 			<xsl:apply-templates select="*[not(local-name()='note')]"/>
 
 			<xsl:if test="count(tei:note[@place]) &gt; 0">
-				<div>
+				<section epub:type="rearnotes" id="{@xml:id}-rearnotes">
 					<xsl:element name="h{number(substring-after(local-name(), 'div')) + 2}">
 						<xsl:text>End Notes</xsl:text>
 					</xsl:element>
-					<section epub:type="rearnotes" id="{@xml:id}-rearnotes">
-						<table class="table table-striped">
-							<tbody>
-								<xsl:apply-templates select="tei:note[@place]"/>
-							</tbody>
-						</table>
-					</section>
-				</div>
+					<table class="table table-striped">
+						<tbody>
+							<xsl:apply-templates select="tei:note[@place]"/>
+						</tbody>
+					</table>
+				</section>
 			</xsl:if>
 			<xsl:if test="self::tei:div1">
 				<hr/>
@@ -51,13 +49,11 @@
 		</header>
 	</xsl:template>
 
-	<xsl:template match="tei:note/tei:p">
+	<xsl:template match="tei:note/tei:p">	
 		<xsl:if test="@rend">
 			<xsl:attribute name="class" select="concat('rend-', @rend)"/>
 		</xsl:if>
-		<span>
-			<xsl:apply-templates/>
-		</span>
+		<xsl:apply-templates/>
 	</xsl:template>
 
 	<xsl:template match="tei:p">
@@ -179,10 +175,13 @@
 
 	<!-- linking -->
 	<xsl:template match="tei:ref">
-		<a href="{@target}">
+		<a href="{@target}">			
 			<!-- superscript note links -->
 			<xsl:if test="contains(@target, '#')">
-				<xsl:attribute name="class">rend-sup</xsl:attribute>
+				<xsl:variable name="noteId" select="substring-after(@target, '#')"/>				
+				<xsl:if test="//tei:note[@xml:id=$noteId]">
+					<xsl:attribute name="class">rend-sup</xsl:attribute>
+				</xsl:if>
 			</xsl:if>
 			<xsl:apply-templates/>
 		</a>
@@ -196,7 +195,6 @@
 			<td>
 				<xsl:apply-templates select="*[not(self::tei:seg)]"/>
 			</td>
-
 		</tr>
 	</xsl:template>
 	
@@ -233,6 +231,9 @@
 	<!-- figure images -->
 	<xsl:template match="tei:figure">
 		<div class="figure">
+			<xsl:if test="@xml:id">
+				<xsl:attribute name="id" select="@xml:id"/>
+			</xsl:if>
 			<xsl:apply-templates/>
 		</div>
 	</xsl:template>

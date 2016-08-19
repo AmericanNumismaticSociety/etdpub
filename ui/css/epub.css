@@ -3,6 +3,10 @@
   GLOBAL
   ****************************************
  */
+ body {
+ 	font-family: Arial,Helvetica,sans-serif;
+ }
+ 
 .figure {
     text-align:center;
 }

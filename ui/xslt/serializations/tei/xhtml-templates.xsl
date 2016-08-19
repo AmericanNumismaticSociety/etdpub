@@ -4,21 +4,17 @@
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:epub="http://www.idpf.org/2007/ops"
 	xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
 	xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="tei xlink etdpub xs" version="2.0">
-
-	<xsl:template match="tei:div2">
-		<xsl:variable name="frag"
-			select="concat(parent::node()/parent::node()/local-name(), '-', format-number(count(../preceding-sibling::tei:div1) + 1, '000'), '-', format-number(count(preceding-sibling::tei:div2) + 1, '000'))"/>
-
-		<section epub:type="{@type}">
-			<a id="{format-number(count(preceding-sibling::tei:div2) + 1, '000')}"/>
-			<xsl:apply-templates/>
+	
+	<xsl:template match="*[starts-with(local-name(), 'div')]">
+		<section>
+			<xsl:if test="self::tei:div2">				
+				<xsl:attribute name="epub:type" select="@type"/>
+				<xsl:attribute name="id" select="format-number(count(preceding-sibling::tei:div2) + 1, '000')"/>				
+			</xsl:if>
+			
+			<!-- apply templates for all but notes -->
+			<xsl:apply-templates select="*[not(local-name()='note')]"/>
 		</section>
-	</xsl:template>
-
-	<xsl:template match="tei:div3|tei:div4|tei:div5|tei:div6">
-		<div>
-			<xsl:apply-templates/>
-		</div>
 	</xsl:template>
 
 	<!-- minor elements -->
@@ -26,8 +22,12 @@
 		<header>
 			<xsl:choose>
 				<xsl:when test="starts-with(parent::node()/local-name(), 'div')">
-					<xsl:element
-						name="h{number(substring-after(parent::node()/local-name(), 'div')) + 1}">
+					<xsl:element name="h{number(substring-after(parent::node()/local-name(), 'div')) + 1}">
+						<xsl:apply-templates/>
+					</xsl:element>
+				</xsl:when>
+				<xsl:when test="parent::tei:figure">
+					<xsl:element name="h{number(substring(ancestor::*[starts-with(local-name(), 'div')][1]/local-name(), 4, 1)) + 1}">						
 						<xsl:apply-templates/>
 					</xsl:element>
 				</xsl:when>
@@ -38,6 +38,13 @@
 				</xsl:otherwise>
 			</xsl:choose>
 		</header>
+	</xsl:template>
+	
+	<xsl:template match="tei:note/tei:p">
+		<xsl:if test="@rend">
+			<xsl:attribute name="class" select="concat('rend-', @rend)"/>
+		</xsl:if>		
+		<xsl:apply-templates/>
 	</xsl:template>
 
 	<xsl:template match="tei:p">
@@ -57,10 +64,6 @@
 			<xsl:apply-templates/>
 		</span>
 	</xsl:template>
-
-	<!--<xsl:template match="tei:pb">
-		<span class="page-number" id="page-{@n}">Page <xsl:value-of select="@n"/></span>
-	</xsl:template>-->
 
 	<!-- name linking -->
 	<xsl:template match="tei:name[@corresp]">
@@ -137,24 +140,42 @@
 
 	<!-- linking -->
 	<xsl:template match="tei:ref">
-		<a href="{@target}">
+		<a href="{@target}">			
+			<!-- superscript note links -->
+			<xsl:if test="contains(@target, '#')">
+				<xsl:variable name="noteId" select="substring-after(@target, '#')"/>				
+				<xsl:if test="//tei:note[@xml:id=$noteId]">
+					<xsl:attribute name="class">rend-sup</xsl:attribute>
+				</xsl:if>
+			</xsl:if>
 			<xsl:apply-templates/>
 		</a>
 	</xsl:template>
 
-	<!-- suppress footnotes from the body -->
-	<xsl:template match="tei:note[@place]"/>
-
-	<xsl:template match="tei:note[@place]" mode="endnote">
-		<li>
-			<a id="{@xml:id}"/>
+	<!-- end notes -->
+	<xsl:template match="tei:note[@place]">
+		<tr id="{@xml:id}">
+			<td>
+				<xsl:apply-templates select="tei:seg[@type='note-symbol']"/>
+			</td>
+			<td>
+				<xsl:apply-templates select="*[not(self::tei:seg)]"/>
+			</td>
+		</tr>
+	</xsl:template>
+	
+	<xsl:template match="tei:seg[@type='note-symbol']">
+		<span class="rend-sup">
 			<xsl:apply-templates/>
-		</li>
+		</span>
 	</xsl:template>
 
 	<!-- figure images -->
 	<xsl:template match="tei:figure">
-		<div>
+		<div class="figure">
+			<xsl:if test="@xml:id">
+				<xsl:attribute name="id" select="@xml:id"/>
+			</xsl:if>
 			<xsl:apply-templates/>
 		</div>
 	</xsl:template>
@@ -167,8 +188,38 @@
 
 	<xsl:template match="tei:graphic">
 		<xsl:variable name="src" select="concat('images/', tokenize(@url, '/')[last()])"/>
-		<img src="{$src}" alt="figure"/>
+		<img src="{$src}" alt="figure">
+			<xsl:if test="not(parent::tei:figure)">
+				<xsl:attribute name="display">inline</xsl:attribute>
+			</xsl:if>
+		</img>
 	</xsl:template>
+	
+	<!-- *********** QUOTED LETTERS *********** -->
+	<xsl:template match="tei:floatingText">
+		<blockquote>
+			<xsl:apply-templates select="descendant::tei:div"/>
+		</blockquote>
+	</xsl:template>
+	
+	<xsl:template match="tei:opener|tei:closer">
+		<p>
+			<xsl:if test="self::tei:closer">
+				<xsl:attribute name="text-align">right</xsl:attribute>
+			</xsl:if>
+			<xsl:apply-templates/>
+		</p>
+	</xsl:template>
+	
+	<xsl:template match="tei:dateline|tei:salute|tei:signed">
+		<xsl:apply-templates/>
+		<br/>
+	</xsl:template>
+	
+	<xsl:template match="tei:dateline/tei:date">
+		<br/>
+		<xsl:apply-templates/>
+	</xsl:template>	
 
 	<!-- *********** TITLE PAGE *********** -->
 	<xsl:template match="tei:docTitle" mode="titlePage">

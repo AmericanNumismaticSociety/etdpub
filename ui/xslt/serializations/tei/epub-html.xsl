@@ -31,7 +31,7 @@
 				<xsl:for-each select="descendant::tei:div1">
 					<xsl:result-document
 						href="file:///tmp/{$id}-{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">		
-						<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
+						<xhtml xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
 							<head>
 								<title>
 									<xsl:value-of select="if (self::tei:titlePage) then 'Title Page' else tei:head"/>
@@ -44,19 +44,22 @@
 							</head>
 							<body>
 								<section epub:type="{if (self::tei:titlePage) then 'titlepage' else @type}">
-									<xsl:apply-templates select="*"/>
+									<xsl:apply-templates select="*[not(self::tei:note[@place])]"/>
 								</section>
 								<xsl:if test="count(descendant::tei:note[@place]) &gt; 0">
-									<section epub:type="rearnotes">
-										<h2>End Notes</h2>
-										<ul>
-											<xsl:apply-templates select="descendant::tei:note[@place]"
-												mode="endnote"/>
-										</ul>
-									</section>						
+									<section epub:type="rearnotes" id="{@xml:id}-rearnotes">
+										<xsl:element name="h{number(substring-after(local-name(), 'div')) + 2}">
+											<xsl:text>End Notes</xsl:text>
+										</xsl:element>
+										<table>
+											<tbody>
+												<xsl:apply-templates select="descendant::tei:note[@place]"/>
+											</tbody>
+										</table>
+									</section>				
 								</xsl:if>
 							</body>
-						</html>
+						</xhtml>
 					</xsl:result-document>
 				</xsl:for-each>
 			</body>
@@ -66,7 +69,7 @@
 	<xsl:template match="tei:titlePage">
 		<xsl:result-document
 			href="file:///tmp/{$id}-titlePage.xhtml">		
-			<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
+			<xhtml xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
 				<head>
 					<title>Title Page</title>
 					<xsl:element name="meta">
@@ -80,7 +83,7 @@
 						<xsl:apply-templates mode="titlePage"/>
 					</section>
 				</body>
-			</html>
+			</xhtml>
 		</xsl:result-document>
 		
 	</xsl:template>
