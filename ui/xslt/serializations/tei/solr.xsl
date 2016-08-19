@@ -231,7 +231,7 @@
 				<xsl:value-of select="$timestamp"/>
 			</field>
 			<field name="title">
-				<xsl:value-of select="if (tei:head) then normalize-space(tei:head) else @type"/>
+				<xsl:value-of select="if (tei:head) then normalize-space(tei:head[1]) else @type"/>
 			</field>
 			<xsl:choose>
 				<xsl:when test="@type='chapter'">

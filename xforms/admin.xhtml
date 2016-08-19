@@ -401,9 +401,9 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 																	
 																	<!-- delete the doc from eXist and Solr -->																
 																	<xforms:setvalue ref="instance('deleteId')/query" value="concat('id:&#x022;', instance('control-instance')/id, '&#x022;')"></xforms:setvalue>
-																	<xforms:send submission="delete-solr-doc"></xforms:send>
+																	<xforms:send submission="delete-solr-doc"></xforms:send>																	
 																	<!-- delete triples from triplestore, if applicable -->
-																	<xforms:action if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
+																	<xforms:action ev:event="xforms-submit-done" if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
 																		<!-- set URI for object, execute SPARQL/Update query to purge triples -->
 																		<xforms:var name="uri"
 																			select="if (instance('config')/ark/@enabled='true') then concat(instance('config')/url, 'ark:/', instance('config')/ark/naan, '/', $id) else concat(instance('config')/url, 'id/', $id)"></xforms:var>
@@ -439,7 +439,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 																		<xforms:send submission="to-solr"></xforms:send>
 																	</xforms:action>
 																	<!-- delete triples from triplestore, if applicable. Then re-post RDF document -->
-																	<xforms:action if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
+																	<xforms:action ev:event="xforms-submit-done" if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
 																		<xforms:var name="uri"
 																			select="if (instance('config')/ark/@enabled='true') then concat(instance('config')/url, 'ark:/', instance('config')/ark/naan, '/', $id) else concat(instance('config')/url, 'id/', $id)"></xforms:var>
 																		<xforms:setvalue ref="instance('sparqlUpdate')" value="replace(instance('sparqlUpdate-template'), 'URI', $uri)"></xforms:setvalue>

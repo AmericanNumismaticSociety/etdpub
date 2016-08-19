@@ -161,7 +161,7 @@
 		<xsl:element name="dcmitype:Text">
 			<xsl:attribute name="rdf:about" select="concat($uri_space, $id, '#', @xml:id)"/>
 			<dcterms:title>
-				<xsl:value-of select="if (tei:head) then normalize-space(tei:head) else @type"/>
+				<xsl:value-of select="if (tei:head) then normalize-space(tei:head[1]) else @type"/>
 			</dcterms:title>
 			<xsl:if test="@type='chapter'">
 				<dcterms:type rdf:resource="http://vocab.getty.edu/aat/300311699"/>
