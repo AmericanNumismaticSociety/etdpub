@@ -54,7 +54,7 @@
 				<xsl:variable name="fl">
 					<xsl:choose>
 						<xsl:when test="$pipeline='atom'">id,title,creator_facet,date,abstract,timestamp,media_url,media_type</xsl:when>
-						<xsl:otherwise>id,title,author,editor,date,university,language,volume,issues,pages,volume_id,volume_title,thumbnail_image</xsl:otherwise>
+						<xsl:otherwise>id,title,author,editor,date,university,publisher_facet,series_facet,language,volume,issues,pages,volume_id,volume_title,thumbnail_image</xsl:otherwise>
 					</xsl:choose>
 					
 				</xsl:variable>

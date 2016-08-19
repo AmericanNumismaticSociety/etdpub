@@ -252,6 +252,12 @@
 					<xsl:value-of select="string-join(arr[@name='publisher_facet']/str, ',')"/>
 				</dd>
 			</xsl:if>
+			<xsl:if test="arr[@name='series_facet']">
+				<dt>Series</dt>
+				<dd>
+					<xsl:value-of select="string-join(arr[@name='series_facet']/str, ',')"/>
+				</dd>
+			</xsl:if>
 			<xsl:for-each select="arr[@name='language']/str">
 				<xsl:variable name="lang" select="."/>
 				<dt>Language</dt>
