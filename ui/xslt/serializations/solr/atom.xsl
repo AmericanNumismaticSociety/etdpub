@@ -58,10 +58,14 @@
 				<xsl:value-of select="str[@name='title']"/>
 			</title>
 			<link href="{$objectUri}"/>
-			<link rel="alternate xml" type="text/xml" href="{$objectUri}.xml"/>
-			<link rel="alternate rdf" type="application/rdf+xml" href="{$objectUri}.rdf"/>
+			<link rel="alternate" type="text/xml" href="{$objectUri}.xml"/>
+			<link rel="alternate" type="application/rdf+xml" href="{$objectUri}.rdf"/>
 			<xsl:if test="str[@name='media_url'] and str[@name='media_type']">
 				<content type="{str[@name='media_type']}" href="{concat($url, str[@name='media_url'])}"/>	
+			</xsl:if>
+			<xsl:if test="arr[@name='genre_facet']/str[1] = 'e-books'">
+				<link rel="alternate" type="application/pdf" href="{$objectUri}/pdf"/>
+				<link rel="alternate" type="application/epub+zip" href="{$objectUri}.epub"/>
 			</xsl:if>
 			<id>
 				<xsl:value-of select="$objectUri"/>
