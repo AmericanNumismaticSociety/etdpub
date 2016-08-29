@@ -7,7 +7,7 @@
 		<html lang="en">
 			<head>
 				<title>
-					<xsl:value-of select="/index/config/title"/>
+					<xsl:value-of select="/content/config/title"/>
 				</title>
 				<link rel="shortcut icon" type="image/x-icon" href="{$display_path}ui/images/favicon.png"/>
 				<meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -36,15 +36,15 @@
 			<div class="row">
 				<div class="col-md-12">
 					<h1>
-						<xsl:value-of select="/index/config/title"/>
+						<xsl:value-of select="/content/config/title"/>
 					</h1>
 					<div class="col-sm-12 col-md-6 col-md-offset-3">
 						<xsl:call-template name="search"/>
 					</div>
 					<div class="col-sm-12 col-md-8 col-md-offset-2">
-						<xsl:copy-of select="/index/content/index"/>
+						<xsl:copy-of select="/content/content/index"/>
 						<hr/>
-						<xsl:if test="/index/response[@type='pelagios'] = true()">
+						<xsl:if test="/content/response[@type='pelagios'] = true()">
 							<div class="col-md-6">
 								<h4>Pelagios Annotations</h4>
 								<table class="table-dl">
@@ -65,8 +65,8 @@
 								</table>
 							</div>
 						</xsl:if>
-						<xsl:if test="/index/response[@type='published'] = true()">
-							<div class="col-md-{if (/index/response[@type='pelagios'] = true()) then '6' else '12'}">
+						<xsl:if test="/content/response[@type='published'] = true()">
+							<div class="col-md-{if (/content/response[@type='pelagios'] = true()) then '6' else '12'}">
 								<h4>Data Harvesting</h4>
 								<a href="feed/" title="Atom Feed">
 									<img src="{$display_path}ui/images/atom-large.png" alt="Atom" style="padding:5px"/>
