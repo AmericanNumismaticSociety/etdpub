@@ -35,7 +35,12 @@
 
 	<xsl:template match="tei:TEI">
 		<schema:Book rdf:about="{concat($uri_space, $id)}">
+			<!-- bibliographic metadata -->
 			<xsl:apply-templates select="tei:teiHeader/tei:fileDesc"/>	
+			
+			<!-- add in links to the PDF and the EPUB -->
+			<dcterms:hasVersion rdf:resource="{concat($uri_space, $id)}/pdf"/>
+			<dcterms:hasVersion rdf:resource="{concat($uri_space, $id)}.epub"/>
 			
 			<!-- insert images, if applicable -->
 			<xsl:apply-templates select="descendant::tei:graphic[@url][1]"/>
@@ -136,7 +141,22 @@
 	</xsl:template>
 	
 	<xsl:template match="tei:bibl[tei:idno[@type='URI']]">
-		<dcterms:source rdf:resource="{tei:idno[@type='URI']}"/>
+		<xsl:variable name="href" select="tei:idno[@type='URI']"/>
+		
+		<xsl:choose>
+			<xsl:when test="contains($href, 'hdl.handle.net')">
+				<dcterms:source rdf:resource="{$href}"/>
+			</xsl:when>
+			<xsl:when test="contains($href, 'worldcat.org/entity/')">
+				<schema:exampleOfWork rdf:resource="{$href}">
+					<schema:CreativeWork rdf:about="{$href}">
+						<xsl:for-each select="parent::node()/tei:bibl[not(contains(tei:idno, 'worldcat.org/entity/'))]">
+							<schema:workExample rdf:resource="{tei:idno}"/>
+						</xsl:for-each>
+					</schema:CreativeWork>
+				</schema:exampleOfWork>
+			</xsl:when>			
+		</xsl:choose>
 	</xsl:template>
 	
 	<!-- images -->

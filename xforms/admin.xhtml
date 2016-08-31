@@ -171,8 +171,10 @@
 PREFIX dcterms:	<http://purl.org/dc/terms/>
 PREFIX dcmitype:	<http://purl.org/dc/dcmitype/>
 PREFIX oa:	<http://www.w3.org/ns/oa#>
+PREFIX schema:	<https://schema.org/>
 DELETE {?s ?p ?o} WHERE { 
-{<URI> dcterms:temporal ?s . ?s ?p ?o }
+{<URI> schema:exampleOfWork ?s . ?s ?p ?o }
+UNION {<URI> dcterms:temporal ?s . ?s ?p ?o }
 UNION { ?parts dcterms:source <URI> ; rdf:type dcmitype:Text . ?s oa:hasTarget ?parts . ?s ?p ?o }
 UNION { ?s dcterms:source <URI> ; rdf:type dcmitype:Text . ?s ?p ?o }
 UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
