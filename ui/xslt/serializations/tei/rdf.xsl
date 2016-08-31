@@ -28,7 +28,7 @@
 	<xsl:template match="/">
 		<rdf:RDF xmlns:dcterms="http://purl.org/dc/terms/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:oa="http://www.w3.org/ns/oa#"
 			xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:org="http://www.w3.org/ns/org#"
-			xmlns:schema="https://schema.org/" xmlns:dcmitype="http://purl.org/dc/dcmitype/">
+			xmlns:schema="http://schema.org/" xmlns:dcmitype="http://purl.org/dc/dcmitype/">
 			<xsl:apply-templates select="//tei:TEI"/>
 		</rdf:RDF>
 	</xsl:template>
@@ -148,7 +148,7 @@
 				<dcterms:source rdf:resource="{$href}"/>
 			</xsl:when>
 			<xsl:when test="contains($href, 'worldcat.org/entity/')">
-				<schema:exampleOfWork rdf:resource="{$href}">
+				<schema:exampleOfWork>
 					<schema:CreativeWork rdf:about="{$href}">
 						<xsl:for-each select="parent::node()/tei:bibl[not(contains(tei:idno, 'worldcat.org/entity/'))]">
 							<schema:workExample rdf:resource="{tei:idno}"/>
