@@ -109,6 +109,8 @@
 							 	<record>
 							 		<id>{ data($record/*[local-name()='TEI']/@xml:id) }</id>
 							 		<title>{ data($record//tei:titleStmt/tei:title)}</title>
+							 		<author>{string-join($record//tei:titleStmt/tei:author/tei:name, ', ')}</author>
+							 		<date>{data($record//tei:publicationStmt/tei:date)}</date>
 							 		<type>TEI</type>
 							 		<published>false</published>
 							 	</record>
@@ -374,6 +376,11 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 														</xforms:group>
 													</h4>
 													<div>
+														<xforms:output ref="id">
+															<xforms:label>ID</xforms:label>
+														</xforms:output>
+													</div>
+													<div>
 														<xforms:output ref="author">
 															<xforms:label>Author</xforms:label>
 														</xforms:output>
@@ -384,9 +391,11 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 														</xforms:output>
 													</div>
 													<xforms:group ref="genre">
-														<xforms:output ref=".">
-															<xforms:label>Genre</xforms:label>
-														</xforms:output>
+														<div>
+															<xforms:output ref=".">
+																<xforms:label>Genre</xforms:label>
+															</xforms:output>
+														</div>
 													</xforms:group>
 												</td>
 												<td class="text-center">
