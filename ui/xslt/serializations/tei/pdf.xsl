@@ -2,7 +2,7 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
 	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
 	xmlns:fo="http://www.w3.org/1999/XSL/Format" exclude-result-prefixes="#all" version="2.0">
-
+	<xsl:output encoding="UTF-8"/>
 	<xsl:variable name="url" select="/content/config/url"/>
 	<xsl:variable name="uri_space">
 		<xsl:choose>
@@ -323,7 +323,7 @@
 	</xsl:template>
 
 	<!-- linking elements -->
-	<xsl:template match="tei:name[@corresp]">
+	<xsl:template match="*[contains(local-name(), 'Name')][@corresp]">
 		<xsl:variable name="nameId" select="substring-after(@corresp, '#')"/>
 		<xsl:variable name="entity" as="element()*">
 			<xsl:copy-of select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id=$nameId]"/>

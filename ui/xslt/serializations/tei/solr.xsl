@@ -38,7 +38,7 @@
 	<!-- unique persons and places -->
 	<xsl:variable name="entities" as="element()*">
 		<entities xmlns="http://www.tei-c.org/ns/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-			<xsl:copy-of select="//tei:particDesc/tei:listPerson/*|//tei:settingDesc/tei:listPlace/*"/>
+			<xsl:copy-of select="//tei:particDesc/tei:listPerson/*|//tei:particDesc/tei:listOrg/*|//tei:settingDesc/tei:listPlace/*"/>
 		</entities>
 	</xsl:variable>
 
@@ -243,7 +243,7 @@
 			</xsl:choose>
 			
 			<!-- pleiades URIs -->
-			<xsl:for-each select="distinct-values(descendant::tei:ref[matches(@target, 'https?://')][ancestor::*[starts-with(local-name(), 'div')][1][@xml:id=$div_id]]/@target|descendant::tei:name[@corresp][ancestor::*[starts-with(local-name(), 'div')][1][@xml:id=$div_id]]/@corresp)">
+			<xsl:for-each select="distinct-values(descendant::tei:ref[matches(@target, 'https?://')][ancestor::*[starts-with(local-name(), 'div')][1][@xml:id=$div_id]]/@target|descendant::*[contains(local-name(), 'Name')][@corresp][ancestor::*[starts-with(local-name(), 'div')][1][@xml:id=$div_id]]/@corresp)">
 				<xsl:variable name="val" select="."/>
 				<xsl:variable name="uri" select="if (matches($val, 'https?://')) then $val else $entities//*[@xml:id = substring-after($val, '#')]/tei:idno[@type='URI']"/>
 				

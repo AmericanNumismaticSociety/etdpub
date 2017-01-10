@@ -66,7 +66,7 @@
 	</xsl:template>
 
 	<!-- name linking -->
-	<xsl:template match="tei:name[@corresp]">
+	<xsl:template match="*[contains(local-name(), 'Name')][@corresp]">
 		<xsl:variable name="id" select="substring-after(@corresp, '#')"/>
 		<xsl:variable name="entity" as="element()*">
 			<xsl:copy-of
