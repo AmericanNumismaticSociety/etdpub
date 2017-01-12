@@ -3,44 +3,45 @@
   GLOBAL
   ****************************************
  */
- body {
- 	font-family: Arial,Helvetica,sans-serif;
- }
- 
-.figure {
-    text-align:center;
+body{
+    font-family: Arial, Helvetica, sans-serif;
 }
-.figure img {
-    max-width:100%;
+
+.figure{
+    text-align: center;
 }
-.section-head {
-	letter-spacing: 6px;
+.figure img{
+    max-width: 100%;
 }
-.bibl {
-	margin:0 0 10px 10px;
+.section-head{
+    letter-spacing: 6px;
+}
+.bibl{
+    margin: 0 0 10px 10px;
 }
 /*REND*/
 .rend-smallcaps{
-	font-variant:small-caps;
+    font-variant: small-caps;
 }
 .rend-hang{
-	padding-left:2em;
-	text-indent:-2em;
+    padding-left: 2em;
+    text-indent: -2em;
 }
 .rend-ul{
-	text-decoration:underline;
+    text-decoration: underline;
 }
 .rend-bold{
-	font-weight:bold;
+    font-weight: bold;
 }
 .rend-italic{
-	font-style:italic;
+    font-style: italic;
 }
 .rend-sup{
-	vertical-align:super;
-	font-size:smaller;
+    font-size: 75%;
+    line-height: 0;
+    vertical-align: super;
 }
 .rend-sub{
-	vertical-align:sub;
-	font-size:smaller;
+    vertical-align: sub;
+    font-size: smaller;
 }

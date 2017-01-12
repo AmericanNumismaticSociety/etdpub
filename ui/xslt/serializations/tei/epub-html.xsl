@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-	xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
-	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:epub="http://www.idpf.org/2007/ops"
-	xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
 	xmlns="http://www.w3.org/1999/xhtml" exclude-result-prefixes="tei xs xlink etdpub" version="2.0">
 	<!-- xml method must be explicitly forced, or else the meta element does not conform to EPUB validation (defaults to xhtml) -->
 	<xsl:output encoding="UTF-8" indent="yes" method="xml"/>
@@ -14,10 +12,10 @@
 
 	<xsl:template match="/">
 		<xsl:apply-templates select="/content/tei:TEI"/>
-		
-		
+
+
 	</xsl:template>
-	
+
 	<xsl:template match="tei:TEI">
 		<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
 			<head>
@@ -29,12 +27,16 @@
 			<body>
 				<xsl:apply-templates select="//tei:titlePage"/>
 				<xsl:for-each select="descendant::tei:div1">
-					<xsl:result-document
-						href="file:///tmp/{$id}-{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">		
-						<xhtml xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
+					<xsl:result-document href="file:///tmp/{$id}-{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">
+						<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
 							<head>
 								<title>
-									<xsl:value-of select="if (self::tei:titlePage) then 'Title Page' else tei:head"/>
+									<xsl:value-of
+										select="
+											if (self::tei:titlePage) then
+												'Title Page'
+											else
+												tei:head"/>
 								</title>
 								<xsl:element name="meta">
 									<xsl:attribute name="http-equiv">content-type</xsl:attribute>
@@ -51,15 +53,13 @@
 										<xsl:element name="h{number(substring-after(local-name(), 'div')) + 2}">
 											<xsl:text>End Notes</xsl:text>
 										</xsl:element>
-										<table>
-											<tbody>
-												<xsl:apply-templates select="descendant::tei:note[@place]"/>
-											</tbody>
-										</table>
-									</section>				
+										<ul style="list-style-type:none">
+											<xsl:apply-templates select="descendant::tei:note[@place]"/>
+										</ul>
+									</section>
 								</xsl:if>
 							</body>
-						</xhtml>
+						</html>
 					</xsl:result-document>
 				</xsl:for-each>
 			</body>
@@ -67,9 +67,8 @@
 	</xsl:template>
 
 	<xsl:template match="tei:titlePage">
-		<xsl:result-document
-			href="file:///tmp/{$id}-titlePage.xhtml">		
-			<xhtml xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
+		<xsl:result-document href="file:///tmp/{$id}-titlePage.xhtml">
+			<html xmlns:epub="http://www.idpf.org/2007/ops" xmlns="http://www.w3.org/1999/xhtml">
 				<head>
 					<title>Title Page</title>
 					<xsl:element name="meta">
@@ -83,9 +82,9 @@
 						<xsl:apply-templates mode="titlePage"/>
 					</section>
 				</body>
-			</xhtml>
+			</html>
 		</xsl:result-document>
-		
+
 	</xsl:template>
 
 	<!--<xsl:template match="tei:teiHeader">
