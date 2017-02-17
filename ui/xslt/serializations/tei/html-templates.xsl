@@ -180,8 +180,7 @@
 				<xsl:variable name="noteId" select="if (starts-with(@target, '#')) then substring-after(@target, '#') else @target"/>
 				
 				<a href="{concat('#', $noteId)}">			
-					<!-- superscript note links -->
-					<xsl:variable name="noteId" select="substring-after(@target, '#')"/>				
+					<!-- superscript note links -->									
 					<xsl:if test="//tei:note[@xml:id=$noteId]">
 						<xsl:attribute name="class">rend-sup</xsl:attribute>
 					</xsl:if>
