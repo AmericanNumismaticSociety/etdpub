@@ -175,16 +175,23 @@
 
 	<!-- linking -->
 	<xsl:template match="tei:ref">
-		<a href="{@target}">			
-			<!-- superscript note links -->
-			<xsl:if test="contains(@target, '#')">
-				<xsl:variable name="noteId" select="substring-after(@target, '#')"/>				
-				<xsl:if test="//tei:note[@xml:id=$noteId]">
-					<xsl:attribute name="class">rend-sup</xsl:attribute>
-				</xsl:if>
-			</xsl:if>
-			<xsl:apply-templates/>
-		</a>
+		<xsl:choose>
+			<xsl:when test="starts-with(@target, '#') or not(matches(@target, 'https?://'))">
+				<a href="{@target}">			
+					<!-- superscript note links -->
+					<xsl:variable name="noteId" select="substring-after(@target, '#')"/>				
+					<xsl:if test="//tei:note[@xml:id=$noteId]">
+						<xsl:attribute name="class">rend-sup</xsl:attribute>
+					</xsl:if>
+					<xsl:apply-templates/>
+				</a>
+			</xsl:when>
+			<xsl:otherwise>
+				<a href="{@target}">
+					<xsl:apply-templates/>
+				</a>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 
 	<xsl:template match="tei:note[@place]">
