@@ -177,7 +177,9 @@
 	<xsl:template match="tei:ref">
 		<xsl:choose>
 			<xsl:when test="starts-with(@target, '#') or not(matches(@target, 'https?://'))">
-				<a href="{@target}">			
+				<xsl:variable name="noteId" select="if (starts-with(@target, '#')) then substring-after(@target, '#') else @target"/>
+				
+				<a href="{concat('#', $noteId)}">			
 					<!-- superscript note links -->
 					<xsl:variable name="noteId" select="substring-after(@target, '#')"/>				
 					<xsl:if test="//tei:note[@xml:id=$noteId]">
