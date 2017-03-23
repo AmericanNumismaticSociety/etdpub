@@ -151,3 +151,6 @@ div#mapcontainer{
 	vertical-align:sub;
 	font-size:smaller;
 }
+#note-container{
+    max-width:600px;
+}

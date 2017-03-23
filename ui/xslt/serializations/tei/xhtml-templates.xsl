@@ -68,7 +68,7 @@
 	</xsl:template>
 
 	<!-- name linking -->
-	<xsl:template match="*[contains(local-name(), 'Name')][@corresp]">
+	<xsl:template match="*[contains(local-name(), 'Name')][@corresp]|tei:name[@corresp]">
 		<xsl:variable name="id" select="substring-after(@corresp, '#')"/>
 		<xsl:variable name="entity" as="element()*">
 			<xsl:copy-of select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id = $id]"/>
@@ -76,7 +76,7 @@
 
 		<xsl:choose>
 			<xsl:when test="string-length($entity//tei:idno[@type = 'URI']) &gt; 0">
-				<a href="{$entity//tei:idno[@type='URI']}" title="{$entity//*[contains(local-name(), 'Name')]}" class="external-link">
+				<a href="{$entity//tei:idno[@type='URI']}" title="{$entity//*[contains(local-name(), 'Name')]}">
 					<xsl:value-of select="."/>
 				</a>
 			</xsl:when>

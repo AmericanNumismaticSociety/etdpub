@@ -179,11 +179,19 @@
 			<xsl:when test="starts-with(@target, '#') or not(matches(@target, 'https?://'))">
 				<xsl:variable name="noteId" select="if (starts-with(@target, '#')) then substring-after(@target, '#') else @target"/>
 				
-				<a href="{concat('#', $noteId)}">			
-					<!-- superscript note links -->									
-					<xsl:if test="//tei:note[@xml:id=$noteId]">
-						<xsl:attribute name="class">rend-sup</xsl:attribute>
-					</xsl:if>
+				<a>										
+					<xsl:choose>
+						<!-- superscript note links -->	
+						<xsl:when test="//tei:note[@xml:id=$noteId]">
+							<xsl:attribute name="class">rend-sup note-button</xsl:attribute>
+							<xsl:attribute name="href">#note-container</xsl:attribute>
+							<xsl:attribute name="note" select="$noteId"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:attribute name="href" select="concat('#', $noteId)"/>
+						</xsl:otherwise>
+					</xsl:choose>
+					
 					<xsl:apply-templates/>
 				</a>
 			</xsl:when>
@@ -213,19 +221,26 @@
 	</xsl:template>
 
 	<!-- name linking -->
-	<xsl:template match="tei:name[@corresp]">
+	<xsl:template match="*[contains(local-name(), 'Name')][@corresp]|tei:name[@corresp]">
 		<xsl:variable name="id" select="substring-after(@corresp, '#')"/>
 		<xsl:variable name="entity" as="element()*">
 			<xsl:copy-of select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id=$id]"/>
 		</xsl:variable>
-
+		<xsl:variable name="type">
+			<xsl:choose>
+				<xsl:when test="@type='period'">period</xsl:when>
+				<xsl:when test="local-name() = 'placeName'">place</xsl:when>
+				<xsl:otherwise>name</xsl:otherwise>
+			</xsl:choose>
+		</xsl:variable>
+		
 		<xsl:choose>
 			<xsl:when test="$entity//tei:idno[@type='URI']">
 				<a
-					href="{$display_path}results?q={if (@type='pname' or @type='cname') then 'name' else if (@type='period') then 'period' else 'place'}_facet:&#x022;{$entity//tei:*[contains(local-name(), 'Name')]}&#x022;">
+					href="{$display_path}results?q={$type}_facet:&#x022;{$entity//tei:*[contains(local-name(), 'Name')]}&#x022;">
 					<xsl:value-of select="."/>
 				</a>
-				<a href="{$entity//tei:idno[@type='URI']}" title="{$entity//*[contains(local-name(), 'Name')]}" class="external-link">
+				<a href="{$entity//tei:idno[@type='URI']}" title="{$entity//*[contains(local-name(), 'Name')]}">
 					<span class="glyphicon glyphicon-new-window"/>
 				</a>
 			</xsl:when>

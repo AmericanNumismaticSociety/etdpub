@@ -7,6 +7,17 @@ $(document).ready(function () {
 		}
 	});
 	
+	$('a.note-button').fancybox({
+	     beforeShow: function () {
+            var id = this.element.attr('note');
+            $('#' + id).clone().appendTo('#note-container table');
+         },
+         afterClose: function(){
+             //clear table on close
+             $('#note-container').children('table').html('');
+         }
+	});
+	
 	//toggle symbol div
 	$('.toggle-btn').click(function () {
 		var section = $(this).attr('id').split('-')[1];

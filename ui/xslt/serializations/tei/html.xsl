@@ -140,6 +140,11 @@
 				</div>
 			</div>
 		</div>
+		<div style="display:none">
+			<div id="note-container">
+				<table class="table"/>
+			</div>
+		</div>
 	</xsl:template>
 
 	<xsl:template match="tei:titleStmt/tei:title">
