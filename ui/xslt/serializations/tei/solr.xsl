@@ -120,20 +120,48 @@
 			</xsl:if>
 		</xsl:for-each>
 		
-		<xsl:apply-templates select="descendant::tei:term"/>
+		<xsl:apply-templates select="descendant::tei:keywords"/>
+	</xsl:template>
+	
+	<xsl:template match="tei:keywords">
+		<xsl:variable name="field">
+			<xsl:choose>
+				<xsl:when test="@scheme = 'nmo:FieldOfNumismatics'">field_of_numismatics</xsl:when>
+				<xsl:when test="@scheme = 'nmo:Hoard'">hoard</xsl:when>
+			</xsl:choose>
+		</xsl:variable>
+		
+		<xsl:apply-templates select="tei:term">
+			<xsl:with-param name="field" select="$field"/>
+		</xsl:apply-templates>
 	</xsl:template>
 
 	<xsl:template match="tei:term">
-		<xsl:variable name="field">field_of_numismatics</xsl:variable>
+		<xsl:param name="field"/>
 		
-		<field name="{$field}_facet">
-			<xsl:value-of select="."/>
-		</field>
-		<xsl:if test="@ref">
-			<field name="{$field}_uri">
-				<xsl:value-of select="@ref"/>
-			</field>
-		</xsl:if>
+		<xsl:choose>
+			<xsl:when test="string($field)">
+				<field name="{$field}_facet">
+					<xsl:value-of select="."/>
+				</field>
+				<xsl:if test="@ref">
+					<field name="{$field}_uri">
+						<xsl:value-of select="@ref"/>
+					</field>
+				</xsl:if>
+			</xsl:when>
+			<xsl:otherwise>
+				<field name="field_of_numismatics_facet">
+					<xsl:value-of select="."/>
+				</field>
+				<xsl:if test="@ref">
+					<field name="field_of_numismatics_uri">
+						<xsl:value-of select="@ref"/>
+					</field>
+				</xsl:if>
+			</xsl:otherwise>
+		</xsl:choose>
+		
 	</xsl:template>
 
 	<xsl:template match="tei:titleStmt">

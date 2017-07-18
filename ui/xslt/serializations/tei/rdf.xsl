@@ -44,6 +44,8 @@
 			
 			<!-- insert images, if applicable -->
 			<xsl:apply-templates select="descendant::tei:graphic[@url][1]"/>
+			
+			<xsl:apply-templates select="descendant::tei:keywords"/>
 		</schema:Book>
 
 		<!-- apply templates for each div -->
@@ -163,6 +165,15 @@
 	<xsl:template match="tei:graphic">
 		<foaf:thumbnail rdf:resource="{concat(/content/config/url, 'media/', $id, '/thumbnail/', @url)}"/>
 		<foaf:depiction rdf:resource="{concat(/content/config/url, 'media/', $id, '/reference/', @url)}"/>
+	</xsl:template>
+	
+	<!-- associated keywords by parsing @scheme -->
+	<xsl:template match="tei:keywords">
+		<xsl:apply-templates select="tei:term[@ref]"/>
+	</xsl:template>
+	
+	<xsl:template match="tei:term">
+		<dcterms:subject rdf:resource="{@ref}"/>
 	</xsl:template>
 
 	<!-- child sections -->
