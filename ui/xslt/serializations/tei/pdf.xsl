@@ -73,18 +73,20 @@
 					<!-- teiHeader generated title page -->
 					<xsl:apply-templates select="tei:teiHeader"/>
 				</fo:flow>
-			</fo:page-sequence>			
-			<fo:page-sequence master-reference="frontmatter" format="i" initial-page-number="1">
-				<fo:title>Frontmatter</fo:title>
-				<fo:static-content flow-name="footer">
-					<fo:block xsl:use-attribute-sets="smaller" text-align="center">
-						<fo:page-number/>
-					</fo:block>
-				</fo:static-content>
-				<fo:flow flow-name="xsl-region-body">
-					<xsl:apply-templates select="tei:text/tei:front"/>
-				</fo:flow>
 			</fo:page-sequence>
+			<xsl:if test="tei:text/tei:front">
+				<fo:page-sequence master-reference="frontmatter" format="i" initial-page-number="1">
+					<fo:title>Frontmatter</fo:title>
+					<fo:static-content flow-name="footer">
+						<fo:block xsl:use-attribute-sets="smaller" text-align="center">
+							<fo:page-number/>
+						</fo:block>
+					</fo:static-content>
+					<fo:flow flow-name="xsl-region-body">
+						<xsl:apply-templates select="tei:text/tei:front"/>
+					</fo:flow>
+				</fo:page-sequence>
+			</xsl:if>		
 			<fo:page-sequence master-reference="content" initial-page-number="1">
 				<fo:title>
 					<xsl:value-of select="//tei:titleStmt/tei:title"/>
@@ -422,7 +424,16 @@
 				<fo:external-graphic src="url({@url})" content-width="scale-to-fit" scaling="uniform" max-width="50%"/>
 			</xsl:when>
 			<xsl:otherwise>
-				<fo:external-graphic src="url({concat($url, 'media/', $id, '/archive/', @url)})" content-width="scale-to-fit" scaling="uniform" max-width="50%"/>
+				<xsl:choose>
+					<xsl:when test="parent::tei:cell">
+						<fo:external-graphic src="url({concat($url, 'media/', $id, '/thumbnail/', @url)})" content-width="scale-to-fit" scaling="uniform" max-width="100px" max-height="100px"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<fo:external-graphic src="url({concat($url, 'media/', $id, '/archive/', @url)})" content-width="scale-to-fit" scaling="uniform" max-width="50%"/>
+					</xsl:otherwise>
+				</xsl:choose>
+				
+				
 			</xsl:otherwise>
 		</xsl:choose>
 	</xsl:template>

@@ -95,7 +95,14 @@
 					<xsl:value-of select="tei:head"/>
 				</caption>
 			</xsl:if>
-			<xsl:apply-templates select="tei:row"/>
+			<xsl:if test="tei:row[@role='label']">
+				<thead>
+					<xsl:apply-templates select="tei:row[@role='label']"/>
+				</thead>
+			</xsl:if>
+			<tbody>
+				<xsl:apply-templates select="tei:row[not(@role = 'label')]"/>
+			</tbody>
 		</table>
 	</xsl:template>
 
@@ -106,9 +113,23 @@
 	</xsl:template>
 
 	<xsl:template match="tei:cell">
-		<td>
-			<xsl:apply-templates/>
-		</td>
+		<xsl:choose>
+			<xsl:when test="parent::tei:row/@role = 'label'">
+				<th>
+					<xsl:apply-templates/>
+				</th>
+			</xsl:when>
+			<xsl:otherwise>
+				<td>
+					<xsl:if test="child::tei:graphic">
+						<xsl:attribute name="style">
+							<xsl:value-of select="concat('width:', string(count(tei:graphic) * 120 + 10), 'px')"/>
+						</xsl:attribute>
+					</xsl:if>
+					<xsl:apply-templates/>
+				</td>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 
 	<xsl:template match="tei:list">
@@ -195,6 +216,9 @@
 		<img src="{$src}" alt="figure">
 			<xsl:if test="not(parent::tei:figure)">
 				<xsl:attribute name="display">inline</xsl:attribute>
+			</xsl:if>
+			<xsl:if test="parent::tei:cell">
+				<xsl:attribute name="style">max-height:100px;max-width:100px;</xsl:attribute>
 			</xsl:if>
 		</img>
 	</xsl:template>

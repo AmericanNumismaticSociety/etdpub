@@ -147,9 +147,11 @@
 						<!--<file name="OEBPS/teiHeader.xhtml">
 							<xsl:value-of select="concat('file:///tmp/', $basename, '-teiHeader.xhtml')"/>
 						</file>-->
-						<file name="OEBPS/titlePage.xhtml">
-							<xsl:value-of select="concat('file:///tmp/', $basename, '-titlePage.xhtml')"/>
-						</file>
+						<xsl:if test="descendant::tei:titlePage">
+							<file name="OEBPS/titlePage.xhtml">
+								<xsl:value-of select="concat('file:///tmp/', $basename, '-titlePage.xhtml')"/>
+							</file>
+						</xsl:if>
 						<!-- generate chapters -->
 						<xsl:for-each select="descendant::tei:div1">
 							<file name="OEBPS/{parent::node()/local-name()}-{format-number(position(), '000')}.xhtml">

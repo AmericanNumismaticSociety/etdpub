@@ -115,8 +115,13 @@
 					<xsl:value-of select="tei:head"/>
 				</caption>
 			</xsl:if>
+			<xsl:if test="tei:row[@role='label']">
+				<thead>
+					<xsl:apply-templates select="tei:row[@role='label']"/>
+				</thead>
+			</xsl:if>
 			<tbody>
-				<xsl:apply-templates select="tei:row"/>
+				<xsl:apply-templates select="tei:row[not(@role = 'label')]"/>
 			</tbody>
 		</table>
 	</xsl:template>
@@ -128,9 +133,23 @@
 	</xsl:template>
 
 	<xsl:template match="tei:cell">
-		<td>
-			<xsl:apply-templates/>
-		</td>
+		<xsl:choose>
+			<xsl:when test="parent::tei:row/@role = 'label'">
+				<th>
+					<xsl:apply-templates/>
+				</th>
+			</xsl:when>
+			<xsl:otherwise>
+				<td>
+					<xsl:if test="child::tei:graphic">
+						<xsl:attribute name="style">
+							<xsl:value-of select="concat('width:', string(count(tei:graphic) * 120 + 10), 'px')"/>
+						</xsl:attribute>
+					</xsl:if>
+					<xsl:apply-templates/>
+				</td>
+			</xsl:otherwise>
+		</xsl:choose>
 	</xsl:template>
 
 	<xsl:template match="tei:list">
@@ -284,11 +303,19 @@
 
 		<xsl:choose>
 			<xsl:when test="matches(@url, 'https?://')">
-				<img src="{@url}" alt="figure" class="img-rounded" title="{$title}"/>
+				<img src="{@url}" alt="{if (@n) then @n else 'image'}" class="img-rounded" title="{$title}"/>
 			</xsl:when>
 			<xsl:otherwise>
 				<a class="thumbImage" rel="gallery" href="{concat($display_path, 'media/', $id, '/archive/', @url)}" title="{$title}">
-					<img src="{concat($display_path, 'media/', $id, '/reference/', @url)}" class="img-rounded" alt="figure"/>
+					<!-- display thumbnail when the image comes in a table -->
+					<xsl:choose>
+						<xsl:when test="parent::tei:cell">
+							<img src="{concat($display_path, 'media/', $id, '/thumbnail/', @url)}" class="img-rounded" alt="{if (@n) then @n else 'image'}" style="max-width:100px;max-height:100px"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<img src="{concat($display_path, 'media/', $id, '/reference/', @url)}" class="img-rounded" alt="{if (@n) then @n else 'image'}"/>
+						</xsl:otherwise>
+					</xsl:choose>
 				</a>
 			</xsl:otherwise>
 		</xsl:choose>
