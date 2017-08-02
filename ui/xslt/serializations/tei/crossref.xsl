@@ -140,6 +140,7 @@
 				</xsl:choose>
 			</year>
 		</publication_date>
+		<noisbn reason="archive_volume"/>
 		<publisher>
 			<publisher_name>
 				<xsl:value-of select="tei:publisher/tei:name"/>
