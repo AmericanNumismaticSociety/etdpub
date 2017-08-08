@@ -5,8 +5,9 @@
     Apache License 2.0
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ev="http://www.w3.org/2001/xml-events"
-	xmlns:xxforms="http://orbeon.org/oxf/xml/xforms" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:xlink="http://www.w3.org/1999/xlink"
-	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:exist="http://exist.sourceforge.net/NS/exist" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+	xmlns:xxforms="http://orbeon.org/oxf/xml/xforms" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:exist="http://exist.sourceforge.net/NS/exist"
+	xmlns:mods="http://www.loc.gov/mods/v3" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 	<head>
 		<title>etdpub Administration</title>
 		<link rel="stylesheet" href="/fr/style/bootstrap/css/bootstrap.css" type="text/css" />
@@ -31,12 +32,18 @@
 					<internetMediaType></internetMediaType>
 					<interface></interface>
 					<status></status>
+					<crossref-api>https://test.crossref.org/servlet/deposit</crossref-api>
 				</controls>
 			</xforms:instance>
 
 			<!-- exist URL is stored in an XML file -->
 			<xforms:instance id="exist-config" xxforms:exclude-result-prefixes="#all">
 				<xi:include href="../exist-config.xml"></xi:include>
+			</xforms:instance>
+
+			<!-- crossref authentication stored in XML file -->
+			<xforms:instance id="crossref-config" xxforms:exclude-result-prefixes="#all">
+				<xi:include href="../crossref-config.xml"></xi:include>
 			</xforms:instance>
 
 			<xforms:instance id="config" xxforms:exclude-result-prefixes="#all">
@@ -61,9 +68,9 @@
 						<naan></naan>
 					</ark>
 					<crossref enabled="false">
-						<depositor_name/>
-						<depositor_email/>
-						<doi_prefix/>
+						<depositor_name></depositor_name>
+						<depositor_email></depositor_email>
+						<doi_prefix></doi_prefix>
 					</crossref>
 					<logo></logo>
 					<style>default</style>
@@ -74,7 +81,7 @@
 			</xforms:instance>
 
 			<xforms:instance id="doc" xxforms:exclude-result-prefixes="#all">
-				<eac-cpf xmlns=""></eac-cpf>
+				<xml xmlns=""></xml>
 			</xforms:instance>
 
 			<!-- instance templates -->
@@ -108,6 +115,8 @@
 							 		<internetMediaType>{data($record//mods:physicalDescription/mods:internetMediaType)}</internetMediaType>
 							 		<type>MODS</type>
 							 		<genre>{data($record//mods:mods/mods:genre)}</genre>
+							 		<orcid>false</orcid>
+							 		<doi>{data($record//mods:identifier[@type='DOI'])}</doi>
 							 		<published>false</published>
 						 		</record>
 						 	else if ($type='TEI') then
@@ -117,6 +126,8 @@
 							 		<author>{string-join($record//tei:titleStmt/tei:author/tei:name, ', ')}</author>
 							 		<date>{data($record//tei:publicationStmt/tei:date)}</date>
 							 		<type>TEI</type>
+							 		<orcid>{if ($record//tei:titleStmt/*[tei:idno[@type='URI'][matches(., 'https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}')]]) then true() else false()}</orcid>
+							 		<doi>{data($record//tei:fileDesc/tei:sourceDesc/tei:bibl[tei:idno[@type='DOI']]/tei:idno[@type='DOI'])}</doi>
 							 		<published>false</published>
 							 	</record>
 							 else '' } 
@@ -156,16 +167,55 @@
 			<xforms:instance id="sendCommit" xxforms:exclude-result-prefixes="#all">
 				<commit></commit>
 			</xforms:instance>
-			
+
 			<!-- delete from Solr -->
 			<xforms:instance id="deleteId" xxforms:exclude-result-prefixes="#all">
 				<delete xmlns="">
 					<query></query>
 				</delete>
 			</xforms:instance>
-			
+
 			<xforms:instance id="published-response">
 				<response xmlns=""></response>
+			</xforms:instance>
+
+			<!-- DOI/Crossref templates -->
+			<xforms:instance id="crossref" xxforms:exclude-result-prefixes="#all">
+				<doi_batch xmlns=""></doi_batch>
+			</xforms:instance>
+
+			<xforms:instance id="crossref-form-data" xxforms:exclude-result-prefixes="#all">
+				<formData xmlns="">
+					<operation>doMDUpload</operation>
+					<login_id></login_id>
+					<login_passwd></login_passwd>
+					<fname filename="" mediatype="" size=""></fname>
+					<!--					<fname/>-->
+				</formData>
+			</xforms:instance>
+
+			<xforms:instance id="save-crossref-config">
+				<config xmlns="">
+					<url></url>
+					<content-type>text/plain</content-type>
+					<make-directories>false</make-directories>
+					<append>false</append>
+				</config>
+			</xforms:instance>
+
+			<xforms:instance id="sourceDesc-template" xxforms:exclude-result-prefixes="#all">
+				<sourceDesc xmlns="http://www.tei-c.org/ns/1.0"></sourceDesc>
+			</xforms:instance>
+
+			<xforms:instance id="tei-doi-template" xxforms:exclude-result-prefixes="#all">
+				<bibl xmlns="http://www.tei-c.org/ns/1.0">
+					<title>DOI</title>
+					<idno type="DOI"></idno>
+				</bibl>
+			</xforms:instance>
+
+			<xforms:instance id="mods-doi-template" xxforms:exclude-result-prefixes="#all">
+				<identifier type="DOI" xmlns="http://www.loc.gov/mods/v3"></identifier>
 			</xforms:instance>
 
 			<!-- LOD CRUD instances -->
@@ -197,11 +247,15 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			<xforms:bind nodeset="instance('control-instance')">
 				<xforms:bind nodeset="working" type="xs:boolean"></xforms:bind>
 			</xforms:bind>
-			
+
 			<xforms:bind nodeset="instance('pagination-result')">
 				<xforms:bind nodeset="//record">
-					<xforms:bind nodeset="published" type="xs:boolean"></xforms:bind>s
+					<xforms:bind nodeset="published" type="xs:boolean"></xforms:bind>
 				</xforms:bind>
+			</xforms:bind>
+
+			<xforms:bind nodeset="instance('crossref-form-data')">
+				<xforms:bind nodeset="fname" as="xs:anyURI"></xforms:bind>
 			</xforms:bind>
 
 			<!-- ************* SUBMISSIONS **************** -->
@@ -216,8 +270,8 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 
 			<!--***************** XQUERY ******************-->
 			<!-- xquery for getting and processing query results into pages of items -->
-			<xforms:submission id="xquery-pagination" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance" instance="pagination-result"
-				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+			<xforms:submission id="xquery-pagination" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance"
+				instance="pagination-result" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error querying eXist database.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<!--iterate through docs, check for publication -->
@@ -229,17 +283,115 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 				</xforms:action>
 			</xforms:submission>
 
-			<xforms:submission id="xquery-collection" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance" instance="xquery-result"
-				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+			<xforms:submission id="xquery-collection" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance"
+				instance="xquery-result" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error querying eXist database.</xforms:message>
 			</xforms:submission>
 
 			<!--***************** EXIST-DB ******************-->
-			<!-- delete finding aid -->
+			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml"
+				replace="instance" instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load MODS or TEI record from eXist.</xforms:message>
+
+				<!-- after load, insert the relevant template DOI template in either TEI or MODS -->
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:var name="doi" select="concat(instance('config')/crossref/doi_prefix, '/', instance('control-instance')/id)"></xforms:var>
+
+					<xforms:action if="instance('doc')/namespace-uri()='http://www.loc.gov/mods/v3'">
+						<xforms:insert context="instance('doc')//mods:mods" nodeset="./child::node()[last()]" origin="instance('mods-doi-template')"></xforms:insert>
+						<xforms:setvalue ref="instance('doc')//mods:mods/mods:identifier[@type='DOI']" value="$doi"></xforms:setvalue>
+					</xforms:action>
+					<xforms:action if="instance('doc')/namespace-uri()='http://www.tei-c.org/ns/1.0'">
+						<xforms:insert context="instance('doc')/tei:teiHeader/tei:fileDesc" nodeset="./child::node()[last()]" origin="instance('sourceDesc-template')"
+							if="not(instance('doc')/tei:teiHeader/tei:fileDesc/tei:sourceDesc)"></xforms:insert>
+						<xforms:insert context="instance('doc')/tei:teiHeader/tei:fileDesc/tei:sourceDesc" nodeset="./child::node()[last()]" origin="instance('tei-doi-template')"></xforms:insert>
+						<xforms:setvalue ref="instance('doc')/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl[tei:idno[@type='DOI']]/tei:idno" value="$doi"></xforms:setvalue>
+					</xforms:action>
+					
+					<!-- save the doc back to exist -->
+					<xforms:send submission="save-doc"/>
+				</xforms:action>
+			</xforms:submission>
+
+			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml" method="put"
+				replace="none" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				<xforms:message ev:event="xforms-submit-error" level="modal">Error Saving Document</xforms:message>
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:setvalue ref="instance('control-instance')/status">Successfully saved record to eXist.</xforms:setvalue>
+
+					<!-- only index the Document file for a MODS file that is not of the journal template -->
+					<xforms:action if="instance('control-instance')/type='MODS'">
+						<!-- first put the associated document, which then calls the MODS indexing afterwards -->
+						<xforms:send submission="put-document" if="not(instance('control-instance')/template = 'journal')"></xforms:send>
+					</xforms:action>
+					<!-- otherwise, get the TEI-to-Solr document directly -->
+					<xforms:action if="instance('control-instance')/type = 'TEI'">
+						<xforms:send submission="to-solr"></xforms:send>
+					</xforms:action>
+					<!-- delete triples from triplestore, if applicable. Then re-post RDF document -->
+					<xforms:action ev:event="xforms-submit-done" if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
+						<xforms:var name="uri"
+							select="if (instance('config')/ark/@enabled='true') then concat(instance('config')/url, 'ark:/', instance('config')/ark/naan, '/', instance('control-instance')/id) else concat(instance('config')/url, 'id/', instance('control-instance')/id)"></xforms:var>
+						<xforms:setvalue ref="instance('sparqlUpdate')" value="replace(instance('sparqlUpdate-template'), 'URI', $uri)"></xforms:setvalue>
+						<xforms:send submission="delete-graph"></xforms:send>
+						<xforms:send submission="get-rdf"></xforms:send>
+					</xforms:action>
+				</xforms:action>
+			</xforms:submission>
+
 			<xforms:submission id="delete-doc" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml" method="delete" replace="none"
 				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/status">MODS/TEI document successfully deleted.</xforms:setvalue>
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error deleting document from eXist database.</xforms:message>
+			</xforms:submission>
+
+			<!--***************** CROSSREF ******************-->
+			<!-- serialize MODS/TEI into Crossref XML -->
+			<xforms:submission id="load-crossref" method="get" replace="instance" instance="crossref" serialization="none"
+				resource="/etdpub/id/{instance('control-instance')/id}.xref">
+				<xforms:message ev:event="xforms-submit-error" level="modal">Error transforming record to Crossref XML document.</xforms:message>
+
+				<xforms:action ev:event="xforms-submit-done">
+					<!-- set crossref credentials for form data -->
+					<xforms:setvalue ref="instance('crossref-form-data')/login_id" value="instance('crossref-config')/username"></xforms:setvalue>
+					<xforms:setvalue ref="instance('crossref-form-data')/login_passwd" value="instance('crossref-config')/password"></xforms:setvalue>
+					<xforms:setvalue ref="instance('crossref-form-data')/fname" value="concat(instance('control-instance')/id, '.xml')"></xforms:setvalue>
+
+					<!-- serialize the instance XML into a file in /tmp -->
+					<xforms:setvalue ref="instance('save-crossref-config')/url" value="concat('file:///tmp/',  instance('control-instance')/id, '.xml')"></xforms:setvalue>
+					<xforms:insert nodeset="instance('dump')"
+						origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/save-crossref.xpl', ('doc', 'configuration'), (instance('crossref'), instance('save-crossref-config')), 'data')"></xforms:insert>
+
+					<!-- post data to Crossref API -->
+					<xforms:send submission="post-crossref"></xforms:send>
+				</xforms:action>
+			</xforms:submission>
+
+			<!-- POST to Crossref deposition API -->
+			<!--<xforms:submission id="post-crossref" action="{instance('control-instance')/crossref-api}" ref="instance('crossref-form-data')" instance="crossref-form-data" replace="instance"
+				method="form-data-post" serialization="multipart/form-data">
+				<xforms:message ev:event="xforms-submit-error" level="modal" value="event('response-body')"></xforms:message>
+				<xforms:action ev:event="xforms-submit-done">
+					<xforms:message level="modal" value="event('response-body')"></xforms:message>
+				</xforms:action>
+			</xforms:submission>-->
+
+			<!-- interact with PHP script in CGI to run multipart/form-data -->
+			<xforms:submission id="post-crossref" serialization="none" method="get" action="/etdpub/admin/attach-metadata?file={instance('crossref-form-data')/fname}"
+				instance="dump" replace="instance">
+				<xforms:header>
+					<xforms:name>User-Agent</xforms:name>
+					<xforms:value>ETDPub/XForms</xforms:value>
+				</xforms:header>
+				<xforms:message ev:event="xforms-submit-error" level="modal" value="event('response-body')"></xforms:message>
+				<xforms:action ev:event="xforms-submit-done">
+					<!-- after success, load the doc, insert DOI, and save it -->
+					<xforms:send submission="load-doc"/>
+					
+					<!-- set DOI in the pagination metadata in order to prevent re-submission -->
+					<xforms:var name="doi" select="concat(instance('config')/crossref/doi_prefix, '/', instance('control-instance')/id)"></xforms:var>
+					<xforms:setvalue ref="instance('pagination-result')//record[id = instance('control-instance')/id]/doi" value="$doi"/>
+				</xforms:action>
 			</xforms:submission>
 
 			<!-- ************************* SOLR ************************** -->
@@ -280,7 +432,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			<xforms:submission id="submit-commit" action="{instance('config')/solr/url}update" ref="instance('sendCommit')" instance="sendCommit" replace="none" method="post">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Solr commit failed.</xforms:message>
 			</xforms:submission>
-			
+
 			<!-- evaluating whether a document is published -->
 			<xforms:submission id="query-solr-for-publication" serialization="none" method="get"
 				action="{instance('config')/solr/url}select/?q=id:{instance('control-instance')/id}&amp;rows=0&amp;facet=false" replace="instance" instance="published-response">
@@ -335,8 +487,8 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 							</div>
 						</xforms:group>
 						<h1>etdpub Administration</h1>
-						<p><a href="{instance('config')/url}" target="_blank">View Pubic Interface <span class="glyphicon glyphicon-new-window"></span></a><br /><a href="{$display_path}logout"><span
-									class="glyphicon glyphicon-log-out"></span> Logout</a></p>
+						<p><a href="{instance('config')/url}" target="_blank">View Pubic Interface <span class="glyphicon glyphicon-new-window"></span></a><br /><a
+								href="{$display_path}logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></p>
 						<h3>Create New Documents</h3>
 						<ul>
 							<xforms:repeat nodeset="xxforms:sort(instance('templates')/template, @label, 'text', 'ascending')">
@@ -354,6 +506,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 											<th>Type</th>
 											<th>Title</th>
 											<th style="width:10%">View</th>
+											<th style="width:10%">Crossref</th>
 											<th style="width:5%">Publish</th>
 											<th style="width:5%">Delete</th>
 										</tr>
@@ -372,9 +525,12 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 												<td>
 													<h4>
 														<xforms:group ref=".[type='MODS']">
-															<a href="edit/?id={$id}">
-																<xforms:output ref="title"></xforms:output>
-															</a>
+															<xforms:trigger appearance="minimal">
+																<xforms:label ref="title"></xforms:label>
+																<xforms:action ev:event="DOMActivate">
+																	<xforms:load show="replace" resource="edit/?id={$id}"></xforms:load>
+																</xforms:action>
+															</xforms:trigger>
 														</xforms:group>
 														<xforms:group ref=".[type='TEI']">
 															<xforms:output ref="title"></xforms:output>
@@ -385,6 +541,13 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 															<xforms:label>ID</xforms:label>
 														</xforms:output>
 													</div>
+													<xforms:group ref="doi[string-length(.) &gt; 0]">
+														<div>
+															<xforms:output ref=".">
+																<xforms:label>DOI</xforms:label>
+															</xforms:output>
+														</div>
+													</xforms:group>
 													<div>
 														<xforms:output ref="author">
 															<xforms:label>Author</xforms:label>
@@ -395,6 +558,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 															<xforms:label>Date</xforms:label>
 														</xforms:output>
 													</div>
+													
 													<xforms:group ref="genre">
 														<div>
 															<xforms:output ref=".">
@@ -404,7 +568,32 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 													</xforms:group>
 												</td>
 												<td class="text-center">
-													<a href="{instance('config')/url}id/{$id}.xml" target="_blank">xml</a> | <a href="{instance('config')/url}id/{$id}" target="_blank">html</a>
+													<a href="{instance('config')/url}id/{$id}.xml" target="_blank">xml</a> | <a href="{instance('config')/url}id/{$id}"
+														target="_blank">html</a>
+												</td>
+												<td class="text-center">
+													<!-- only display link to post to Crossref when there's an orcid and there isn't a DOI already -->
+													<xforms:group ref=".[orcid = true()]">
+														<xforms:group ref=".[string-length(doi) &gt; 0]">
+															<span class="glyphicon glyphicon-ok"/>
+														</xforms:group>
+														<xforms:group ref=".[not(string(doi))]">
+															<xforms:trigger appearance="minimal">
+																<xforms:label><span class="glyphicon glyphicon-unchecked"></span></xforms:label>
+																<xforms:action ev:event="DOMActivate">
+																	<xforms:setvalue ref="instance('control-instance')/id" value="$id"></xforms:setvalue>
+																	<xforms:setvalue ref="instance('control-instance')/type" value="$type"></xforms:setvalue>
+																	<!-- set the document URL and other variables -->
+																	<xforms:setvalue ref="instance('control-instance')/stream_url"
+																		value="if (matches($media_url, '^https?://')) then $media_url else concat(instance('config')/url, $media_url)"></xforms:setvalue>
+																	<xforms:setvalue ref="instance('control-instance')/template" value="instance('templates')/template[. = $genre]/@id"></xforms:setvalue>
+																	<xforms:setvalue ref="instance('control-instance')/internetMediaType" value="$internetMediaType"></xforms:setvalue>
+																	<!-- serialize the record into Crossref XML -->
+																	<xforms:send submission="load-crossref"></xforms:send>
+																</xforms:action>
+															</xforms:trigger>
+														</xforms:group>
+													</xforms:group>
 												</td>
 												<td class="text-center">
 													<xforms:group ref=".[not(genre='journals (periodicals)')]">
@@ -414,19 +603,20 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 																<xforms:action ev:event="DOMActivate">
 																	<xforms:var name="val" select="." as="xs:boolean"></xforms:var>
 																	<xforms:setvalue ref="instance('control-instance')/id" value="$id"></xforms:setvalue>
-																	
-																	<!-- delete the doc from eXist and Solr -->																
-																	<xforms:setvalue ref="instance('deleteId')/query" value="concat('id:&#x022;', instance('control-instance')/id, '&#x022;')"></xforms:setvalue>
-																	<xforms:send submission="delete-solr-doc"></xforms:send>																	
+																	<!-- delete the doc from eXist and Solr -->
+																	<xforms:setvalue ref="instance('deleteId')/query"
+																		value="concat('id:&#x022;', instance('control-instance')/id, '&#x022;')"></xforms:setvalue>
+																	<xforms:send submission="delete-solr-doc"></xforms:send>
 																	<!-- delete triples from triplestore, if applicable -->
-																	<xforms:action ev:event="xforms-submit-done" if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
+																	<xforms:action ev:event="xforms-submit-done"
+																		if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
 																		<!-- set URI for object, execute SPARQL/Update query to purge triples -->
 																		<xforms:var name="uri"
 																			select="if (instance('config')/ark/@enabled='true') then concat(instance('config')/url, 'ark:/', instance('config')/ark/naan, '/', $id) else concat(instance('config')/url, 'id/', $id)"></xforms:var>
-																		<xforms:setvalue ref="instance('sparqlUpdate')" value="replace(instance('sparqlUpdate-template'), 'URI', $uri)"></xforms:setvalue>
+																		<xforms:setvalue ref="instance('sparqlUpdate')"
+																			value="replace(instance('sparqlUpdate-template'), 'URI', $uri)"></xforms:setvalue>
 																		<xforms:send submission="delete-graph"></xforms:send>
-																	</xforms:action>																
-																	
+																	</xforms:action>
 																	<xforms:setvalue ref="." value="false()"></xforms:setvalue>
 																</xforms:action>
 															</xforms:trigger>
@@ -435,40 +625,41 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 															<xforms:trigger appearance="minimal">
 																<xforms:label><span class="glyphicon glyphicon-{if (.=true()) then 'ok' else 'unchecked'}"></span></xforms:label>
 																<xforms:action ev:event="DOMActivate">
-																	<xforms:var name="val" select="." as="xs:boolean"></xforms:var>																
+																	<xforms:var name="val" select="." as="xs:boolean"></xforms:var>
 																	<xforms:setvalue ref="instance('control-instance')/id" value="$id"></xforms:setvalue>
-																	
-																	<!-- set the document URL and other variables -->
-																	<xforms:setvalue ref="instance('control-instance')/stream_url"
-																		value="if (matches($media_url, '^https?://')) then $media_url else concat(instance('config')/url, $media_url)"></xforms:setvalue>
-																	<xforms:setvalue ref="instance('control-instance')/template" value="instance('templates')/template[. = $genre]/@id"></xforms:setvalue>
 																	<xforms:setvalue ref="instance('control-instance')/type" value="$type"></xforms:setvalue>
-																	<xforms:setvalue ref="instance('control-instance')/internetMediaType" value="$internetMediaType"></xforms:setvalue>
-																	
-																	
 																	<!-- only index the Document file for a MODS file that is not of the journal template -->
 																	<xforms:action if="instance('control-instance')/type='MODS'">
-																		<xforms:send submission="put-document" if="not(instance('control-instance')/template = 'journal')"></xforms:send>
+																		<!-- set the document URL and other variables -->
+																		<xforms:setvalue ref="instance('control-instance')/stream_url"
+																			value="if (matches($media_url, '^https?://')) then $media_url else concat(instance('config')/url, $media_url)"></xforms:setvalue>
+																		<xforms:setvalue ref="instance('control-instance')/template"
+																			value="instance('templates')/template[. = $genre]/@id"></xforms:setvalue>
+																		<xforms:setvalue ref="instance('control-instance')/internetMediaType" value="$internetMediaType"></xforms:setvalue>
+																		<!-- first put the associated document, which then calls the MODS indexing afterwards -->
+																		<xforms:send submission="put-document" if="not(instance('control-instance')/template = 'journal')"
+																		></xforms:send>
 																	</xforms:action>
 																	<!-- otherwise, get the TEI-to-Solr document directly -->
 																	<xforms:action if="instance('control-instance')/type = 'TEI'">
 																		<xforms:send submission="to-solr"></xforms:send>
 																	</xforms:action>
 																	<!-- delete triples from triplestore, if applicable. Then re-post RDF document -->
-																	<xforms:action ev:event="xforms-submit-done" if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
+																	<xforms:action ev:event="xforms-submit-done"
+																		if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
 																		<xforms:var name="uri"
 																			select="if (instance('config')/ark/@enabled='true') then concat(instance('config')/url, 'ark:/', instance('config')/ark/naan, '/', $id) else concat(instance('config')/url, 'id/', $id)"></xforms:var>
-																		<xforms:setvalue ref="instance('sparqlUpdate')" value="replace(instance('sparqlUpdate-template'), 'URI', $uri)"></xforms:setvalue>
+																		<xforms:setvalue ref="instance('sparqlUpdate')"
+																			value="replace(instance('sparqlUpdate-template'), 'URI', $uri)"></xforms:setvalue>
 																		<xforms:send submission="get-rdf"></xforms:send>
 																	</xforms:action>
-																	
 																	<xforms:setvalue ref="." value="true()"></xforms:setvalue>
 																</xforms:action>
 															</xforms:trigger>
 														</xforms:group>
-													</xforms:group>													
+													</xforms:group>
 												</td>
-												<td class="text-center">													
+												<td class="text-center">
 													<xforms:trigger appearance="minimal">
 														<xforms:label><span class="glyphicon glyphicon-remove"></span></xforms:label>
 														<xforms:hint>Delete Document</xforms:hint>
@@ -521,6 +712,21 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 							</xforms:action>
 						</fr:positive-choice>
 					</fr:alert-dialog>
+					<!--<xforms:upload ref="instance('crossref-form-data')/fname">
+						<xforms:filename ref="@filename"/>
+						<xforms:mediatype ref="@mediatype"/>
+						<xxforms:size ref="@size"/>
+					</xforms:upload>
+					
+					<xforms:trigger>
+						<xforms:label>Submit</xforms:label>
+						<xforms:action ev:event="DOMActivate">
+							<xforms:setvalue ref="instance('crossref-form-data')/login_id" value="instance('crossref-config')/username"/>
+							<xforms:setvalue ref="instance('crossref-form-data')/login_passwd" value="instance('crossref-config')/password"/>
+							<xforms:send submission="post-crossref"/>
+						</xforms:action>
+						
+					</xforms:trigger>-->
 					<!--<fr:xforms-inspector id="orbeon-xforms-inspector"></fr:xforms-inspector>-->
 				</div>
 			</div>

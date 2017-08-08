@@ -18,6 +18,7 @@
 	* ADMIN INTERFACE *
 	***************** -->
 	<page path="/etdpub/admin/edit/" view="xforms/edit.xhtml"/>
+	<page path="/etdpub/admin/attach-metadata" view="xpl/xforms/attach-metadata.xpl"/>
 	<page path="/etdpub/admin/" view="xforms/admin.xhtml" id="admin"/>
 	
 	<!-- authentication -->

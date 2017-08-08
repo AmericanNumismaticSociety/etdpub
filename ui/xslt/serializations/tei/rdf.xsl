@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?cocoon-disable-caching?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:tei="http://www.tei-c.org/ns/1.0"
-	xmlns:dcterms="http://purl.org/dc/terms/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:org="http://www.w3.org/ns/org#"
-	xmlns:schema="http://schema.org/" xmlns:dcmitype="http://purl.org/dc/dcmitype/" xmlns:oa="http://www.w3.org/ns/oa#" version="2.0" exclude-result-prefixes="xsl xs xlink tei">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#"
+	xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:org="http://www.w3.org/ns/org#" xmlns:schema="http://schema.org/" xmlns:dcmitype="http://purl.org/dc/dcmitype/"
+	xmlns:oa="http://www.w3.org/ns/oa#" version="2.0" exclude-result-prefixes="xsl xs xlink tei">
 
 	<!-- URI variables -->
 	<xsl:variable name="id" select="//tei:TEI/@xml:id"/>
@@ -27,8 +28,8 @@
 
 	<xsl:template match="/">
 		<rdf:RDF xmlns:dcterms="http://purl.org/dc/terms/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:oa="http://www.w3.org/ns/oa#"
-			xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:org="http://www.w3.org/ns/org#"
-			xmlns:schema="http://schema.org/" xmlns:dcmitype="http://purl.org/dc/dcmitype/">
+			xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:foaf="http://xmlns.com/foaf/0.1/"
+			xmlns:org="http://www.w3.org/ns/org#" xmlns:schema="http://schema.org/" xmlns:dcmitype="http://purl.org/dc/dcmitype/">
 			<xsl:apply-templates select="//tei:TEI"/>
 		</rdf:RDF>
 	</xsl:template>
@@ -36,15 +37,18 @@
 	<xsl:template match="tei:TEI">
 		<schema:Book rdf:about="{concat($uri_space, $id)}">
 			<!-- bibliographic metadata -->
-			<xsl:apply-templates select="tei:teiHeader/tei:fileDesc"/>	
-			
+			<xsl:apply-templates select="tei:teiHeader/tei:fileDesc"/>
+
+			<!-- related bibliographic entities, DOI -->
+			<xsl:apply-templates select="tei:teiHeader/tei:sourceDesc"/>
+
 			<!-- add in links to the PDF and the EPUB -->
 			<dcterms:hasVersion rdf:resource="{concat($uri_space, $id)}/pdf"/>
 			<dcterms:hasVersion rdf:resource="{concat($uri_space, $id)}.epub"/>
-			
+
 			<!-- insert images, if applicable -->
 			<xsl:apply-templates select="descendant::tei:graphic[@url][1]"/>
-			
+
 			<xsl:apply-templates select="descendant::tei:keywords"/>
 		</schema:Book>
 
@@ -58,7 +62,7 @@
 
 	<!-- header metadata about the whole document -->
 	<xsl:template match="tei:fileDesc">
-		<xsl:apply-templates select="tei:titleStmt|tei:publicationStmt|tei:seriesStmt|tei:sourceDesc"/>		
+		<xsl:apply-templates select="tei:titleStmt|tei:publicationStmt|tei:seriesStmt|tei:sourceDesc"/>
 	</xsl:template>
 
 	<xsl:template match="tei:titleStmt">
@@ -106,7 +110,7 @@
 			</dcterms:publisher>
 		</xsl:for-each>
 	</xsl:template>
-	
+
 	<xsl:template match="tei:seriesStmt">
 		<dcterms:isPartOf>
 			<xsl:choose>
@@ -136,15 +140,15 @@
 			<xsl:value-of select="."/>
 		</dcterms:date>
 	</xsl:template>
-	
+
 	<!-- link to source bibliographic record -->
 	<xsl:template match="tei:sourceDesc">
 		<xsl:apply-templates select="tei:bibl[tei:idno[@type='URI']]"/>
 	</xsl:template>
-	
+
 	<xsl:template match="tei:bibl[tei:idno[@type='URI']]">
 		<xsl:variable name="href" select="tei:idno[@type='URI']"/>
-		
+
 		<xsl:choose>
 			<xsl:when test="contains($href, 'hdl.handle.net')">
 				<dcterms:source rdf:resource="{$href}"/>
@@ -157,23 +161,34 @@
 						</xsl:for-each>
 					</schema:CreativeWork>
 				</schema:exampleOfWork>
-			</xsl:when>			
+			</xsl:when>
 		</xsl:choose>
 	</xsl:template>
-	
+
 	<!-- images -->
 	<xsl:template match="tei:graphic">
 		<foaf:thumbnail rdf:resource="{concat(/content/config/url, 'media/', $id, '/thumbnail/', @url)}"/>
 		<foaf:depiction rdf:resource="{concat(/content/config/url, 'media/', $id, '/reference/', @url)}"/>
 	</xsl:template>
-	
+
 	<!-- associated keywords by parsing @scheme -->
 	<xsl:template match="tei:keywords">
 		<xsl:apply-templates select="tei:term[@ref]"/>
 	</xsl:template>
-	
+
 	<xsl:template match="tei:term">
 		<dcterms:subject rdf:resource="{@ref}"/>
+	</xsl:template>
+
+	<!-- bibliographic resources -->
+	<xsl:template match="tei:sourceDesc">
+		<xsl:apply-templates select="tei:bibl[tei:idno/@type='DOI']"/>
+	</xsl:template>
+
+	<xsl:template match="tei:bibl">
+		<dcterms:identifier>
+			<xsl:value-of select="tei:idno"/>
+		</dcterms:identifier>
 	</xsl:template>
 
 	<!-- child sections -->
@@ -207,7 +222,8 @@
 	<xsl:template match="tei:*[starts-with(local-name(), 'div')]" mode="annotation">
 		<xsl:variable name="div_id" select="@xml:id"/>
 
-		<xsl:for-each select="distinct-values(descendant::tei:ref[matches(@target, 'https?://')][ancestor::*[starts-with(local-name(), 'div')][1][@xml:id=$div_id]]/@target|descendant::tei:*[contains(local-name(), 'Name')][@corresp][ancestor::*[starts-with(local-name(), 'div')][1][@xml:id=$div_id]]/@corresp)">
+		<xsl:for-each
+			select="distinct-values(descendant::tei:ref[matches(@target, 'https?://')][ancestor::*[starts-with(local-name(), 'div')][1][@xml:id=$div_id]]/@target|descendant::tei:*[contains(local-name(), 'Name')][@corresp][ancestor::*[starts-with(local-name(), 'div')][1][@xml:id=$div_id]]/@corresp)">
 			<xsl:variable name="val" select="."/>
 			<xsl:variable name="uri" select="if (matches($val, 'https?://')) then $val else $entities//*[@xml:id = substring-after($val, '#')]/tei:idno[@type='URI']"/>
 
@@ -215,11 +231,11 @@
 			<xsl:if test="string($uri)">
 				<xsl:element name="oa:Annotation" namespace="http://www.w3.org/ns/oa#">
 					<xsl:attribute name="rdf:about" select="concat($uri_space, $id, '.rdf#', $div_id, '/annotations/', format-number(position(), '0000'))"/>
-					
+
 					<oa:hasBody rdf:resource="{$uri}"/>
 					<oa:hasTarget rdf:resource="{concat($uri_space, $id, '#', $div_id)}"/>
 				</xsl:element>
-			</xsl:if>			
+			</xsl:if>
 		</xsl:for-each>
 		<xsl:apply-templates select="*[starts-with(local-name(), 'div')]" mode="annotation"/>
 	</xsl:template>

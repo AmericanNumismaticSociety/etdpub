@@ -58,11 +58,11 @@
 			<doi_batch_id>
 				<xsl:value-of select="digest:md5Hex(concat($uri_space, $id))"/>
 			</doi_batch_id>
-			<!-- timestamp is seconds from 1970, from https://stackoverflow.com/questions/3467771/convert-datetime-to-unix-epoch-in-xslt -->
+			<!-- timestamp is seconds from 1970 (rounded up), from https://stackoverflow.com/questions/3467771/convert-datetime-to-unix-epoch-in-xslt -->
 			<timestamp>
-				<xsl:value-of select="( current-dateTime() - xs:dateTime('1970-01-01T00:00:00') )
+				<xsl:value-of select="ceiling(( current-dateTime() - xs:dateTime('1970-01-01T00:00:00') )
 					div
-					xs:dayTimeDuration('PT1S')"/>
+					xs:dayTimeDuration('PT1S'))"/>
 			</timestamp>
 			<depositor>
 				<depositor_name>

@@ -243,14 +243,27 @@
 	</xsl:template>
 
 	<xsl:template match="tei:bibl" mode="header">
-		<dt>Source</dt>
+		
+		<dt>
+			<xsl:choose>
+				<xsl:when test="tei:idno[@type='URI']">Source</xsl:when>
+				<xsl:when test="tei:idno[@type='DOI']">DOI</xsl:when>
+			</xsl:choose>
+		</dt>
 		<dd>
-			<xsl:value-of select="tei:title"/>
-			<xsl:if test="tei:idno[@type='URI']">
-				<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="sameAs">
-					<span class="glyphicon glyphicon-new-window"/>
-				</a>
-			</xsl:if>
+			<xsl:choose>
+				<xsl:when test="tei:idno[@type='URI']">
+					<xsl:value-of select="tei:title"/>
+					<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="sameAs">
+						<span class="glyphicon glyphicon-new-window"/>
+					</a>
+				</xsl:when>
+				<xsl:when test="tei:idno[@type='DOI']">
+					<a href="http://dx.doi.org/{tei:idno[@type='DOI']}" itemprop="sameAs">
+						<xsl:value-of select="tei:idno[@type='DOI']"/>
+					</a>
+				</xsl:when>
+			</xsl:choose>
 		</dd>
 	</xsl:template>
 
