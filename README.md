@@ -1,5 +1,9 @@
 # ETDPub
-ETDPub was initialized designed as a lightweight Electronic Thesis and Disseration system. Data entry is written in XForms and powered by the [Orbeon XForms](http://www.orbeon.com) engine. Metadata are encoded in MODS, and the metadata and document files are indexed into Apache Solr for access in a public user interface that contains basic faceted search functionality. ETDPub can optionally be connected to a SPARQL endpoint, which allows digital library content to be made available through accompanying digital archive frameworks, like [xEAC](https://github.com/ewg118/xEAC).
+ETDPub was initialized designed as a lightweight Electronic Thesis and Disseration system. Data entry is written in XForms and powered by the [Orbeon XForms](http://www.orbeon.com) engine. Metadata are encoded in MODS, and the metadata and document files are indexed into Apache Solr for access in a public user interface that contains basic faceted search functionality. As part of the Mellon/NEH Open Humanities Book project, it has been extended to support the publication of TEI ebooks, in addition to the serialization of TEI into RDF, EPUB 3.0.1, and, most recently, Crossref's XML medata model. When ORCIDs have been connected to ebook or ETD authors/editors, the document metadata can be published to Crossref in order to mint a DOI.
+
+ETDPub can optionally be connected to a SPARQL endpoint, which allows digital library content to be made available through accompanying digital archive frameworks, like [xEAC](https://github.com/ewg118/xEAC).
+
+This framework is the backbone of the American Numismatic Society [Digital Library](http://numismatics.org/digitallibrary/)
 
 Controlled Vocabulary
 ---------------------
