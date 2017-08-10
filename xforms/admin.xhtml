@@ -115,7 +115,7 @@
 							 		<internetMediaType>{data($record//mods:physicalDescription/mods:internetMediaType)}</internetMediaType>
 							 		<type>MODS</type>
 							 		<genre>{data($record//mods:mods/mods:genre)}</genre>
-							 		<orcid>false</orcid>
+							 		<orcid>{if ($record//mods:name[mods:nameIdentifier[matches(., 'https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}')]]) then true() else false()}</orcid>
 							 		<doi>{data($record//mods:identifier[@type='DOI'])}</doi>
 							 		<published>false</published>
 						 		</record>
@@ -132,9 +132,6 @@
 							 	</record>
 							 else '' } 
 						 </report>]]></query>
-					<!--<query id="get-objects"> declare namespace mods="http://www.loc.gov/mods/v3"; declare namespace tei="http://www.tei-c.org/ns/1.0"; &lt;report> { for $record in collection() return &lt;record> &lt;title&gt;
-						{data($record//mods:title)}&lt;/title&gt; &lt;id>{data($record//mods:recordIdentifier) }&lt;/id> &lt;author>{ data($record//mods:namePart) }&lt;/author> &lt;date>{
-						data($record//mods:dateIssued) }&lt;/date> &lt;media_url&gt;{ data($record//mods:location/mods:url) }&lt;/media_url&gt; &lt;/record> } &lt;/report> </query>-->
 				</queries>
 			</xforms:instance>
 
@@ -572,8 +569,8 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 														target="_blank">html</a>
 												</td>
 												<td class="text-center">
-													<!-- only display link to post to Crossref when there's an orcid and there isn't a DOI already -->
-													<xforms:group ref=".[orcid = true()]">
+													<!-- only display link to post to Crossref when there's an orcid and it is already published and there isn't a DOI already -->
+													<xforms:group ref=".[orcid = true() and published = true()]">
 														<xforms:group ref=".[string-length(doi) &gt; 0]">
 															<span class="glyphicon glyphicon-ok"/>
 														</xforms:group>

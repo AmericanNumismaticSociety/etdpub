@@ -64,4 +64,27 @@
 		<xsl:value-of select="replace($uri, $namespaces//namespace[contains($uri, @uri)]/@uri, concat($namespaces//namespace[contains($uri, @uri)]/@prefix, ':'))"/>
 
 	</xsl:function>
+	
+	<!-- ****** TEMPLATES ***** -->
+	<xsl:template name="etdpub:parse_name">
+		<xsl:param name="name"/>
+		
+		<xsl:analyze-string regex="([^,]+),\s([^,]+)" select="$name">
+			<xsl:matching-substring>
+				<given_name xmlns="http://www.crossref.org/schema/4.4.0">
+					<xsl:choose>
+						<xsl:when test="contains(regex-group(2), ' (')">
+							<xsl:value-of select="normalize-space(substring-before(regex-group(2), ' ('))"/>
+						</xsl:when>
+						<xsl:otherwise>
+							<xsl:value-of select="regex-group(2)"/>
+						</xsl:otherwise>
+					</xsl:choose>
+				</given_name>
+				<surname xmlns="http://www.crossref.org/schema/4.4.0">
+					<xsl:value-of select="regex-group(1)"/>
+				</surname>
+			</xsl:matching-substring>
+		</xsl:analyze-string>
+	</xsl:template>
 </xsl:stylesheet>

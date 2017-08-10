@@ -3,6 +3,19 @@
 	xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 	xmlns:void="http://rdfs.org/ns/void#" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" exclude-result-prefixes="xsl xs mods xlink xml" version="2.0">
 
+	<!-- URI variables -->
+	<xsl:variable name="id" select="//mods:mods/mods:recordInfo/mods:recordIdentifier"/>
+	<xsl:variable name="uri_space">
+		<xsl:choose>
+			<xsl:when test="/content/config/ark/@enabled = 'true'">
+				<xsl:value-of select="concat(/content/config/url, 'ark:/', /content/config/ark/naan, '/')"/>
+			</xsl:when>
+			<xsl:otherwise>
+				<xsl:value-of select="concat(/content/config/url, 'id/')"/>
+			</xsl:otherwise>
+		</xsl:choose>
+	</xsl:variable>
+
 	<xsl:variable name="url" select="/content/config/url"/>
 
 	<!-- ***************** MODS-TO-RDF ******************-->
@@ -13,7 +26,7 @@
 	</xsl:template>
 
 	<xsl:template match="mods:mods">
-		<dcterms:PhysicalResource rdf:about="{concat($url, 'id/', mods:recordInfo/mods:recordIdentifier)}">
+		<dcterms:PhysicalResource rdf:about="{concat($uri_space, $id)}">
 			<dcterms:title>
 				<xsl:value-of select="mods:titleInfo/mods:title"/>
 			</dcterms:title>

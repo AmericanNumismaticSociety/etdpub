@@ -304,6 +304,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 					<xforms:bind nodeset="mods:namePart" required="true()"></xforms:bind>
 					<xforms:bind nodeset="mods:affiliation" required="true()"></xforms:bind>
 					<xforms:bind nodeset="mods:role/mods:roleTerm" required="true()"></xforms:bind>
+					<xforms:bind nodeset="mods:nameIdentifier[@type='orcid']" required="true()" constraint="matches(., 'https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}')"/>
 				</xforms:bind>
 				<xforms:bind nodeset="mods:abstract" required="true()"></xforms:bind>
 				<xforms:bind nodeset="mods:originInfo">
@@ -876,11 +877,11 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 										<xforms:group ref=".[not(string(mods:location/mods:url))]">
 											<div class="subsection">
 												<h2>Upload Media</h2>
-												<fr:upload ref="instance('file')">
+												<xforms:upload ref="instance('file')">
 													<xforms:filename ref="@filename"></xforms:filename>
 													<xforms:mediatype ref="@mediatype"></xforms:mediatype>
 													<xxforms:size ref="@size"></xxforms:size>
-												</fr:upload>
+												</xforms:upload>
 												<br />
 												<xforms:trigger>
 													<xforms:label>Upload</xforms:label>

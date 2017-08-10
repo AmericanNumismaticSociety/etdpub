@@ -3,10 +3,11 @@
 	function: MODS names for creators of the document: VIAF, xEAC, and local vocabulary
 -->
 
-<xbl:xbl xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
-	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:xbl="http://www.w3.org/ns/xbl" xmlns:xxbl="http://orbeon.org/oxf/xml/xbl"
-	xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/" xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
-	xmlns:atom="http://www.w3.org/2005/Atom" xmlns:mods="http://www.loc.gov/mods/v3">
+<xbl:xbl xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events"
+	xmlns:xxforms="http://orbeon.org/oxf/xml/xforms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+	xmlns:xbl="http://www.w3.org/ns/xbl" xmlns:xxbl="http://orbeon.org/oxf/xml/xbl" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/"
+	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:mods="http://www.loc.gov/mods/v3">
 	<xbl:binding id="etdpub-name-creator" element="etdpub|name-creator">
 		<xbl:template>
 			<xforms:group xbl:attr="model context ref bind" xxbl:scope="outer">
@@ -21,6 +22,13 @@
 					<xforms:group ref="$binding">
 						<xforms:group ref=".[string(mods:namePart)]">
 							<h4>Creator</h4>
+							<xforms:group ref=".[count(mods:nameIdentifier[@type='orcid']) = 0]">
+								<xforms:trigger appearance="minimal">
+									<xforms:label>
+										<span class="glyphicon glyphicon-plus"></span>ORCID</xforms:label>
+									<xforms:insert origin="instance('nameIdentifier-template')" context="." nodeset="./child::node()[last()]" ev:event="DOMActivate"></xforms:insert>
+								</xforms:trigger>
+							</xforms:group>
 							<xforms:group ref=".[count(parent::node()/mods:name) &gt; 1]">
 								<xforms:trigger appearance="minimal">
 									<xforms:action ev:event="DOMActivate">
@@ -52,6 +60,13 @@
 						<xforms:group ref=".[not(string(mods:namePart))]">
 							<div>
 								<h4>Creator</h4>
+								<xforms:group ref=".[count(mods:nameIdentifier[@type='orcid']) = 0]">
+									<xforms:trigger appearance="minimal">
+										<xforms:label>
+											<span class="glyphicon glyphicon-plus"></span>ORCID</xforms:label>
+										<xforms:insert origin="instance('nameIdentifier-template')" context="." nodeset="./child::node()[last()]" ev:event="DOMActivate"></xforms:insert>
+									</xforms:trigger>
+								</xforms:group>
 								<xforms:group ref=".[count(parent::node()/mods:name) &gt; 1]">
 									<xforms:trigger appearance="minimal">
 										<xforms:delete nodeset="." ev:event="DOMActivate"/>
@@ -178,8 +193,10 @@
 												<xforms:label>Select</xforms:label>
 												<xforms:action ev:event="DOMActivate">
 													<xforms:setvalue ref="$binding/@valueURI" value="instance('temp')/@href"/>
-													<xforms:setvalue ref="$binding/mods:namePart" value="instance('xeac-response')//atom:entry[atom:link[not(@rel)]/@href =
-														instance('temp')/@href]/atom:title"/>
+													<xforms:setvalue ref="$binding/mods:namePart"
+														value="instance('xeac-response')//atom:entry[atom:link[not(@rel)]/@href =
+														instance('temp')/@href]/atom:title"
+													/>
 												</xforms:action>
 											</xforms:trigger>
 										</xforms:group>
@@ -199,7 +216,7 @@
 								</xforms:switch>
 							</div>
 						</xforms:group>
-						
+
 						<div>
 							<xforms:select1 ref="mods:role/mods:roleTerm[@type='code']">
 								<xforms:label>Role</xforms:label>
@@ -218,7 +235,7 @@
 								</xforms:action>
 							</xforms:select1>
 						</div>
-						
+
 						<xforms:group ref="mods:affiliation">
 							<div>
 								<xforms:input ref=".">
@@ -226,17 +243,26 @@
 									<xforms:alert>Required</xforms:alert>
 								</xforms:input>
 							</div>
-						</xforms:group>						
+						</xforms:group>
+						
+						<xforms:group ref="mods:nameIdentifier[@type='orcid']">
+							<div>
+								<xforms:input ref=".">
+									<xforms:label>ORCID</xforms:label>
+									<xforms:alert>Must conform to ORCID URI pattern</xforms:alert>
+								</xforms:input>
+							</div>
+						</xforms:group>
 						<hr/>
 					</xforms:group>
 					<!-- ********************************************************************** -->
-					<xforms:model id="name-creator-model" xmlns:xi="http://www.w3.org/2001/XInclude">
+					<xforms:model id="name-creator-model">
 						<xforms:instance id="exist-config">
-							<xi:include href="../../../exist-config.xml"/>
+							<xi:include href="../../../exist-config.xml"  xmlns:xi="http://www.w3.org/2001/XInclude"/>
 						</xforms:instance>
 
 						<xforms:instance id="relators">
-							<xi:include href="../../instances/relators.xml"/>
+							<xi:include href="../../instances/relators.xml"  xmlns:xi="http://www.w3.org/2001/XInclude"/>
 						</xforms:instance>
 
 						<xforms:instance id="config">
@@ -257,29 +283,34 @@
 
 						<!-- Instances containing the query string -->
 						<xforms:instance id="search-query">
-							<query/>
+							<query xmlns=""/>
 						</xforms:instance>
 
 						<!-- persnames specific instances -->
 						<xforms:instance id="viaf-response">
-							<rss/>
+							<rss xmlns=""/>
 						</xforms:instance>
 
 						<!-- xeac query -->
-						<xforms:instance id="xeac-response" exclude-result-prefixed="#all">
-							<feed/>
+						<xforms:instance id="xeac-response" xxforms:exclude-result-prefixes="#all">
+							<feed xmlns=""/>
 						</xforms:instance>
 
 						<!-- interface type radio button -->
-						<xforms:instance id="interfaces">
-							<interfaces xmlns="">
+						<xforms:instance id="interfaces" xxforms:exclude-result-prefixes="#all">
+							<interfaces>
 								<interface name="VIAF">viaf</interface>
 								<interface name="Local Vocabulary">local</interface>
 							</interfaces>
 						</xforms:instance>
 
-						<xforms:instance id="interface-type">
+						<xforms:instance id="interface-type" xxforms:exclude-result-prefixes="#all">
 							<interface/>
+						</xforms:instance>
+						
+						<!-- MODS nameIdentifier template -->
+						<xforms:instance id="nameIdentifier-template" xxforms:exclude-result-prefixes="#all">
+							<nameIdentifier type="orcid" xmlns="http://www.loc.gov/mods/v3"/>
 						</xforms:instance>
 
 						<!-- ********* SUBMISSIONS ***********-->
@@ -289,28 +320,32 @@
 							instance="viaf-response" replace="instance">
 							<xforms:action ev:event="xforms-submit-done">
 								<xforms:message if="number(instance('viaf-response')//opensearch:totalResults) = 0" level="modal">No results found for query.</xforms:message>
-								<xforms:setvalue if="number(instance('viaf-response')//opensearch:totalResults) != 0" ref="instance('control-instance')/count" value="concat('Displaying first 100 of ',
+								<xforms:setvalue if="number(instance('viaf-response')//opensearch:totalResults) != 0" ref="instance('control-instance')/count"
+									value="concat('Displaying first 100 of ',
 									instance('viaf-response')//opensearch:totalResults, ' result(s).')"/>
 							</xforms:action>
 						</xforms:submission>
 
 						<xforms:submission id="query-xeac" serialization="none" method="get"
-							action="{instance('config')/xeac}feed/?q=entityType_facet:person+AND+&#x022;{instance('search-query')}&#x022;" instance="xeac-response" replace="instance">
+							action="{instance('config')/xeac}feed/?q=entityType_facet:person+AND+&#x022;{instance('search-query')}&#x022;" instance="xeac-response"
+							replace="instance">
 							<xforms:message ev:event="xforms-submit-error" level="modal">Unable to query xEAC.</xforms:message>
 							<xforms:action ev:event="xforms-submit-done">
 								<xforms:message if="number(instance('xeac-response')//opensearch:totalResults) = 0" level="modal">No results found for query.</xforms:message>
-								<xforms:setvalue if="number(instance('xeac-response')//opensearch:totalResults) != 0" ref="instance('control-instance')/count" value="concat('Displaying first 100 of ',
+								<xforms:setvalue if="number(instance('xeac-response')//opensearch:totalResults) != 0" ref="instance('control-instance')/count"
+									value="concat('Displaying first 100 of ',
 									instance('xeac-response')//opensearch:totalResults, ' result(s).')"/>
 							</xforms:action>
 						</xforms:submission>
 
-						<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance" instance="config"
-							xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+						<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance"
+							instance="config" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
 							<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load config file in eXist.</xforms:message>
 							<!-- set insert xEAC interface and set as default if there is a xEAC URL -->
 							<xforms:action ev:event="xforms-submit-done">
 								<xforms:action if="string-length(instance('config')/xeac) &gt; 0">
-									<xforms:insert context="instance('interfaces')" at="1" position="after" origin="xforms:element('interface', (xforms:attribute('name', 'xEAC'), 'xeac'))"/>
+									<xforms:insert context="instance('interfaces')" at="1" position="after"
+										origin="xforms:element('interface', (xforms:attribute('name', 'xEAC'), 'xeac'))"/>
 									<xforms:setvalue ref="instance('interface-type')">xeac</xforms:setvalue>
 								</xforms:action>
 								<xforms:action if="string-length(instance('config')/xeac) = 0">

@@ -14,8 +14,17 @@
 		<p:input name="config-xml" href="#config"/>
 		<p:input name="data" href="#data"/>		
 		<p:input name="config" href="../../../../ui/xslt/serializations/mods/crossref.xsl"/>
-		<p:output name="data" ref="data"/>
+		<p:output name="data" id="model"/>
 	</p:processor>
 	
-
+	<p:processor name="oxf:xml-serializer">
+		<p:input name="data" href="#model"/>
+		<p:input name="config">
+			<config>
+				<indent>true</indent>
+				<indent-amount>4</indent-amount>
+			</config>
+		</p:input>
+		<p:output name="data" ref="data"/>
+	</p:processor>
 </p:config>

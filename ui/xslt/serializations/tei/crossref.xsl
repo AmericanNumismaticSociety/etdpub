@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?cocoon-disable-caching?>
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xlink="http://www.w3.org/1999/xlink"
-	xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns="http://www.crossref.org/schema/4.4.0" xmlns:digest="org.apache.commons.codec.digest.DigestUtils" version="2.0"
-	exclude-result-prefixes="#all">
-
+	xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns="http://www.crossref.org/schema/4.4.0" xmlns:digest="org.apache.commons.codec.digest.DigestUtils"
+	xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" version="2.0" exclude-result-prefixes="#all">
+	<xsl:include href="../../functions.xsl"/>
 
 	<!-- URI variables -->
 	<xsl:variable name="id" select="/tei:TEI/@xml:id"/>
@@ -173,10 +173,10 @@
 
 	<xsl:template match="tei:author|tei:editor">
 		<person_name sequence="{if (position() = 1) then 'first' else 'additional'}" contributor_role="{local-name()}">
-			<xsl:call-template name="parse_name">
+			<xsl:call-template name="etdpub:parse_name">
 				<xsl:with-param name="name" select="tei:name"/>
 			</xsl:call-template>
-			
+
 			<!-- ORCID if available (regex from Crossref XSD) -->
 			<xsl:if test="tei:idno[@type='URI'][matches(., 'https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}')]">
 				<ORCID>
@@ -185,11 +185,11 @@
 			</xsl:if>
 		</person_name>
 	</xsl:template>
-	
+
 	<!-- process chapters with bylines in edited volumes -->
 	<xsl:template match="tei:div1">
 		<content_item component_type="chapter">
-			
+
 			<xsl:if test="tei:byline[descendant::tei:name[@type='pname'][@corresp] or descendant::tei:persName[@corresp]]">
 				<contributors>
 					<xsl:apply-templates select="tei:byline/descendant::tei:name[@type='pname'][@corresp]|tei:byline/descendant::tei:persName[@corresp]"/>
@@ -202,42 +202,18 @@
 			</titles>
 		</content_item>
 	</xsl:template>
-	
+
 	<xsl:template match="tei:name[@type='pname']|tei:persName">
 		<xsl:variable name="id" select="substring-after(@corresp, '#')"/>
 		<xsl:variable name="entity" as="element()*">
 			<xsl:copy-of select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id=$id]"/>
 		</xsl:variable>
 		<xsl:variable name="name" select="$entity//tei:*[contains(local-name(), 'Name')]"/>
-		
+
 		<person_name sequence="{if (position() = 1) then 'first' else 'additional'}" contributor_role="author">
 			<xsl:call-template name="parse_name">
 				<xsl:with-param name="name" select="$name"/>
 			</xsl:call-template>
 		</person_name>
 	</xsl:template>
-	
-	<!-- ****** TEMPLATES ***** -->
-	<xsl:template name="parse_name">
-		<xsl:param name="name"/>
-		
-		<xsl:analyze-string regex="([^,]+),\s([^,]+)" select="$name">
-			<xsl:matching-substring>
-				<given_name>
-					<xsl:choose>
-						<xsl:when test="contains(regex-group(2), ' (')">
-							<xsl:value-of select="normalize-space(substring-before(regex-group(2), ' ('))"/>
-						</xsl:when>
-						<xsl:otherwise>
-							<xsl:value-of select="regex-group(2)"/>
-						</xsl:otherwise>
-					</xsl:choose>
-				</given_name>
-				<surname>
-					<xsl:value-of select="regex-group(1)"/>
-				</surname>
-			</xsl:matching-substring>
-		</xsl:analyze-string>
-	</xsl:template>
-	
 </xsl:stylesheet>
