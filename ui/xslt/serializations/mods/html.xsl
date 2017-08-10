@@ -94,14 +94,15 @@
 							<dt>
 								<xsl:value-of select="mods:role/mods:roleTerm[@type='text']"/>
 							</dt>
-							<dd itemprop="author">
+							<dd>
 								<xsl:value-of select="mods:namePart"/>
 								<xsl:if test="@valueURI">
-									<a href="{@valueURI}" title="{@valueURI}" class="external-link">
+									<a href="{@valueURI}" title="{@valueURI}" class="external-link" itemprop="author">
 										<span class="glyphicon glyphicon-new-window"/>
 									</a>
 								</xsl:if>
 							</dd>
+							<xsl:apply-templates select="mods:nameIdentifier[@type='orcid']"/>
 							<xsl:if test="mods:affiliation">
 								<dt>University</dt>
 								<dd itemprop="publisher">
@@ -121,6 +122,9 @@
 								<xsl:value-of select="mods:originInfo/mods:publisher"/>
 							</dd>
 						</xsl:if>
+						
+						<xsl:apply-templates select="mods:identifier[@type='DOI']"/>
+						
 						<!-- parent journal -->
 						<xsl:apply-templates select="mods:relatedItem[@type='host']"/>
 						
@@ -256,6 +260,24 @@
 			</xsl:choose>
 			<xsl:text>.</xsl:text>
 
+		</dd>
+	</xsl:template>
+	
+	<xsl:template match="mods:nameIdentifier[@type='orcid']">
+		<dt>ORCID</dt>
+		<dd>
+			<a href="{.}" itemprop="author">
+				<xsl:value-of select="."/>
+			</a>
+		</dd>
+	</xsl:template>
+	
+	<xsl:template match="mods:identifier[@type='DOI']">
+		<dt>DOI</dt>
+		<dd>
+			<a href="http://dx.doi.org/{.}" itemprop="sameAs">
+				<xsl:value-of select="."/>
+			</a>
 		</dd>
 	</xsl:template>
 
