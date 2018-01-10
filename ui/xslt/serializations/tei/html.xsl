@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xs="http://www.w3.org/2001/XMLSchema"
-	xmlns:epub="http://www.idpf.org/2007/ops" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" exclude-result-prefixes="#all" version="2.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:xlink="http://www.w3.org/1999/xlink"
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:epub="http://www.idpf.org/2007/ops" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
+	exclude-result-prefixes="#all" version="2.0">
 	<xsl:include href="../../templates.xsl"/>
 	<xsl:include href="../../functions.xsl"/>
 	<xsl:include href="html-templates.xsl"/>
 
 	<!-- variables -->
-	<xsl:variable name="display_path" select="if (/content/config/ark/@enabled='true') then '../../' else '../'"/>
+	<xsl:variable name="display_path" select="
+			if (/content/config/ark/@enabled = 'true') then
+				'../../'
+			else
+				'../'"/>
 	<xsl:variable name="url" select="/content/config/url"/>
 	<xsl:variable name="id" select="/content/tei:TEI/@xml:id"/>
 
@@ -113,6 +118,8 @@
 							</div>
 						</xsl:if>
 
+						<xsl:apply-templates select="tei:teiHeader/tei:fileDesc/tei:titleStmt/tei:funder"/>
+
 						<div>
 							<h3>Export</h3>
 							<ul class="list-inline">
@@ -153,6 +160,15 @@
 		</h2>
 	</xsl:template>
 
+	<xsl:template match="tei:funder">
+		<div>
+			<h3>Acknowledgement</h3>
+			<p>
+				<xsl:apply-templates/>
+			</p>
+		</div>
+	</xsl:template>
+
 	<xsl:template match="tei:teiHeader">
 		<dl class="dl-horizontal">
 			<xsl:apply-templates select="tei:fileDesc/tei:titleStmt"/>
@@ -170,12 +186,12 @@
 					<a href="{$display_path}results?q=creator_facet:&#x022;{tei:name}&#x022;">
 						<xsl:value-of select="tei:name"/>
 					</a>
-					<xsl:if test="tei:idno[@type='URI']">
+					<xsl:if test="tei:idno[@type = 'URI']">
 						<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="author">
 							<span class="glyphicon glyphicon-new-window"/>
 						</a>
 					</xsl:if>
-					<xsl:if test="not(position()=last())">
+					<xsl:if test="not(position() = last())">
 						<xsl:text>, </xsl:text>
 					</xsl:if>
 				</xsl:for-each>
@@ -188,26 +204,26 @@
 					<a href="{$display_path}results?q=creator_facet:&#x022;{tei:name}&#x022;">
 						<xsl:value-of select="tei:name"/>
 					</a>
-					<xsl:if test="tei:idno[@type='URI']">
+					<xsl:if test="tei:idno[@type = 'URI']">
 						<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="author">
 							<span class="glyphicon glyphicon-new-window"/>
 						</a>
 					</xsl:if>
-					<xsl:if test="not(position()=last())">
+					<xsl:if test="not(position() = last())">
 						<xsl:text>, </xsl:text>
 					</xsl:if>
 				</xsl:for-each>
 			</dd>
 		</xsl:if>
 	</xsl:template>
-	
+
 	<xsl:template match="tei:seriesStmt">
 		<dt>Series</dt>
-		<dd>			
+		<dd>
 			<a href="{$display_path}results?q=series_facet:&#x022;{tei:title}&#x022;">
 				<xsl:value-of select="tei:title"/>
 			</a>
-			<xsl:if test="tei:idno[@type='URI']">
+			<xsl:if test="tei:idno[@type = 'URI']">
 				<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="isPartOf">
 					<span class="glyphicon glyphicon-new-window"/>
 				</a>
@@ -222,12 +238,12 @@
 				<a href="{$display_path}results?q=publisher_facet:&#x022;{tei:name}&#x022;">
 					<xsl:value-of select="tei:name"/>
 				</a>
-				<xsl:if test="tei:idno[@type='URI']">
+				<xsl:if test="tei:idno[@type = 'URI']">
 					<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="publisher">
 						<span class="glyphicon glyphicon-new-window"/>
 					</a>
 				</xsl:if>
-				<xsl:if test="not(position()=last())">
+				<xsl:if test="not(position() = last())">
 					<xsl:text>, </xsl:text>
 				</xsl:if>
 			</xsl:for-each>
@@ -243,24 +259,24 @@
 	</xsl:template>
 
 	<xsl:template match="tei:bibl" mode="header">
-		
+
 		<dt>
 			<xsl:choose>
-				<xsl:when test="tei:idno[@type='URI']">Source</xsl:when>
-				<xsl:when test="tei:idno[@type='DOI']">DOI</xsl:when>
+				<xsl:when test="tei:idno[@type = 'URI']">Source</xsl:when>
+				<xsl:when test="tei:idno[@type = 'DOI']">DOI</xsl:when>
 			</xsl:choose>
 		</dt>
 		<dd>
 			<xsl:choose>
-				<xsl:when test="tei:idno[@type='URI']">
+				<xsl:when test="tei:idno[@type = 'URI']">
 					<xsl:value-of select="tei:title"/>
 					<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="sameAs">
 						<span class="glyphicon glyphicon-new-window"/>
 					</a>
 				</xsl:when>
-				<xsl:when test="tei:idno[@type='DOI']">
+				<xsl:when test="tei:idno[@type = 'DOI']">
 					<a href="http://dx.doi.org/{tei:idno[@type='DOI']}" itemprop="sameAs">
-						<xsl:value-of select="tei:idno[@type='DOI']"/>
+						<xsl:value-of select="tei:idno[@type = 'DOI']"/>
 					</a>
 				</xsl:when>
 			</xsl:choose>
@@ -274,11 +290,11 @@
 	</xsl:template>
 
 	<!-- structural elements -->
-	<xsl:template match="tei:front|tei:body|tei:back">
+	<xsl:template match="tei:front | tei:body | tei:back">
 		<div>
 			<h2 class="section-head">
 				<xsl:value-of select="upper-case(local-name())"/>
-				<xsl:if test="local-name()='front' or local-name()='back'">
+				<xsl:if test="local-name() = 'front' or local-name() = 'back'">
 					<small>
 						<a href="#" id="toggle-{local-name()}" class="toggle-btn">
 							<span class="glyphicon glyphicon-triangle-{if (local-name()='front') then 'right' else 'bottom'}"/>
@@ -287,7 +303,7 @@
 				</xsl:if>
 			</h2>
 			<section id="section-{local-name()}" epub:type="{local-name()}matter">
-				<xsl:if test="local-name()='front'">
+				<xsl:if test="local-name() = 'front'">
 					<xsl:attribute name="style">display:none</xsl:attribute>
 				</xsl:if>
 				<!-- call other content -->
@@ -309,7 +325,7 @@
 						</h4>
 						<nav>
 							<ul class="toc">
-								<xsl:apply-templates select="tei:div1|tei:titlePage" mode="toc"/>
+								<xsl:apply-templates select="tei:div1 | tei:titlePage" mode="toc"/>
 							</ul>
 						</nav>
 					</xsl:if>
@@ -319,7 +335,7 @@
 	</xsl:template>
 
 	<!-- table of contents items -->
-	<xsl:template match="tei:titlePage|tei:div1|tei:div2" mode="toc">
+	<xsl:template match="tei:titlePage | tei:div1 | tei:div2" mode="toc">
 		<li>
 			<a href="#{if (@xml:id) then @xml:id else generate-id()}">
 				<xsl:choose>

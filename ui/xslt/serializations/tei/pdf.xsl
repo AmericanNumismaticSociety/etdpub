@@ -533,11 +533,14 @@
 
 	<!-- *********** TITLE PAGE *********** -->
 	<xsl:template match="tei:teiHeader">
+		<!-- title page -->
 		<fo:block xsl:use-attribute-sets="frontmatter">
 			<xsl:attribute name="page-break-after">always</xsl:attribute>
 
 			<xsl:apply-templates select="tei:fileDesc"/>
 		</fo:block>
+		
+		<!-- citation guideline -->
 		<fo:block xsl:use-attribute-sets="frontmatter">
 			<xsl:attribute name="page-break-after">always</xsl:attribute>
 
@@ -551,6 +554,9 @@
 			<fo:block font-size="16" margin-bottom="1em">Example</fo:block>
 			<xsl:apply-templates select="tei:fileDesc" mode="citation"/>			
 		</fo:block>
+		
+		<!-- acknowledgement -->
+		<xsl:apply-templates select="tei:fileDesc/tei:titleStmt/tei:funder" mode="acknowledgement"/>
 	</xsl:template>
 
 	<xsl:template match="tei:fileDesc">
@@ -644,13 +650,13 @@
 					<xsl:value-of select="format-date(ancestor::tei:teiHeader/tei:revisionDesc/tei:change[last()]/@when, '[D] [MNn] [Y0001]')"/>
 				</fo:block>
 
-				<xsl:apply-templates select="tei:availability/tei:license"/>
+				<xsl:apply-templates select="tei:availability/tei:licence"/>
 			</fo:block>
 
 		</fo:block>
 	</xsl:template>
 
-	<xsl:template match="tei:license">
+	<xsl:template match="tei:licence">
 		<xsl:variable name="imageUrl">
 			<xsl:choose>
 				<xsl:when test="contains(@target, 'http://creativecommons.org/licenses/by/')">http://i.creativecommons.org/l/by/3.0/88x31.png</xsl:when>
@@ -663,8 +669,7 @@
 		</xsl:variable>
 
 		<fo:block>
-			<xsl:value-of select="$imageUrl"/>
-			<!--<fo:external-graphic src="url({$imageUrl})" content-width="scale-to-fit" scaling="uniform" width="1in"/>-->
+			<fo:external-graphic src="url({$imageUrl})" content-width="scale-to-fit" scaling="uniform" width="1in"/>
 		</fo:block>
 	</xsl:template>
 
@@ -678,8 +683,7 @@
 		<xsl:text> (accessed </xsl:text>
 		<xsl:value-of select="format-date(current-date(), '[MNn] [D], [Y0001]')"/>
 		<xsl:text>).</xsl:text>			
-		</fo:block>
-		
+		</fo:block>		
 	</xsl:template>
 
 	<xsl:template match="tei:titleStmt" mode="citation">
@@ -762,6 +766,18 @@
 		<xsl:text>, </xsl:text>
 		<xsl:value-of select="tei:date"/>
 		<xsl:text>).</xsl:text>
+	</xsl:template>
+	
+	<!-- acknowledgement -->
+	<xsl:template match="tei:funder" mode="acknowledgement">
+		<fo:block xsl:use-attribute-sets="frontmatter">
+			<xsl:attribute name="page-break-after">always</xsl:attribute>
+			
+			<fo:block font-size="20" margin-bottom="1em">Acknowledgement</fo:block>
+			<fo:block xsl:use-attribute-sets="p" text-align="center">
+				<xsl:apply-templates/>
+			</fo:block>			
+		</fo:block>
 	</xsl:template>
 
 	<!-- Table of Contents -->
