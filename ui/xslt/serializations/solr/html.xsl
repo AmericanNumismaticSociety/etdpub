@@ -640,21 +640,21 @@
 						<xsl:choose>
 							<xsl:when test="$start &gt;= $rows">
 								<a class="btn btn-default" title="First"
-									href="browse?q={encode-for-uri($q)}{if (string($sort)) then concat('&amp;sort=', $sort) else ''}">
+									href="results?q={encode-for-uri($q)}{if (string($sort)) then concat('&amp;sort=', $sort) else ''}">
 									<span class="glyphicon glyphicon-fast-backward"/>
 								</a>
 								<a class="btn btn-default" title="Previous"
-									href="browse?q={encode-for-uri($q)}&amp;start={$previous}{if (string($sort)) then concat('&amp;sort=', $sort) else ''}">
+									href="results?q={encode-for-uri($q)}&amp;start={$previous}{if (string($sort)) then concat('&amp;sort=', $sort) else ''}">
 									<span class="glyphicon glyphicon-backward"/>
 								</a>
 							</xsl:when>
 							<xsl:otherwise>
 								<a class="btn btn-default disabled" title="First"
-									href="browse?q={encode-for-uri($q)}{if (string($sort)) then concat('&amp;sort=', $sort) else ''}">
+									href="results?q={encode-for-uri($q)}{if (string($sort)) then concat('&amp;sort=', $sort) else ''}">
 									<span class="glyphicon glyphicon-fast-backward"/>
 								</a>
 								<a class="btn btn-default disabled" title="Previous"
-									href="browse?q={encode-for-uri($q)}&amp;start={$previous}{if (string($sort)) then concat('&amp;sort=', $sort) else
+									href="results?q={encode-for-uri($q)}&amp;start={$previous}{if (string($sort)) then concat('&amp;sort=', $sort) else
 									''}">
 									<span class="glyphicon glyphicon-backward"/>
 								</a>
