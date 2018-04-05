@@ -211,7 +211,7 @@
 		<xsl:variable name="name" select="$entity//tei:*[contains(local-name(), 'Name')]"/>
 
 		<person_name sequence="{if (position() = 1) then 'first' else 'additional'}" contributor_role="author">
-			<xsl:call-template name="parse_name">
+			<xsl:call-template name="etdpub:parse_name">
 				<xsl:with-param name="name" select="$name"/>
 			</xsl:call-template>
 		</person_name>

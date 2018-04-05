@@ -73,7 +73,7 @@
 			<dcterms:creator>
 				<xsl:choose>
 					<xsl:when test="tei:idno[@type='URI']">
-						<xsl:attribute name="rdf:resource" select="tei:idno[@type='URI']"/>
+						<xsl:attribute name="rdf:resource" select="normalize-space(tei:idno[@type='URI'])"/>
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:value-of select="tei:name"/>
@@ -85,7 +85,7 @@
 			<dcterms:contributor>
 				<xsl:choose>
 					<xsl:when test="tei:idno[@type='URI']">
-						<xsl:attribute name="rdf:resource" select="tei:idno[@type='URI']"/>
+						<xsl:attribute name="rdf:resource" select="normalize-space(tei:idno[@type='URI'])"/>
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:value-of select="tei:name"/>
@@ -101,7 +101,7 @@
 			<dcterms:publisher>
 				<xsl:choose>
 					<xsl:when test="tei:idno[@type='URI']">
-						<xsl:attribute name="rdf:resource" select="tei:idno[@type='URI']"/>
+						<xsl:attribute name="rdf:resource" select="normalize-space(tei:idno[@type='URI'])"/>
 					</xsl:when>
 					<xsl:otherwise>
 						<xsl:value-of select="tei:name"/>
