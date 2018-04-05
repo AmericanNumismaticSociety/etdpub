@@ -32,6 +32,11 @@
 			<xsl:variable name="rdf_url"
 				select="concat('http://nomisma.org/apis/getRdf?identifiers=', encode-for-uri($id-param))"/>
 			<xsl:copy-of select="document($rdf_url)/rdf:RDF/*"/>
+			
+			<!-- get coinhoards -->
+			<xsl:for-each select="distinct-values(descendant::tei:ref[contains(@target, 'coinhoards.org')]/@target|descendant::tei:ref[contains(@target, 'numismatics.org/chrr')]/@target)">
+				<xsl:copy-of select="document(concat(., '.rdf'))/rdf:RDF/*"/>
+			</xsl:for-each>
 		</rdf:RDF>
 	</xsl:variable>
 	
@@ -67,6 +72,9 @@
 
 			<xsl:apply-templates select="tei:teiHeader/tei:fileDesc"/>
 			<xsl:apply-templates select="tei:teiHeader/tei:profileDesc"/>
+			
+			<!-- get all hoards -->
+			<xsl:apply-templates select="descendant::tei:ref[contains(@target, 'coinhoards.org') or contains(@target, 'numismatics.org/chrr')]" mode="hoard"/>
 			
 			<!-- cover images, if applicable -->
 			<xsl:apply-templates select="descendant::tei:graphic[@url][1]"/>
@@ -162,6 +170,21 @@
 			</xsl:otherwise>
 		</xsl:choose>
 		
+	</xsl:template>
+
+	<xsl:template match="tei:ref" mode="hoard">
+		<xsl:variable name="uri" select="@target"/>
+		<field name="hoard_facet">
+			<xsl:value-of select="$rdf//nmo:Hoard[@rdf:about=$uri]/skos:prefLabel[@xml:lang='en']"/>
+		</field>
+		<xsl:for-each select="$rdf//nmo:Hoard[@rdf:about=$uri]/skos:prefLabel|$rdf//nmo:Hoard[@rdf:about=$uri]/skos:altLabel">
+			<field name="hoard_text">
+				<xsl:value-of select="."/>
+			</field>
+		</xsl:for-each>
+		<field name="hoard_uri">
+			<xsl:value-of select="@target"/>
+		</field>
 	</xsl:template>
 
 	<xsl:template match="tei:titleStmt">

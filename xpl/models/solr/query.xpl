@@ -68,6 +68,7 @@
 						<!-- subjects -->
 						<facet>field_of_numismatics_facet</facet>
 						<facet>geographic_facet</facet>
+						<facet>hoard_facet</facet>
 						<facet>name_facet</facet>
 						<facet>temporal_facet</facet>
 						<facet>topic_facet</facet>

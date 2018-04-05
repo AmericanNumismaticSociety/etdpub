@@ -162,8 +162,9 @@
 				<!-- subjects -->
 				<facet type="subject">field_of_numismatics_facet</facet>
 				<facet type="subject">geographic_facet</facet>
+				<facet type="subject">hoard_facet</facet>
 				<facet type="subject">name_facet</facet>
-				<facet type="subject">temporal_facet</facet>
+				<!--<facet type="subject">temporal_facet</facet>-->
 				<facet type="subject">topic_facet</facet>
 			</facets>
 		</xsl:variable>

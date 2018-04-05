@@ -248,7 +248,7 @@
 		<xsl:variable name="type">
 			<xsl:choose>
 				<xsl:when test="@type='period'">period</xsl:when>
-				<xsl:when test="local-name() = 'placeName'">place</xsl:when>
+				<xsl:when test="local-name() = 'placeName'">geographic</xsl:when>				
 				<xsl:otherwise>name</xsl:otherwise>
 			</xsl:choose>
 		</xsl:variable>

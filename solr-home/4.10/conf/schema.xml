@@ -76,6 +76,7 @@
 	<dynamicField name="*_uri"  type="string"  indexed="true"  stored="true" multiValued="true"/>
 	<dynamicField name="*_facet"  type="string"  indexed="true"  stored="true" multiValued="true"/>	
 	<dynamicField name="*_image"  type="string"  indexed="true"  stored="true"/>
+	<dynamicField name="*_text"  type="text_general"  indexed="true"  stored="false" multiValued="true"/>
 
 	<!-- ignored meta from Tika (document indexing) -->
 	<dynamicField name="ignored_*" type="ignored"/>
