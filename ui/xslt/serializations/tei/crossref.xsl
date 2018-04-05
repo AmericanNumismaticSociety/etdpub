@@ -60,9 +60,10 @@
 			</doi_batch_id>
 			<!-- timestamp is seconds from 1970 (rounded up), from https://stackoverflow.com/questions/3467771/convert-datetime-to-unix-epoch-in-xslt -->
 			<timestamp>
-				<xsl:value-of select="ceiling(( current-dateTime() - xs:dateTime('1970-01-01T00:00:00') )
-					div
-					xs:dayTimeDuration('PT1S'))"/>
+				<xsl:value-of select="
+						ceiling((current-dateTime() - xs:dateTime('1970-01-01T00:00:00'))
+						div
+						xs:dayTimeDuration('PT1S'))"/>
 			</timestamp>
 			<depositor>
 				<depositor_name>
@@ -117,13 +118,18 @@
 	</xsl:template>
 
 	<xsl:template match="tei:seriesStmt">
-		<set_metadata>
+		<series_metadata>
 			<titles>
 				<title>
 					<xsl:value-of select="tei:title"/>
 				</title>
 			</titles>
-		</set_metadata>
+			<xsl:if test="tei:idno[@type='ISSN']">
+				<issn>
+					<xsl:value-of select="tei:idno[@type='ISSN']"/>
+				</issn>
+			</xsl:if>
+		</series_metadata>
 	</xsl:template>
 
 	<xsl:template match="tei:publicationStmt">
@@ -140,7 +146,16 @@
 				</xsl:choose>
 			</year>
 		</publication_date>
-		<noisbn reason="archive_volume"/>
+		<xsl:choose>
+			<xsl:when test="tei:idno[@type = 'ISBN']">
+				<isbn>
+					<xsl:value-of select="tei:idno[@type = 'ISBN']"/>
+				</isbn>
+			</xsl:when>
+			<xsl:otherwise>
+				<noisbn reason="archive_volume"/>
+			</xsl:otherwise>
+		</xsl:choose>
 		<publisher>
 			<publisher_name>
 				<xsl:value-of select="tei:publisher/tei:name"/>
@@ -151,7 +166,7 @@
 	<xsl:template match="tei:titleStmt">
 		<xsl:if test="tei:author or tei:editor">
 			<contributors>
-				<xsl:apply-templates select="tei:author|tei:editor"/>
+				<xsl:apply-templates select="tei:author | tei:editor"/>
 			</contributors>
 		</xsl:if>
 		<titles>
@@ -171,16 +186,16 @@
 		</xsl:if>-->
 	</xsl:template>
 
-	<xsl:template match="tei:author|tei:editor">
+	<xsl:template match="tei:author | tei:editor">
 		<person_name sequence="{if (position() = 1) then 'first' else 'additional'}" contributor_role="{local-name()}">
 			<xsl:call-template name="etdpub:parse_name">
 				<xsl:with-param name="name" select="tei:name"/>
 			</xsl:call-template>
 
 			<!-- ORCID if available (regex from Crossref XSD) -->
-			<xsl:if test="tei:idno[@type='URI'][matches(., 'https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}')]">
+			<xsl:if test="tei:idno[@type = 'URI'][matches(., 'https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}')]">
 				<ORCID>
-					<xsl:value-of select="tei:idno[@type='URI'][matches(., 'https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}')]"/>
+					<xsl:value-of select="tei:idno[@type = 'URI'][matches(., 'https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}')]"/>
 				</ORCID>
 			</xsl:if>
 		</person_name>
@@ -190,9 +205,9 @@
 	<xsl:template match="tei:div1">
 		<content_item component_type="chapter">
 
-			<xsl:if test="tei:byline[descendant::tei:name[@type='pname'][@corresp] or descendant::tei:persName[@corresp]]">
+			<xsl:if test="tei:byline[descendant::tei:name[@type = 'pname'][@corresp] or descendant::tei:persName[@corresp]]">
 				<contributors>
-					<xsl:apply-templates select="tei:byline/descendant::tei:name[@type='pname'][@corresp]|tei:byline/descendant::tei:persName[@corresp]"/>
+					<xsl:apply-templates select="tei:byline/descendant::tei:name[@type = 'pname'][@corresp] | tei:byline/descendant::tei:persName[@corresp]"/>
 				</contributors>
 			</xsl:if>
 			<titles>
@@ -203,10 +218,10 @@
 		</content_item>
 	</xsl:template>
 
-	<xsl:template match="tei:name[@type='pname']|tei:persName">
+	<xsl:template match="tei:name[@type = 'pname'] | tei:persName">
 		<xsl:variable name="id" select="substring-after(@corresp, '#')"/>
 		<xsl:variable name="entity" as="element()*">
-			<xsl:copy-of select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id=$id]"/>
+			<xsl:copy-of select="ancestor::tei:TEI/tei:teiHeader/tei:profileDesc//*[starts-with(local-name(), 'list')]/*[@xml:id = $id]"/>
 		</xsl:variable>
 		<xsl:variable name="name" select="$entity//tei:*[contains(local-name(), 'Name')]"/>
 
