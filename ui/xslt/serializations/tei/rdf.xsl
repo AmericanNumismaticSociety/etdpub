@@ -109,6 +109,7 @@
 				</xsl:choose>
 			</dcterms:publisher>
 		</xsl:for-each>
+		<xsl:apply-templates select="tei:idno[@type='DOI']"/>
 	</xsl:template>
 
 	<xsl:template match="tei:seriesStmt">
@@ -180,14 +181,13 @@
 		<dcterms:subject rdf:resource="{@ref}"/>
 	</xsl:template>
 
-	<!-- bibliographic resources -->
-	<xsl:template match="tei:sourceDesc">
-		<xsl:apply-templates select="tei:bibl[tei:idno/@type='DOI']"/>
+	<xsl:template match="tei:bibl">		
+			<xsl:apply-templates select="tei:idno"/>		
 	</xsl:template>
-
-	<xsl:template match="tei:bibl">
+	
+	<xsl:template match="tei:idno">
 		<dcterms:identifier>
-			<xsl:value-of select="tei:idno"/>
+			<xsl:value-of select="."/>
 		</dcterms:identifier>
 	</xsl:template>
 

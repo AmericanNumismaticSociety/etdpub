@@ -256,30 +256,26 @@
 		<dd itemprop="datePublished">
 			<xsl:value-of select="tei:date"/>
 		</dd>
+		<xsl:apply-templates select="tei:idno[@type='DOI']"/>
+	</xsl:template>
+	
+	<xsl:template match="tei:idno[@type='DOI']">
+		<dt>DOI</dt>
+		<dd>
+			<a href="http://dx.doi.org/{.}" itemprop="sameAs">
+				<xsl:value-of select="."/>
+			</a>
+		</dd>
 	</xsl:template>
 
 	<xsl:template match="tei:bibl" mode="header">
 
-		<dt>
-			<xsl:choose>
-				<xsl:when test="tei:idno[@type = 'URI']">Source</xsl:when>
-				<xsl:when test="tei:idno[@type = 'DOI']">DOI</xsl:when>
-			</xsl:choose>
-		</dt>
+		<dt>Source</dt>
 		<dd>
-			<xsl:choose>
-				<xsl:when test="tei:idno[@type = 'URI']">
-					<xsl:value-of select="tei:title"/>
-					<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="sameAs">
-						<span class="glyphicon glyphicon-new-window"/>
-					</a>
-				</xsl:when>
-				<xsl:when test="tei:idno[@type = 'DOI']">
-					<a href="http://dx.doi.org/{tei:idno[@type='DOI']}" itemprop="sameAs">
-						<xsl:value-of select="tei:idno[@type = 'DOI']"/>
-					</a>
-				</xsl:when>
-			</xsl:choose>
+			<xsl:value-of select="tei:title"/>
+			<a href="{tei:idno[@type='URI']}" title="{tei:idno[@type='URI']}" class="external-link" itemprop="sameAs">
+				<span class="glyphicon glyphicon-new-window"/>
+			</a>
 		</dd>
 	</xsl:template>
 
