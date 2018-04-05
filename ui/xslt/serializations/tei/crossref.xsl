@@ -92,10 +92,10 @@
 	<xsl:template match="tei:fileDesc">
 		<xsl:choose>
 			<xsl:when test="tei:seriesStmt">
-				<book_set_metadata language="en">
+				<book_series_metadata language="en">
 					<xsl:apply-templates select="tei:seriesStmt"/>
 					<xsl:call-template name="book_metadata"/>
-				</book_set_metadata>
+				</book_series_metadata>
 			</xsl:when>
 			<xsl:otherwise>
 				<book_metadata language="en">
