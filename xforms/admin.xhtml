@@ -127,7 +127,7 @@
 							 		<date>{data($record//tei:publicationStmt/tei:date)}</date>
 							 		<type>TEI</type>
 							 		<orcid>{if ($record//tei:titleStmt/*[tei:idno[@type='URI'][matches(., 'https?://orcid.org/[0-9]{4}-[0-9]{4}-[0-9]{4}-[0-9]{3}[X0-9]{1}')]]) then true() else false()}</orcid>
-							 		<doi>{data($record//tei:fileDesc/tei:sourceDesc/tei:bibl[tei:idno[@type='DOI']]/tei:idno[@type='DOI'])}</doi>
+							 		<doi>{data($record//tei:fileDesc/tei:publicationStmt/tei:idno[@type='DOI'])}</doi>
 							 		<published>false</published>
 							 	</record>
 							 else '' } 
@@ -205,10 +205,7 @@
 			</xforms:instance>
 
 			<xforms:instance id="tei-doi-template" xxforms:exclude-result-prefixes="#all">
-				<bibl xmlns="http://www.tei-c.org/ns/1.0">
-					<title>DOI</title>
-					<idno type="DOI"></idno>
-				</bibl>
+				<idno type="DOI" xmlns="http://www.tei-c.org/ns/1.0"></idno>
 			</xforms:instance>
 
 			<xforms:instance id="mods-doi-template" xxforms:exclude-result-prefixes="#all">
@@ -301,8 +298,8 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 					<xforms:action if="instance('doc')/namespace-uri()='http://www.tei-c.org/ns/1.0'">
 						<xforms:insert context="instance('doc')/tei:teiHeader/tei:fileDesc" nodeset="./child::node()[last()]" origin="instance('sourceDesc-template')"
 							if="not(instance('doc')/tei:teiHeader/tei:fileDesc/tei:sourceDesc)"></xforms:insert>
-						<xforms:insert context="instance('doc')/tei:teiHeader/tei:fileDesc/tei:sourceDesc" nodeset="./child::node()[last()]" origin="instance('tei-doi-template')"></xforms:insert>
-						<xforms:setvalue ref="instance('doc')/tei:teiHeader/tei:fileDesc/tei:sourceDesc/tei:bibl[tei:idno[@type='DOI']]/tei:idno" value="$doi"></xforms:setvalue>
+						<xforms:insert context="instance('doc')/tei:teiHeader/tei:fileDesc/tei:publicationStmt" nodeset="./child::node()[last()]" origin="instance('tei-doi-template')"></xforms:insert>
+						<xforms:setvalue ref="instance('doc')/tei:teiHeader/tei:fileDesc/tei:publicationStmt/tei:idno[@type='DOI']" value="$doi"></xforms:setvalue>
 					</xforms:action>
 					
 					<!-- save the doc back to exist -->
