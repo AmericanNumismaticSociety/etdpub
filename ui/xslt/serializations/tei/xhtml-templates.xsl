@@ -41,16 +41,21 @@
 			</xsl:choose>
 		</header>
 	</xsl:template>
-
+	
 	<xsl:template match="tei:note/tei:p">
-		<xsl:if test="@rend">
-			<xsl:attribute name="class" select="concat('rend-', @rend)"/>
-		</xsl:if>
-		<xsl:apply-templates/>
+		<div>
+			<xsl:if test="@rend">
+				<xsl:attribute name="class" select="concat('rend-', @rend)"/>
+			</xsl:if>
+			<xsl:apply-templates/>
+		</div>
 	</xsl:template>
 
 	<xsl:template match="tei:p">
 		<p>
+			<xsl:if test="@rend">
+				<xsl:attribute name="class" select="concat('rend-', @rend)"/>
+			</xsl:if>
 			<!-- suppress figures from within the paragraph, put them afterwards -->
 			<xsl:apply-templates select="node()[not(local-name() = 'figure')]"/>
 		</p>

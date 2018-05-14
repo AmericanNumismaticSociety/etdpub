@@ -49,11 +49,13 @@
 		</header>
 	</xsl:template>
 
-	<xsl:template match="tei:note/tei:p">	
-		<xsl:if test="@rend">
-			<xsl:attribute name="class" select="concat('rend-', @rend)"/>
-		</xsl:if>
-		<xsl:apply-templates/>
+	<xsl:template match="tei:note/tei:p">
+		<div>
+			<xsl:if test="@rend">
+				<xsl:attribute name="class" select="concat('rend-', @rend)"/>
+			</xsl:if>
+			<xsl:apply-templates/>
+		</div>
 	</xsl:template>
 
 	<xsl:template match="tei:p">

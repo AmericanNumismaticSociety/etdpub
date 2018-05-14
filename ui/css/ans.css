@@ -169,9 +169,10 @@ blockquote {
 .rend-smallcaps{
 	font-variant:small-caps;
 }
+
 .rend-hang{
-	padding-left:2em;
-	text-indent:-2em;
+    padding-left: 2em;
+    text-indent: 0em;
 }
 .rend-ul{
 	text-decoration:underline;
