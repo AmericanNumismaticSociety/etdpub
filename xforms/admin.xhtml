@@ -221,11 +221,13 @@
 				<query><![CDATA[PREFIX rdf:	<http://www.w3.org/1999/02/22-rdf-syntax-ns#>
 PREFIX dcterms:	<http://purl.org/dc/terms/>
 PREFIX dcmitype:	<http://purl.org/dc/dcmitype/>
+PREFIX edm:	<http://www.europeana.eu/schemas/edm/>
 PREFIX oa:	<http://www.w3.org/ns/oa#>
 PREFIX schema:	<http://schema.org/>
 DELETE {?s ?p ?o} WHERE { 
 {<URI> schema:exampleOfWork ?s . ?s ?p ?o }
 UNION {<URI> dcterms:temporal ?s . ?s ?p ?o }
+UNION {<URI> edm:isShownBy ?s . ?s ?p ?o }
 UNION { ?parts dcterms:source <URI> ; rdf:type dcmitype:Text . ?s oa:hasTarget ?parts . ?s ?p ?o }
 UNION { ?s dcterms:source <URI> ; rdf:type dcmitype:Text . ?s ?p ?o }
 UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
