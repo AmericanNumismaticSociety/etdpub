@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mods="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink"
-	xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-	xmlns:void="http://rdfs.org/ns/void#" xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:xsd="http://www.w3.org/2001/XMLSchema#" exclude-result-prefixes="xsl xs mods xlink xml" version="2.0">
+<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:mods="http://www.loc.gov/mods/v3"
+	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:foaf="http://xmlns.com/foaf/0.1/"
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:void="http://rdfs.org/ns/void#"
+	xmlns:xml="http://www.w3.org/XML/1998/namespace" xmlns:edm="http://www.europeana.eu/schemas/edm/" xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+	exclude-result-prefixes="xsl xs mods xlink xml" version="2.0">
 
 	<!-- URI variables -->
 	<xsl:variable name="id" select="//mods:mods/mods:recordInfo/mods:recordIdentifier"/>
@@ -48,11 +50,13 @@
 			<xsl:apply-templates select="mods:originInfo"/>
 			<xsl:apply-templates select="mods:physicalDescription"/>
 			<xsl:apply-templates select="mods:accessCondition"/>
-			<xsl:apply-templates select="mods:relatedItem[@type='host']"/>
+			<xsl:apply-templates select="mods:relatedItem[@type = 'host']"/>
 			<xsl:apply-templates select="mods:location/mods:url" mode="doc-link"/>
-			<xsl:apply-templates select="mods:genre|mods:subject/*" mode="topic"/>
+			<xsl:apply-templates select="mods:genre | mods:subject/*" mode="topic"/>
 			<void:inDataset rdf:resource="{$url}"/>
 		</dcterms:PhysicalResource>
+
+		<xsl:apply-templates select="mods:location/mods:url" mode="web-resource"/>
 	</xsl:template>
 
 	<xsl:template match="mods:originInfo">
@@ -75,11 +79,17 @@
 		</xsl:if>
 	</xsl:template>
 
-	<xsl:template match="mods:url" mode="doc-link">
-		<dcterms:isVersionOf rdf:resource="{if (matches(., '^https?://')) then . else concat($url, .)}"/>
+	<xsl:template match="mods:url" mode="web-resource">
+		<edm:WebResource rdf:about="{if (matches(., '^https?://')) then . else concat($url, .)}">
+			<xsl:apply-templates select="//mods:internetMediaType"/>
+		</edm:WebResource>
 	</xsl:template>
 
-	<xsl:template match="mods:date|mods:dateIssued">
+	<xsl:template match="mods:url" mode="doc-link">
+		<edm:isShownBy rdf:resource="{if (matches(., '^https?://')) then . else concat($url, .)}"/>
+	</xsl:template>
+
+	<xsl:template match="mods:date | mods:dateIssued">
 		<dcterms:issued>
 			<xsl:choose>
 				<xsl:when test=". castable as xs:date">
@@ -96,7 +106,7 @@
 		</dcterms:issued>
 	</xsl:template>
 
-	<xsl:template match="mods:relatedItem[@type='host']">
+	<xsl:template match="mods:relatedItem[@type = 'host']">
 		<dcterms:isPartOf rdf:resource="{concat($url, 'id/', mods:identifier)}"/>
 		<xsl:apply-templates select="mods:part/mods:date"/>
 	</xsl:template>
@@ -112,7 +122,7 @@
 	</xsl:template>
 
 	<xsl:template match="mods:physicalDescription">
-		<xsl:apply-templates select="mods:form|mods:internetMediaType"/>
+		<xsl:apply-templates select="mods:form"/>
 		<xsl:if test="mods:extent">
 			<dcterms:extent>
 				<xsl:value-of select="mods:extent"/>
@@ -120,7 +130,7 @@
 		</xsl:if>
 	</xsl:template>
 
-	<xsl:template match="mods:form|mods:internetMediaType">
+	<xsl:template match="mods:form | mods:internetMediaType">
 		<dcterms:format>
 			<xsl:value-of select="."/>
 		</dcterms:format>
@@ -129,9 +139,9 @@
 	<xsl:template match="*" mode="topic">
 		<xsl:variable name="element">
 			<xsl:choose>
-				<xsl:when test="local-name()='form'">dcterms:format</xsl:when>
-				<xsl:when test="local-name()='genre'">dcterms:type</xsl:when>
-				<xsl:when test="local-name()='geographic'">dcterms:coverage</xsl:when>
+				<xsl:when test="local-name() = 'form'">dcterms:format</xsl:when>
+				<xsl:when test="local-name() = 'genre'">dcterms:type</xsl:when>
+				<xsl:when test="local-name() = 'geographic'">dcterms:coverage</xsl:when>
 				<xsl:otherwise>dcterms:subject</xsl:otherwise>
 			</xsl:choose>
 
@@ -145,7 +155,11 @@
 					</xsl:attribute>
 				</xsl:when>
 				<xsl:otherwise>
-					<xsl:value-of select="if (mods:namePart) then mods:namePart else ."/>
+					<xsl:value-of select="
+							if (mods:namePart) then
+								mods:namePart
+							else
+								."/>
 				</xsl:otherwise>
 			</xsl:choose>
 		</xsl:element>
