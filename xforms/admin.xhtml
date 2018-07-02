@@ -132,6 +132,28 @@
 							 	</record>
 							 else '' } 
 						 </report>]]></query>
+					<query id="get-all">
+						<![CDATA[declare namespace mods="http://www.loc.gov/mods/v3";
+						declare namespace tei="http://www.tei-c.org/ns/1.0";
+						
+						 <report> { for $record in collection() let
+						 	$type := $record/*/local-name() return
+						 	if ($type='modsCollection') then 
+						 		<record>
+							 		<id>{ data($record//mods:recordIdentifier) }</id>
+							 		<media_url>{ data($record//mods:location/mods:url) }</media_url>
+							 		<internetMediaType>{data($record//mods:physicalDescription/mods:internetMediaType)}</internetMediaType>
+							 		<type>MODS</type>
+							 		<genre>{data($record//mods:mods/mods:genre)}</genre>							 		
+						 		</record>
+						 	else if ($type='TEI') then
+							 	<record>
+							 		<id>{ data($record/*[local-name()='TEI']/@xml:id) }</id>
+							 		<type>TEI</type>							 		
+							 	</record>
+							 else '' } 
+						 </report>]]>
+					</query>
 				</queries>
 			</xforms:instance>
 
@@ -364,14 +386,6 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			</xforms:submission>
 
 			<!-- POST to Crossref deposition API -->
-			<!--<xforms:submission id="post-crossref" action="{instance('control-instance')/crossref-api}" ref="instance('crossref-form-data')" instance="crossref-form-data" replace="instance"
-				method="form-data-post" serialization="multipart/form-data">
-				<xforms:message ev:event="xforms-submit-error" level="modal" value="event('response-body')"></xforms:message>
-				<xforms:action ev:event="xforms-submit-done">
-					<xforms:message level="modal" value="event('response-body')"></xforms:message>
-				</xforms:action>
-			</xforms:submission>-->
-
 			<!-- interact with PHP script in CGI to run multipart/form-data -->
 			<xforms:submission id="post-crossref" serialization="none" method="get" action="/etdpub/admin/attach-metadata?file={instance('crossref-form-data')/fname}"
 				instance="dump" replace="instance">
@@ -471,12 +485,12 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 					<div id="form">
 						<!-- progress/status boxes -->
 						<xforms:group ref=".[instance('control-instance')/working=true()]">
-							<div class="bg-info alert-box">
+							<div class="lert alert-info alert-box" role="alert">
 								<span class="glyphicon glyphicon-info-sign"></span>
 								<strong>Working:</strong> Indexing document...</div>
 						</xforms:group>
 						<xforms:group ref=".[string-length(instance('control-instance')/status) &gt; 0]">
-							<div class="bg-info alert-box">
+							<div class="alert alert-success alert-box" role="alert">
 								<span class="glyphicon glyphicon-info-sign"></span>
 								<strong>Status:</strong>
 								<xforms:output ref="instance('control-instance')/status"></xforms:output>
@@ -485,6 +499,15 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 						<h1>etdpub Administration</h1>
 						<p><a href="{instance('config')/url}" target="_blank">View Pubic Interface <span class="glyphicon glyphicon-new-window"></span></a><br /><a
 								href="{$display_path}logout"><span class="glyphicon glyphicon-log-out"></span> Logout</a></p>
+						<h3>Batch Publication</h3>
+						<ul>
+							<li>
+								<xforms:trigger appearance="minimal">
+									<xforms:label>Publish All Records</xforms:label>
+									<xforms:dispatch target="publish-all" name="fr-show" ev:event="DOMActivate"></xforms:dispatch>
+								</xforms:trigger>
+							</li>							
+						</ul>
 						<h3>Create New Documents</h3>
 						<ul>
 							<xforms:repeat nodeset="xxforms:sort(instance('templates')/template, @label, 'text', 'ascending')">
@@ -647,7 +670,8 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 																			select="if (instance('config')/ark/@enabled='true') then concat(instance('config')/url, 'ark:/', instance('config')/ark/naan, '/', $id) else concat(instance('config')/url, 'id/', $id)"></xforms:var>
 																		<xforms:setvalue ref="instance('sparqlUpdate')"
 																			value="replace(instance('sparqlUpdate-template'), 'URI', $uri)"></xforms:setvalue>
-																		<xforms:send submission="get-rdf"></xforms:send>
+																		<xforms:send submission="delete-graph"></xforms:send>
+																		<xforms:send submission="get-rdf" ev:event="xforms-submit-done"></xforms:send>
 																	</xforms:action>
 																	<xforms:setvalue ref="." value="true()"></xforms:setvalue>
 																</xforms:action>
@@ -708,6 +732,66 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 							</xforms:action>
 						</fr:positive-choice>
 					</fr:alert-dialog>
+					
+					<fr:alert-dialog id="publish-all">
+						<fr:label>Publish All</fr:label>
+						<fr:message>This will publish all records, and may take several minutes. Continue?</fr:message>
+						<fr:negative-choice>
+							<fr:label>No</fr:label>
+						</fr:negative-choice>
+						<fr:positive-choice>
+							<fr:label>Yes</fr:label>
+							<xforms:action ev:event="DOMActivate">
+								<!-- get all objects in the collection with associated metadata to determine attached document indexing -->
+								<xforms:setvalue ref="instance('eXist-xquery')/exist:text" value="instance('xqueries')/query[@id='get-all']"></xforms:setvalue>
+								<xforms:send submission="xquery-collection"></xforms:send>
+								
+								<xforms:action ev:event="xforms-submit-done" xxforms:iterate="instance('xquery-result')//record">
+									<!-- set variables -->
+									<xforms:var name="id" select="context()/id"></xforms:var>
+									<xforms:var name="media_url" select="context()/media_url"></xforms:var>
+									<xforms:var name="genre" select="context()/genre"></xforms:var>
+									<xforms:var name="type" select="context()/type"></xforms:var>
+									<xforms:var name="internetMediaType" select="context()/internetMediaType"></xforms:var>
+									
+									<xforms:setvalue ref="instance('control-instance')/id" value="$id"></xforms:setvalue>
+									<xforms:setvalue ref="instance('control-instance')/type" value="$type"></xforms:setvalue>
+									
+									<!-- only index the Document file for a MODS file that is not of the journal template -->
+									<xforms:action if="instance('control-instance')/type='MODS'">
+										<!-- set the document URL and other variables -->
+										<xforms:setvalue ref="instance('control-instance')/stream_url"
+											value="if (matches($media_url, '^https?://')) then $media_url else concat(instance('config')/url, $media_url)"></xforms:setvalue>
+										<xforms:setvalue ref="instance('control-instance')/template"
+											value="instance('templates')/template[. = $genre]/@id"></xforms:setvalue>
+										<xforms:setvalue ref="instance('control-instance')/internetMediaType" value="$internetMediaType"></xforms:setvalue>
+										<!-- first put the associated document, which then calls the MODS indexing afterwards -->
+										<xforms:send submission="put-document" if="not(instance('control-instance')/template = 'journal')"
+											></xforms:send>
+									</xforms:action>
+									<!-- otherwise, get the TEI-to-Solr document directly -->
+									<xforms:action if="instance('control-instance')/type = 'TEI'">
+										<xforms:send submission="to-solr"></xforms:send>
+									</xforms:action>
+									<!-- delete triples from triplestore, if applicable. Then re-post RDF document -->
+									<xforms:action ev:event="xforms-submit-done"
+										if="string(instance('config')/sparql/update) and string(instance('config')/sparql/store)">
+										<xforms:var name="uri"
+											select="if (instance('config')/ark/@enabled='true') then concat(instance('config')/url, 'ark:/', instance('config')/ark/naan, '/', $id) else concat(instance('config')/url, 'id/', $id)"></xforms:var>
+										<xforms:setvalue ref="instance('sparqlUpdate')"
+											value="replace(instance('sparqlUpdate-template'), 'URI', $uri)"></xforms:setvalue>
+										<xforms:send submission="delete-graph"></xforms:send>
+										<xforms:send submission="get-rdf" ev:event="xforms-submit-done"></xforms:send>
+									</xforms:action>
+								</xforms:action>
+								
+								<!-- after publication is complete, then reset the document list -->
+								<xforms:setvalue ref="instance('eXist-xquery')/exist:text" value="instance('xqueries')/query[@id='get-objects']"></xforms:setvalue>
+								<xforms:send submission="xquery-pagination"></xforms:send>
+							</xforms:action>
+						</fr:positive-choice>
+					</fr:alert-dialog>					
+				
 					<!--<xforms:upload ref="instance('crossref-form-data')/fname">
 						<xforms:filename ref="@filename"/>
 						<xforms:mediatype ref="@mediatype"/>
