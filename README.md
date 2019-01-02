@@ -33,6 +33,10 @@ Architecture
 ------------
 ETDPub is comprised of three server-side application which run in Apache Tomcat: [Orbeon](http://www.orbeon.com) (XForms processor and public user interface), [Solr](http://lucene.apache.org/solr/) (search index used for publication), and [eXist](http://exist-db.org/exist/apps/homepage/index.html) (XML database).  XForms submissions allow these three applications to communicate through REST.
 
+ORCID/DOIs
+----------
+ETDPub can be configured with Crossref configuration settings to mint DOIs for books, articles, and ETDs published in the system. The metadata should include an ORCID for authors or other contributors in order to be eligible for Crossref publication.
+
 Installation and Use
 --------------------
 Please see the [wiki](https://github.com/AmericanNumismaticSociety/etdpub/wiki) for installation instructions.
