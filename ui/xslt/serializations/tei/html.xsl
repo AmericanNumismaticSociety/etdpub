@@ -129,9 +129,9 @@
 								<li>
 									<a href="{$id}.rdf" title="RDF/XML">RDF/XML</a>
 								</li>
-								<li>
+								<!--<li>
 									<a href="{$id}/pdf" title="PDF">PDF</a>
-								</li>
+								</li>-->
 								<li>
 									<a href="{$id}.epub" title="EPUB" itemprop="exampleOfWork">EPUB</a>
 								</li>
