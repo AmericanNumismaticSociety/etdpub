@@ -169,7 +169,7 @@
 						</file>
 						<!-- CSS -->
 						<!--<file name="OEBPS/css/style.css">oxf:/apps/etdpub/ui/css/epub.css</file>-->
-						<file name="OEBPS/css/style.css">file:///usr/local/projects/etdpub/ui/css/epub.css</file>
+						<file name="OEBPS/css/style.css">oxf:/apps/etdpub/ui/css/epub.css</file>
 						<!-- directory-scan to include images -->
 						<xsl:for-each select="doc('input:scan')//file">
 							<file name="OEBPS/images/{@name}">
