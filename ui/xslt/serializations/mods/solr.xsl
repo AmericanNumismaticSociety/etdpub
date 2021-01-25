@@ -42,7 +42,7 @@
 				<xsl:value-of select="string-join(mods:name/mods:namePart, '; ')"/>
 			</field>
 			<field name="timestamp" update="set">
-				<xsl:value-of select="if (contains(string(current-dateTime()), 'Z')) then current-dateTime() else concat(string(current-dateTime()), 'Z')"/>
+				<xsl:value-of select="format-dateTime(current-dateTime(), '[Y0001]-[M01]-[D01]T[h01]:[m01]:[s01]Z')"/>
 			</field>			
 			<field name="abstract" update="add">
 				<xsl:value-of select="normalize-space(mods:abstract)"/>

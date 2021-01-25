@@ -48,9 +48,6 @@
 	</xsl:variable>
 
 	<xsl:variable name="docId" select="/tei:TEI/@xml:id"/>
-	<xsl:variable name="timestamp"
-		select="if (contains(string(current-dateTime()), 'Z')) then current-dateTime() else concat(string(current-dateTime()), 'Z')"/>
-
 
 	<xsl:template match="/">
 		<add>
@@ -65,7 +62,7 @@
 			</field>
 			<field name="primary">true</field>
 			<field name="timestamp">
-				<xsl:value-of select="$timestamp"/>
+				<xsl:value-of select="format-dateTime(current-dateTime(), '[Y0001]-[M01]-[D01]T[h01]:[m01]:[s01]Z')"/>
 			</field>
 			<field name="genre_facet">e-books</field>
 			<field name="genre_uri">http://vocab.getty.edu/aat/300265554</field>
@@ -279,7 +276,7 @@
 				</xsl:choose>
 			</field>
 			<field name="timestamp">
-				<xsl:value-of select="$timestamp"/>
+				<xsl:value-of select="format-dateTime(current-dateTime(), '[Y0001]-[M01]-[D01]T[h01]:[m01]:[s01]Z')"/>
 			</field>
 			<field name="title">
 				<xsl:value-of select="if (tei:head) then normalize-space(tei:head[1]) else @type"/>
