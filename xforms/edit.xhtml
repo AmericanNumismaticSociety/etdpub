@@ -540,19 +540,19 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 						<div class="col-md-12">
 							<p><a href="../"><span class="glyphicon glyphicon-arrow-left"></span>Return to Admin</a></p>
 							<xforms:group ref=".[instance('control-instance')/working=true()]">
-								<div class="bg-info alert-box">
+								<div class="alert alert-info alert-box">
 									<span class="glyphicon glyphicon-info-sign"></span>
 									<strong>Working:</strong> Indexing document...</div>
 							</xforms:group>
 							<xforms:group ref=".[string-length(instance('control-instance')/status) &gt; 0]">
-								<div class="bg-info alert-box">
+								<div class="alert alert-info alert-box">
 									<span class="glyphicon glyphicon-info-sign"></span>
 									<strong>Status:</strong>
 									<xforms:output ref="instance('control-instance')/status"></xforms:output>
 								</div>
 							</xforms:group>
 							<xforms:group ref=".[not(string(instance('doc')/mods:mods/mods:location/mods:url)) and instance('control-instance')/template != 'journal']">
-								<div class="bg-danger alert-box">
+								<div class="alert alert-danger alert-box">
 									<span class="glyphicon glyphicon-exclamation-sign"></span>
 									<strong>Alert:</strong> There must be a linked or uploaded document.</div>
 							</xforms:group>
@@ -972,7 +972,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 						<div class="col-md-12">
 							<h1>Template error</h1>
 							<p><a href="../"><span class="glyphicon glyphicon-arrow-left"></span>Return to Admin</a></p>
-							<div class="bg-danger alert-box">
+							<div class="alert alert-danger alert-box">
 								<span class="glyphicon glyphicon-exclamation-sign"></span>
 								<strong>Alert:</strong> The template ID is invalid.</div>
 						</div>
@@ -1000,6 +1000,6 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			</fr:negative-choice>
 		</fr:alert-dialog>
 
-		<!--<fr:xforms-inspector></fr:xforms-inspector>-->
+		<fr:xforms-inspector></fr:xforms-inspector>
 	</body>
 </html>

@@ -54,7 +54,7 @@
 										<span class="glyphicon glyphicon-remove"/>
 									</xforms:label>
 								</xforms:trigger>
-								<div class="bg-info alert-box">
+								<div class="alert alert-info alert-box">
 									<span class="glyphicon glyphicon-info-sign"/>
 									<strong>Notice:</strong> Content is required.</div>
 								<div>
