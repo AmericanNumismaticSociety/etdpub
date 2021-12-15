@@ -22,6 +22,7 @@
 					<xforms:group ref="$binding">
 						<xforms:group ref=".[string(mods:namePart)]">
 							<h4>Creator</h4>
+														
 							<xforms:group ref=".[count(mods:nameIdentifier[@type='orcid']) = 0]">
 								<xforms:trigger appearance="minimal">
 									<xforms:label>
@@ -29,6 +30,7 @@
 									<xforms:insert origin="instance('nameIdentifier-template')" context="." nodeset="./child::node()[last()]" ev:event="DOMActivate"></xforms:insert>
 								</xforms:trigger>
 							</xforms:group>
+							
 							<xforms:group ref=".[count(parent::node()/mods:name) &gt; 1]">
 								<xforms:trigger appearance="minimal">
 									<xforms:action ev:event="DOMActivate">
@@ -37,7 +39,7 @@
 										<xforms:setvalue ref="instance('temp')/@href"/>
 										<xforms:delete context="instance('feed')/*"/>
 										<xforms:setvalue ref="instance('search-query')"/>
-										<xforms:delete nodeset="$binding/parent::node()"/>
+										<xforms:delete nodeset="$binding"/>
 									</xforms:action>
 									<xforms:label>
 										<span class="glyphicon glyphicon-remove"/>
@@ -48,13 +50,15 @@
 								<xforms:output ref="mods:namePart">
 									<xforms:label>Name</xforms:label>
 								</xforms:output>
-								<xforms:trigger appearance="minimal">
-									<xforms:label>
-										<span class="glyphicon glyphicon-new-window"/>
-									</xforms:label>
-									<xforms:hint value="@valueURI"/>
-									<xforms:load ev:event="DOMActivate" show="new" ref="@valueURI"/>
-								</xforms:trigger>
+								<xforms:group ref="@valueURI">
+									<xforms:trigger appearance="minimal">
+										<xforms:label>
+											<span class="glyphicon glyphicon-new-window"/>
+										</xforms:label>
+										<xforms:hint value="@valueURI"/>
+										<xforms:load ev:event="DOMActivate" show="new" ref="@valueURI"/>
+									</xforms:trigger>
+								</xforms:group>								
 							</div>
 						</xforms:group>
 						<xforms:group ref=".[not(string(mods:namePart))]">
@@ -203,6 +207,7 @@
 											</xforms:group>
 										</xforms:case>
 										<xforms:case id="local-search">
+											<p class="text-info">Be sure to conform to Anglo-American Cataloging Rules, e.g., <code>Last Name, First Name</code></p>
 											<div>
 												<xforms:input ref="instance('temp')">
 													<xforms:label>Name</xforms:label>

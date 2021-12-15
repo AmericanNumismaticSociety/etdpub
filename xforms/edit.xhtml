@@ -619,6 +619,10 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 										<xforms:action ev:event="DOMActivate">
 											<xforms:insert origin="instance('name-template')" context="." nodeset="./child::node()[last()]" position="after"></xforms:insert>
 											<xforms:insert origin="instance('role-template')" context="mods:name[last()]" nodeset="./child::node()[last()]"></xforms:insert>
+											
+											<!-- insert the university of the MODS genre is ETD -->
+											<xforms:insert origin="instance('affiliation-template')" context="mods:name[last()]" nodeset="./child::node()[last()]" 
+												if="ancestor::mods:mods/mods:genre/@valueURI = 'http://vocab.getty.edu/aat/300028029'"></xforms:insert>
 										</xforms:action>
 									</xforms:trigger>
 									<xforms:repeat nodeset="mods:name">
