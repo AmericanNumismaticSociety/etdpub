@@ -1,5 +1,5 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ev="http://www.w3.org/2001/xml-events"
-	xmlns:xxforms="http://orbeon.org/oxf/xml/xforms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:mods="http://www.loc.gov/mods/v3"
+	xmlns:xxf="http://orbeon.org/oxf/xml/xforms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:mods="http://www.loc.gov/mods/v3"
 	xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub"
 	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:exist="http://exist.sourceforge.net/NS/exist">
 	<head>
@@ -15,7 +15,7 @@
 
 		<!-- model -->
 		<xforms:model>
-			<xforms:instance id="doc" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="doc" xxf:exclude-result-prefixes="#all">
 				<modsCollection xmlns="http://www.loc.gov/mods/v3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 					xsi:schemaLocation="http://www.loc.gov/mods/v3      http://www.loc.gov/standards/mods/mods.xsd">
 					<mods version="3.6" xmlns="http://www.loc.gov/mods/v3">
@@ -64,7 +64,7 @@
 				<config xmlns=""></config>
 			</xforms:instance>
 
-			<xforms:instance id="control-instance" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="control-instance" xxf:exclude-result-prefixes="#all">
 				<controls xmlns="">
 					<status></status>
 					<id></id>
@@ -81,71 +81,71 @@
 			<!-- MODS templates -->
 
 			<!-- names -->
-			<xforms:instance id="affiliation-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="affiliation-template" xxf:exclude-result-prefixes="#all">
 				<affiliation xmlns="http://www.loc.gov/mods/v3"></affiliation>
 			</xforms:instance>
 
-			<xforms:instance id="role-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="role-template" xxf:exclude-result-prefixes="#all">
 				<role xmlns="http://www.loc.gov/mods/v3">
 					<roleTerm type="text"></roleTerm>
 					<roleTerm type="code" authority="marcrelator"></roleTerm>
 				</role>
 			</xforms:instance>
 
-			<xforms:instance id="name-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="name-template" xxf:exclude-result-prefixes="#all">
 				<name authority="" valueURI="" xmlns="http://www.loc.gov/mods/v3">
 					<namePart></namePart>
 				</name>
 			</xforms:instance>
 
 			<!-- subjects -->
-			<xforms:instance id="subject-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="subject-template" xxf:exclude-result-prefixes="#all">
 				<subject xmlns="http://www.loc.gov/mods/v3"></subject>
 			</xforms:instance>
 
-			<xforms:instance id="geographic-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="geographic-template" xxf:exclude-result-prefixes="#all">
 				<geographic authority="" valueURI="" xmlns="http://www.loc.gov/mods/v3"></geographic>
 			</xforms:instance>
 
-			<xforms:instance id="temporal-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="temporal-template" xxf:exclude-result-prefixes="#all">
 				<temporal authority="aat" valueURI="" xmlns="http://www.loc.gov/mods/v3"></temporal>
 			</xforms:instance>
 
-			<xforms:instance id="topic-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="topic-template" xxf:exclude-result-prefixes="#all">
 				<topic authority="lcsh" valueURI="" xmlns="http://www.loc.gov/mods/v3"></topic>
 			</xforms:instance>
 
 
 			<!-- originInfo -->
-			<xforms:instance id="place-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="place-template" xxf:exclude-result-prefixes="#all">
 				<place xmlns="http://www.loc.gov/mods/v3">
 					<placeTerm authority="" valueURI=""></placeTerm>
 				</place>
 			</xforms:instance>
 
-			<xforms:instance id="publisher-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="publisher-template" xxf:exclude-result-prefixes="#all">
 				<publisher xmlns="http://www.loc.gov/mods/v3"></publisher>
 			</xforms:instance>
 
-			<xforms:instance id="frequency-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="frequency-template" xxf:exclude-result-prefixes="#all">
 				<frequency valueURI="" authority="marcfrequency" xmlns="http://www.loc.gov/mods/v3"></frequency>
 			</xforms:instance>
 
-			<xforms:instance id="issuance-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="issuance-template" xxf:exclude-result-prefixes="#all">
 				<issuance xmlns="http://www.loc.gov/mods/v3"></issuance>
 			</xforms:instance>
 
-			<xforms:instance id="date-start-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="date-start-template" xxf:exclude-result-prefixes="#all">
 				<dateIssued point="start" encoding="marc" xmlns="http://www.loc.gov/mods/v3"></dateIssued>
 			</xforms:instance>
 
-			<xforms:instance id="date-end-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="date-end-template" xxf:exclude-result-prefixes="#all">
 				<dateIssued point="end" encoding="marc" xmlns="http://www.loc.gov/mods/v3"></dateIssued>
 			</xforms:instance>
 
 			<!-- the relatedItem template to link a journal article to a parent journal -->
 
-			<xforms:instance id="host-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="host-template" xxf:exclude-result-prefixes="#all">
 				<relatedItem type="host" xmlns="http://www.loc.gov/mods/v3">
 					<titleInfo>
 						<title></title>
@@ -171,7 +171,7 @@
 			</xforms:instance>
 
 			<!-- misc -->
-			<xforms:instance id="subTitle-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="subTitle-template" xxf:exclude-result-prefixes="#all">
 				<subTitle xmlns="http://www.loc.gov/mods/v3"></subTitle>
 			</xforms:instance>
 
@@ -195,7 +195,7 @@
 				<xi:include href="instances/templates.xml"></xi:include>
 			</xforms:instance>
 
-			<xforms:instance id="frequencies" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="frequencies" xxf:exclude-result-prefixes="#all">
 				<xi:include href="instances/frequencies.xml"></xi:include>
 			</xforms:instance>
 			
@@ -242,11 +242,11 @@
 			</xforms:instance>
 
 			<!-- Solr instances -->
-			<xforms:instance id="addIndex" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="addIndex" xxf:exclude-result-prefixes="#all">
 				<add xmlns=""></add>
 			</xforms:instance>
 
-			<xforms:instance id="sendCommit" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="sendCommit" xxf:exclude-result-prefixes="#all">
 				<commit></commit>
 			</xforms:instance>
 
@@ -278,7 +278,7 @@
 			</xforms:instance>
 			
 			<!-- LOD CRUD instances -->
-			<xforms:instance id="rdf" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="rdf" xxf:exclude-result-prefixes="#all">
 				<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
 			</xforms:instance>
 			
@@ -349,12 +349,12 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			<!-- ************************* SUBMISSIONS ************************** -->
 			<!-- *** eXist *** -->
 			<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance" instance="config"
-				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load config file in eXist.</xforms:message>
 			</xforms:submission>
 
 			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml" replace="instance"
-				instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				instance="doc" xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load MODS record from eXist.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/new" value="false()"></xforms:setvalue>
@@ -363,7 +363,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			</xforms:submission>
 
 			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/records/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.xml"
-				method="put" replace="none" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				method="put" replace="none" xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error Saving Documents. Be sure all required inputs are filled in.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Successfully saved MODS record to eXist.</xforms:setvalue>
@@ -419,7 +419,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			
 			<!--***** XQuery *****-->
 			<xforms:submission id="xquery-collection" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance" instance="xquery-result"
-				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error querying eXist database.</xforms:message>
 			</xforms:submission>
 			
@@ -449,11 +449,11 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 				<xforms:send submission="load-config"></xforms:send>
 
 				<!-- set template -->
-				<xforms:action if="string(xxforms:get-request-parameter('template'))">
-					<xforms:var name="template" select="xxforms:get-request-parameter('template')"></xforms:var>
+				<xforms:action if="string(xxf:get-request-parameter('template'))">
+					<xforms:var name="template" select="xxf:get-request-parameter('template')"></xforms:var>
 					<!-- validate template -->
 					<xforms:action if="instance('templates')/template[@id=$template]">
-						<xforms:setvalue ref="instance('control-instance')/template" value="string(xxforms:get-request-parameter('template'))"></xforms:setvalue>
+						<xforms:setvalue ref="instance('control-instance')/template" value="string(xxf:get-request-parameter('template'))"></xforms:setvalue>
 						<!-- set predetermined values or add elements based on the template -->
 						<xforms:setvalue ref="instance('doc')/mods:mods/mods:genre" value="instance('templates')/template[@id=$template]"></xforms:setvalue>
 						<xforms:setvalue ref="instance('doc')/mods:mods/mods:genre/@valueURI" value="instance('templates')/template[@id=$template]/@uri"></xforms:setvalue>
@@ -492,7 +492,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 							<!-- execute XQuery to gather list of available journals -->
 							<xforms:setvalue ref="instance('eXist-xquery')/exist:text" value="instance('xqueries')/query[@id='get-journals']"></xforms:setvalue>
 							<xforms:send submission="xquery-collection"></xforms:send>
-							<xforms:action ev:event="xforms-submit-done" xxforms:iterate="instance('xquery-result')//record">
+							<xforms:action ev:event="xforms-submit-done" xxf:iterate="instance('xquery-result')//record">
 								<xforms:var name="id" select="id"/>
 								<xforms:var name="title" select="title"/>
 								
@@ -506,8 +506,8 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 					</xforms:action>
 				</xforms:action>
 				<!-- load id if parameter is passed -->
-				<xforms:action if="string(xxforms:get-request-parameter('id'))">
-					<xforms:setvalue ref="instance('control-instance')/id" value="xxforms:get-request-parameter('id')"></xforms:setvalue>
+				<xforms:action if="string(xxf:get-request-parameter('id'))">
+					<xforms:setvalue ref="instance('control-instance')/id" value="xxf:get-request-parameter('id')"></xforms:setvalue>
 					<xforms:send submission="load-doc"></xforms:send>
 				</xforms:action>
 			</xforms:action>
@@ -884,7 +884,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 												<xforms:upload ref="instance('file')">
 													<xforms:filename ref="@filename"></xforms:filename>
 													<xforms:mediatype ref="@mediatype"></xforms:mediatype>
-													<xxforms:size ref="@size"></xxforms:size>
+													<xxf:size ref="@size"></xxf:size>
 												</xforms:upload>
 												<br />
 												<xforms:trigger>
@@ -898,7 +898,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 															<xforms:setvalue ref="instance('serializer-config')/url"
 																value="concat('oxf:/apps/etdpub/docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
 															<xforms:insert nodeset="instance('dump')"
-																origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/move-file.xpl', ('generator-config', 'serializer-config'), (instance('generator-config'), instance('serializer-config')), 'data')"></xforms:insert>
+																origin="xxf:call-xpl('oxf:/apps/etdpub/xpl/xforms/move-file.xpl', ('generator-config', 'serializer-config'), (instance('generator-config'), instance('serializer-config')), 'data')"></xforms:insert>
 															<!-- set the data within the MODS document -->
 															<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url"
 																value="concat('docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
@@ -919,7 +919,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 											<xforms:trigger>
 												<xforms:label>Validate</xforms:label>
 												<xforms:action ev:event="DOMActivate">
-													<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType" value="xxforms:get-request-header('User-Agent')"/>
+													<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType" value="xxf:get-request-header('User-Agent')"/>
 												</xforms:action>
 											</xforms:trigger>-->
 											<xforms:input ref="mods:location/mods:url">
@@ -993,7 +993,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 				<xforms:action ev:event="DOMActivate">
 					<!-- delete the file -->
 					<xforms:setvalue ref="instance('delete-config')/delete/url" value="concat('oxf:/apps/etdpub/', instance('doc')/mods:mods/mods:location/mods:url)"></xforms:setvalue>
-					<xforms:insert nodeset="instance('dump')" origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-document.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
+					<xforms:insert nodeset="instance('dump')" origin="xxf:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-document.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
 					<!-- blank the URL and mime type -->
 					<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url"></xforms:setvalue>
 					<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType"></xforms:setvalue>

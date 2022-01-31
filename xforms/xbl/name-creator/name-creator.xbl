@@ -4,7 +4,7 @@
 -->
 
 <xbl:xbl xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events"
-	xmlns:xxforms="http://orbeon.org/oxf/xml/xforms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+	xmlns:xxf="http://orbeon.org/oxf/xml/xforms" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
 	xmlns:xbl="http://www.w3.org/ns/xbl" xmlns:xxbl="http://orbeon.org/oxf/xml/xbl" xmlns:opensearch="http://a9.com/-/spec/opensearch/1.1/"
 	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" xmlns:atom="http://www.w3.org/2005/Atom"
 	xmlns:mods="http://www.loc.gov/mods/v3">
@@ -14,7 +14,7 @@
 				<xbl:content includes="xforms|label,xforms|help,xforms|hint,xforms|alert"/>
 				<xforms:group xxbl:scope="inner">
 					<xforms:var name="binding" as="node()?">
-						<xxforms:sequence select="." xxbl:scope="outer"/>
+						<xxf:sequence select="." xxbl:scope="outer"/>
 					</xforms:var>
 					<xforms:action ev:event="xforms-enabled" ev:target="#observer">
 						<xforms:send submission="load-config" if="not(string($binding/mods:namePart))"/>
@@ -311,19 +311,19 @@
 						</xforms:instance>
 
 						<!-- interface type radio button -->
-						<xforms:instance id="interfaces" xxforms:exclude-result-prefixes="#all">
+						<xforms:instance id="interfaces" xxf:exclude-result-prefixes="#all">
 							<interfaces xmlns="">								
 								<interface name="VIAF">viaf</interface>
 								<interface name="Local Vocabulary">local</interface>
 							</interfaces>
 						</xforms:instance>
 
-						<xforms:instance id="interface-type" xxforms:exclude-result-prefixes="#all">
+						<xforms:instance id="interface-type" xxf:exclude-result-prefixes="#all">
 							<interface xmlns=""/>
 						</xforms:instance>
 						
 						<!-- MODS nameIdentifier template -->
-						<xforms:instance id="nameIdentifier-template" xxforms:exclude-result-prefixes="#all">
+						<xforms:instance id="nameIdentifier-template" xxf:exclude-result-prefixes="#all">
 							<nameIdentifier type="orcid" xmlns="http://www.loc.gov/mods/v3"/>
 						</xforms:instance>
 
@@ -353,7 +353,7 @@
 						</xforms:submission>
 
 						<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance"
-							instance="config" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+							instance="config" xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 							<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load config file in eXist.</xforms:message>
 							<!-- set insert xEAC interface and set as default if there is a xEAC URL -->
 							<xforms:action ev:event="xforms-submit-done">

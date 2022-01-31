@@ -5,7 +5,7 @@
     Function: Admin panel for ETDPub
 -->
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:ev="http://www.w3.org/2001/xml-events"
-	xmlns:xxforms="http://orbeon.org/oxf/xml/xforms" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
+	xmlns:xxf="http://orbeon.org/oxf/xml/xforms" xmlns:xi="http://www.w3.org/2001/XInclude" xmlns:fr="http://orbeon.org/oxf/xml/form-runner"
 	xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:exist="http://exist.sourceforge.net/NS/exist"
 	xmlns:mods="http://www.loc.gov/mods/v3" xmlns:tei="http://www.tei-c.org/ns/1.0" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
 	<head>
@@ -20,7 +20,7 @@
 		<link rel="stylesheet" href="/apps/etdpub/xforms/css/style.css" />
 
 		<xforms:model>
-			<xforms:instance id="control-instance" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="control-instance" xxf:exclude-result-prefixes="#all">
 				<controls xmlns="">
 					<id></id>
 					<media_url></media_url>
@@ -37,20 +37,20 @@
 			</xforms:instance>
 
 			<!-- exist URL is stored in an XML file -->
-			<xforms:instance id="exist-config" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="exist-config" xxf:exclude-result-prefixes="#all">
 				<xi:include href="../exist-config.xml"></xi:include>
 			</xforms:instance>
 
 			<!-- crossref authentication stored in XML file -->
-			<xforms:instance id="crossref-config" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="crossref-config" xxf:exclude-result-prefixes="#all">
 				<xi:include href="../crossref-config.xml"></xi:include>
 			</xforms:instance>
 
-			<xforms:instance id="config" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="config" xxf:exclude-result-prefixes="#all">
 				<config></config>
 			</xforms:instance>
 
-			<xforms:instance id="config-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="config-template" xxf:exclude-result-prefixes="#all">
 				<config version="2017-08-01">
 					<title>etdpub</title>
 					<url>http://localhost:8080/orbeon/etdpub/</url>
@@ -80,7 +80,7 @@
 				</config>
 			</xforms:instance>
 
-			<xforms:instance id="doc" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="doc" xxf:exclude-result-prefixes="#all">
 				<xml xmlns=""></xml>
 			</xforms:instance>
 
@@ -179,16 +179,16 @@
 			</xforms:instance>
 
 			<!-- ***** Solr instances ***** -->
-			<xforms:instance id="addIndex" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="addIndex" xxf:exclude-result-prefixes="#all">
 				<add xmlns=""></add>
 			</xforms:instance>
 
-			<xforms:instance id="sendCommit" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="sendCommit" xxf:exclude-result-prefixes="#all">
 				<commit></commit>
 			</xforms:instance>
 
 			<!-- delete from Solr -->
-			<xforms:instance id="deleteId" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="deleteId" xxf:exclude-result-prefixes="#all">
 				<delete xmlns="">
 					<query></query>
 				</delete>
@@ -199,11 +199,11 @@
 			</xforms:instance>
 
 			<!-- DOI/Crossref templates -->
-			<xforms:instance id="crossref" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="crossref" xxf:exclude-result-prefixes="#all">
 				<doi_batch xmlns=""></doi_batch>
 			</xforms:instance>
 
-			<xforms:instance id="crossref-form-data" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="crossref-form-data" xxf:exclude-result-prefixes="#all">
 				<formData xmlns="">
 					<operation>doMDUpload</operation>
 					<login_id></login_id>
@@ -222,20 +222,20 @@
 				</config>
 			</xforms:instance>
 
-			<xforms:instance id="sourceDesc-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="sourceDesc-template" xxf:exclude-result-prefixes="#all">
 				<sourceDesc xmlns="http://www.tei-c.org/ns/1.0"></sourceDesc>
 			</xforms:instance>
 
-			<xforms:instance id="tei-doi-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="tei-doi-template" xxf:exclude-result-prefixes="#all">
 				<idno type="DOI" xmlns="http://www.tei-c.org/ns/1.0"></idno>
 			</xforms:instance>
 
-			<xforms:instance id="mods-doi-template" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="mods-doi-template" xxf:exclude-result-prefixes="#all">
 				<identifier type="DOI" xmlns="http://www.loc.gov/mods/v3"></identifier>
 			</xforms:instance>
 
 			<!-- LOD CRUD instances -->
-			<xforms:instance id="rdf" xxforms:exclude-result-prefixes="#all">
+			<xforms:instance id="rdf" xxf:exclude-result-prefixes="#all">
 				<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"></rdf:RDF>
 			</xforms:instance>
 
@@ -278,7 +278,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 
 			<!-- ************* SUBMISSIONS **************** -->
 			<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance" instance="config"
-				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('eXist-xquery')/exist:text" value="instance('xqueries')/query[@id='get-objects']"></xforms:setvalue>
 					<xforms:send submission="xquery-pagination"></xforms:send>
@@ -289,11 +289,11 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			<!--***************** XQUERY ******************-->
 			<!-- xquery for getting and processing query results into pages of items -->
 			<xforms:submission id="xquery-pagination" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance"
-				instance="pagination-result" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				instance="pagination-result" xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error querying eXist database.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<!--iterate through docs, check for publication -->
-					<xforms:action xxforms:iterate="instance('pagination-result')//record">
+					<xforms:action xxf:iterate="instance('pagination-result')//record">
 						<xforms:var name="position" select="position()"></xforms:var>
 						<xforms:setvalue ref="instance('control-instance')/id" value="context()/id"></xforms:setvalue>
 						<xforms:send submission="query-solr-for-publication"></xforms:send>
@@ -302,13 +302,13 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			</xforms:submission>
 
 			<xforms:submission id="xquery-collection" ref="instance('eXist-xquery')" action="{instance('exist-config')/url}etdpub/records" method="post" replace="instance"
-				instance="xquery-result" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				instance="xquery-result" xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error querying eXist database.</xforms:message>
 			</xforms:submission>
 
 			<!--***************** EXIST-DB ******************-->
 			<xforms:submission id="load-doc" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml"
-				replace="instance" instance="doc" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				replace="instance" instance="doc" xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load MODS or TEI record from eXist.</xforms:message>
 
 				<!-- after load, insert the relevant template DOI template in either TEI or MODS -->
@@ -332,7 +332,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			</xforms:submission>
 
 			<xforms:submission id="save-doc" ref="instance('doc')" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml" method="put"
-				replace="none" xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				replace="none" xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error Saving Document</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
 					<xforms:setvalue ref="instance('control-instance')/status">Successfully saved record to eXist.</xforms:setvalue>
@@ -358,7 +358,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			</xforms:submission>
 
 			<xforms:submission id="delete-doc" action="{instance('exist-config')/url}etdpub/records/{instance('control-instance')/id}.xml" method="delete" replace="none"
-				xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+				xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 				<xforms:setvalue ev:event="xforms-submit-done" ref="instance('control-instance')/status">MODS/TEI document successfully deleted.</xforms:setvalue>
 				<xforms:message ev:event="xforms-submit-error" level="modal">Error deleting document from eXist database.</xforms:message>
 			</xforms:submission>
@@ -378,7 +378,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 					<!-- serialize the instance XML into a file in /tmp -->
 					<xforms:setvalue ref="instance('save-crossref-config')/url" value="concat('file:///tmp/',  instance('control-instance')/id, '.xml')"></xforms:setvalue>
 					<xforms:insert nodeset="instance('dump')"
-						origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/save-crossref.xpl', ('doc', 'configuration'), (instance('crossref'), instance('save-crossref-config')), 'data')"></xforms:insert>
+						origin="xxf:call-xpl('oxf:/apps/etdpub/xpl/xforms/save-crossref.xpl', ('doc', 'configuration'), (instance('crossref'), instance('save-crossref-config')), 'data')"></xforms:insert>
 					
 					<!-- post data to Crossref API -->
 					<xforms:send submission="post-crossref"></xforms:send>
@@ -510,7 +510,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 						</ul>
 						<h3>Create New Documents</h3>
 						<ul>
-							<xforms:repeat nodeset="xxforms:sort(instance('templates')/template, @label, 'text', 'ascending')">
+							<xforms:repeat nodeset="xxf:sort(instance('templates')/template, @label, 'text', 'ascending')">
 								<li><a href="edit/?template={@id}"><span class="glyphicon glyphicon-file"></span><xforms:output ref="@label"></xforms:output></a></li>
 							</xforms:repeat>
 						</ul>
@@ -713,7 +713,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 								<!-- first delete the uploaded media -->
 								<xforms:setvalue ref="instance('delete-config')/delete/url" value="concat('oxf:/apps/etdpub/', instance('control-instance')/media_url)"></xforms:setvalue>
 								<xforms:insert nodeset="instance('dump')"
-									origin="xxforms:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-document.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
+									origin="xxf:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-document.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
 								<!-- delete the doc from eXist and Solr -->
 								<xforms:send submission="delete-doc"></xforms:send>
 								<xforms:setvalue ref="instance('deleteId')/query" value="concat('id:&#x022;', instance('control-instance')/id, '&#x022;')"></xforms:setvalue>
@@ -746,7 +746,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 								<xforms:setvalue ref="instance('eXist-xquery')/exist:text" value="instance('xqueries')/query[@id='get-all']"></xforms:setvalue>
 								<xforms:send submission="xquery-collection"></xforms:send>
 								
-								<xforms:action ev:event="xforms-submit-done" xxforms:iterate="instance('xquery-result')//record">
+								<xforms:action ev:event="xforms-submit-done" xxf:iterate="instance('xquery-result')//record">
 									<!-- set variables -->
 									<xforms:var name="id" select="context()/id"></xforms:var>
 									<xforms:var name="media_url" select="context()/media_url"></xforms:var>
@@ -795,7 +795,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 					<!--<xforms:upload ref="instance('crossref-form-data')/fname">
 						<xforms:filename ref="@filename"/>
 						<xforms:mediatype ref="@mediatype"/>
-						<xxforms:size ref="@size"/>
+						<xxf:size ref="@size"/>
 					</xforms:upload>
 					
 					<xforms:trigger>

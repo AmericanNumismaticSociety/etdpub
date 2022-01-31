@@ -3,7 +3,7 @@
 	function: MODS subject/geographic: Geonames, Getty TGN, Pleiades Lookups, Nomisma
 -->
 
-<xbl:xbl xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xxforms="http://orbeon.org/oxf/xml/xforms"
+<xbl:xbl xmlns="http://www.w3.org/1999/xhtml" xmlns:xforms="http://www.w3.org/2002/xforms" xmlns:ev="http://www.w3.org/2001/xml-events" xmlns:xxf="http://orbeon.org/oxf/xml/xforms"
 	xmlns:fr="http://orbeon.org/oxf/xml/form-runner" xmlns:xbl="http://www.w3.org/ns/xbl" xmlns:xxbl="http://orbeon.org/oxf/xml/xbl" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 	xmlns:oxf="http://www.orbeon.com/oxf/processors" xmlns:etdpub="https://github.com/AmericanNumismaticSociety/etdpub" xmlns:rss="http://purl.org/rss/1.0/" xmlns:atom="http://www.w3.org/2005/Atom"
 	xmlns:res="http://www.w3.org/2005/sparql-results#">
@@ -13,7 +13,7 @@
 				<xbl:content includes="xforms|label,xforms|help,xforms|hint,xforms|alert"/>
 				<xforms:group xxbl:scope="inner">
 					<xforms:var name="binding" as="node()?">
-						<xxforms:sequence select="." xxbl:scope="outer"/>
+						<xxf:sequence select="." xxbl:scope="outer"/>
 					</xforms:var>
 					<xforms:action ev:event="xforms-enabled" ev:target="#observer">
 						<xforms:setvalue ref="instance('interface-type')">geonames</xforms:setvalue>
@@ -353,7 +353,7 @@ luc:term "SEARCH_QUERY"} LIMIT 20]]>
 
 						<!-- ********* SUBMISSIONS ***********-->
 						<xforms:submission id="load-config" serialization="none" method="get" action="{instance('exist-config')/url}etdpub/config.xml" replace="instance" instance="config"
-							xxforms:username="{instance('exist-config')/username}" xxforms:password="{instance('exist-config')/password}">
+							xxf:username="{instance('exist-config')/username}" xxf:password="{instance('exist-config')/password}">
 							<xforms:message ev:event="xforms-submit-error" level="modal">Unable to load config file in eXist.</xforms:message>
 						</xforms:submission>
 
@@ -364,7 +364,7 @@ luc:term "SEARCH_QUERY"} LIMIT 20]]>
 							<xforms:action ev:event="xforms-submit-done">
 								<xforms:message if="number(instance('geoname-temp')/totalResultsCount) = 0" level="modal">No results found for query.</xforms:message>
 								<!--<xforms:insert if="number(instance('geoname-temp')/totalResultsCount) &gt; 0" context="instance('geonames')" origin="instance('geoname-temp')"/>-->
-								<xforms:action xxforms:iterate="instance('geoname-temp')//geoname">
+								<xforms:action xxf:iterate="instance('geoname-temp')//geoname">
 									<xforms:var name="countryCode" select="countryCode"/>
 									<xforms:var name="countryName" select="countryName"/>
 									<xforms:var name="name" select="name"/>
