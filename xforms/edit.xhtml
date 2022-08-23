@@ -896,7 +896,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 															<xforms:setvalue ref="instance('generator-config')/url" value="instance('file')"></xforms:setvalue>
 															<xforms:setvalue ref="instance('generator-config')/content-type" value="instance('file')/@mediatype"></xforms:setvalue>
 															<xforms:setvalue ref="instance('serializer-config')/url"
-																value="concat('oxf:/apps/etdpub/docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
+																value="concat('file:/usr/local/projects/etdpub/docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
 															<xforms:insert nodeset="instance('dump')"
 																origin="xxf:call-xpl('oxf:/apps/etdpub/xpl/xforms/move-file.xpl', ('generator-config', 'serializer-config'), (instance('generator-config'), instance('serializer-config')), 'data')"></xforms:insert>
 															<!-- set the data within the MODS document -->
