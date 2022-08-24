@@ -901,7 +901,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 																origin="xxf:call-xpl('oxf:/apps/etdpub/xpl/xforms/move-file.xpl', ('generator-config', 'serializer-config'), (instance('generator-config'), instance('serializer-config')), 'data')"></xforms:insert>
 															<!-- set the data within the MODS document -->
 															<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url"
-																value="concat('docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
+																value="concat(instance('config')/url, 'docs/', replace(instance('file')/@filename, ' ', '_'))"></xforms:setvalue>
 															<xforms:setvalue ref="instance('doc')/mods:mods/mods:physicalDescription/mods:internetMediaType" value="instance('file')/@mediatype"
 															></xforms:setvalue>
 														</xforms:action>
@@ -991,8 +991,10 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			<fr:positive-choice>
 				<fr:label>Yes</fr:label>
 				<xforms:action ev:event="DOMActivate">
+					<xforms:var name="filename" select="tokenize(instance('doc')/mods:mods/mods:location/mods:url, '/')[last()]"/>
+					
 					<!-- delete the file -->
-					<xforms:setvalue ref="instance('delete-config')/delete/url" value="concat('oxf:/apps/etdpub/', instance('doc')/mods:mods/mods:location/mods:url)"></xforms:setvalue>
+					<xforms:setvalue ref="instance('delete-config')/delete/url" value="concat('file:/usr/local/projects/etdpub/docs/', $filename)"></xforms:setvalue>
 					<xforms:insert nodeset="instance('dump')" origin="xxf:call-xpl('oxf:/apps/etdpub/xpl/xforms/delete-document.xpl', 'configuration', instance('delete-config'), 'data')"></xforms:insert>
 					<!-- blank the URL and mime type -->
 					<xforms:setvalue ref="instance('doc')/mods:mods/mods:location/mods:url"></xforms:setvalue>
