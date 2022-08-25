@@ -424,7 +424,7 @@ UNION {<URI> ?p ?o . ?s ?p ?o . FILTER (?s = <URI>) }
 			</xforms:submission>
 			
 			<!-- ************* SPARQL SUBMISSIONS **********************-->
-			<xforms:submission id="get-rdf" serialization="none" method="get" action="/etdpub/id/{instance('control-instance')/id}.rdf" replace="instance"
+			<xforms:submission id="get-rdf" serialization="none" method="get" action="/etdpub/id/{instance('doc')/mods:mods/mods:recordInfo/mods:recordIdentifier}.rdf" replace="instance"
 				instance="rdf">
 				<xforms:message ev:event="xforms-submit-error" level="modal">Unable to get RDF/XML serialization.</xforms:message>
 				<xforms:action ev:event="xforms-submit-done">
