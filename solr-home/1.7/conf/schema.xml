@@ -130,7 +130,7 @@
   <field name="oai_id" type="string" indexed="true" stored="true" />
   <field name="language" type="string" indexed="true" stored="true" multiValued="true"/>
   <field name="abstract" type="text_general" indexed="true" stored="true" />
-  <field name="timestamp" type="date" indexed="true" stored="true"/>
+  <field name="timestamp" type="pdate" indexed="true" stored="true"/>
   
   <!-- parent journal fields -->
   <field name="volume" type="string" indexed="true" stored="true"/>
